@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="750.0" prefWidth="1000.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111" fx:controller="absoluteschedule.View_Controller.MainViewController">
+    <stylesheets>
+        <URL value="@mainview.css" />
+    </stylesheets>
+   <children>
+      <AnchorPane prefHeight="750.0" prefWidth="350.0">
+         <children>
+            <AnchorPane prefHeight="100.0" prefWidth="350.0">
+               <children>
+                  <Separator layoutX="350.0" orientation="VERTICAL" prefHeight="100.0" />
+                  <Separator layoutY="100.0" prefWidth="350.0" />
+                  <Label fx:id="MainWelcomeLabel" layoutX="20.0" layoutY="36.0" text="Welcome, Name!">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+            </AnchorPane>
+            <Separator layoutX="350.0" layoutY="100.0" orientation="VERTICAL" prefHeight="650.0" />
+            <VBox alignment="CENTER" layoutY="100.0" prefHeight="420.0" prefWidth="350.0">
+               <children>
+                  <Label fx:id="MainTodaysApptCountLabel" text="# of appointments today:">
+                     <VBox.margin>
+                        <Insets top="50.0" />
+                     </VBox.margin>
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Label>
+                  <Separator prefWidth="200.0">
+                     <VBox.margin>
+                        <Insets top="50.0" />
+                     </VBox.margin>
+                  </Separator>
+                  <Label fx:id="MainWeekApptCountLabel" text="# of appointments this week:">
+                     <VBox.margin>
+                        <Insets top="50.0" />
+                     </VBox.margin>
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Label>
+                  <Separator prefWidth="200.0">
+                     <VBox.margin>
+                        <Insets top="50.0" />
+                     </VBox.margin>
+                  </Separator>
+                  <Label fx:id="MainMonthApptCountLabel" text="# of appointments this month:">
+                     <padding>
+                        <Insets top="20.0" />
+                     </padding>
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets top="50.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Separator prefWidth="200.0">
+                     <VBox.margin>
+                        <Insets top="50.0" />
+                     </VBox.margin>
+                  </Separator>
+               </children>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+            </VBox>
+            <VBox alignment="CENTER" layoutY="520.0" prefHeight="230.0" prefWidth="350.0">
+               <children>
+                  <Button fx:id="MainCalendarButton" mnemonicParsing="false" onAction="#MainCalendarClicked" text="Calendar">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
+                  </Button>
+                  <Button fx:id="MainCustomerButton" mnemonicParsing="false" onAction="#MainCustomerClicked" text="Customers">
+                     <VBox.margin>
+                        <Insets bottom="20.0" />
+                     </VBox.margin>
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="MainReportButton" mnemonicParsing="false" onAction="#MainReportClicked" text="Reports">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Button>
+               </children>
+            </VBox>
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="350.0" prefHeight="750.0" prefWidth="650.0">
+         <children>
+            <AnchorPane prefHeight="100.0" prefWidth="650.0">
+               <children>
+                  <HBox alignment="CENTER_RIGHT" layoutX="-4.0" prefHeight="100.0" prefWidth="654.0">
+                     <children>
+                        <Label alignment="CENTER" text="Today's Appointments">
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                           <padding>
+                              <Insets right="20.0" />
+                           </padding>
+                        </Label>
+                        <Separator orientation="VERTICAL" prefHeight="100.0">
+                           <padding>
+                              <Insets right="20.0" />
+                           </padding>
+                        </Separator>
+                        <Label fx:id="MainDateTimeLabel" text="Today's Date/Time">
+                           <HBox.margin>
+                              <Insets right="20.0" />
+                           </HBox.margin>
+                           <font>
+                              <Font size="24.0" />
+                           </font>
+                        </Label>
+                     </children>
+                  </HBox>
+               </children>
+            </AnchorPane>
+            <Separator layoutY="100.0" prefWidth="650.0" />
+            <HBox alignment="CENTER_RIGHT" layoutY="675.0" prefHeight="75.0" prefWidth="650.0">
+               <children>
+                  <Button fx:id="MainDeleteApptButton" mnemonicParsing="false" onAction="#MainDeleteClicked" text="Delete">
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin>
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="MainEditApptButton" mnemonicParsing="false" onAction="#MainEditClicked" text="Edit">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button fx:id="MainExitButton" mnemonicParsing="false" onAction="#MainExitClicked" text="Exit">
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin>
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Button>
+               </children>
+            </HBox>
+            <Separator layoutY="675.0" prefWidth="650.0" />
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>

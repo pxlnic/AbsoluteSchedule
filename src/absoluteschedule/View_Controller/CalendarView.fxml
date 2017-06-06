@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.net.URL?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111" fx:controller="absoluteschedule.View_Controller.CalendarViewController">
+    <stylesheets>
+        <URL value="@calendarview.css" />
+    </stylesheets>
+   <children>
+      <Label layoutX="252.0" layoutY="154.0" text="Hello nurse!" />
+   </children>
+</AnchorPane>
