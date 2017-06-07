@@ -1,7 +1,13 @@
 /*
  * Empty Stylesheet file.
  */
-
+/*
 .mainFxmlClass {
 
 }
+
+button {
+    -fx-background-color: blue;
+    -fx-color: white;
+}
+*/

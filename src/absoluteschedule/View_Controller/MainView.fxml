@@ -4,13 +4,14 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="750.0" prefWidth="1000.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111" fx:controller="absoluteschedule.View_Controller.MainViewController">
+<AnchorPane id="AnchorPane" prefHeight="750.0" prefWidth="1000.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="absoluteschedule.View_Controller.MainViewController">
     <stylesheets>
         <URL value="@mainview.css" />
     </stylesheets>
@@ -80,7 +81,7 @@
             </VBox>
             <VBox alignment="CENTER" layoutY="520.0" prefHeight="230.0" prefWidth="350.0">
                <children>
-                  <Button fx:id="MainCalendarButton" mnemonicParsing="false" onAction="#MainCalendarClicked" text="Calendar">
+                  <Button fx:id="MainCalendarButton" mnemonicParsing="false" onAction="#MainCalendarClicked" prefWidth="125.0" text="Calendar">
                      <font>
                         <Font size="20.0" />
                      </font>
@@ -88,7 +89,7 @@
                         <Insets bottom="20.0" />
                      </VBox.margin>
                   </Button>
-                  <Button fx:id="MainCustomerButton" mnemonicParsing="false" onAction="#MainCustomerClicked" text="Customers">
+                  <Button fx:id="MainCustomerButton" mnemonicParsing="false" onAction="#MainCustomerClicked" prefWidth="125.0" text="Customers">
                      <VBox.margin>
                         <Insets bottom="20.0" />
                      </VBox.margin>
@@ -96,7 +97,7 @@
                         <Font size="20.0" />
                      </font>
                   </Button>
-                  <Button fx:id="MainReportButton" mnemonicParsing="false" onAction="#MainReportClicked" text="Reports">
+                  <Button fx:id="MainReportButton" mnemonicParsing="false" onAction="#MainReportClicked" prefWidth="125.0" text="Reports">
                      <font>
                         <Font size="20.0" />
                      </font>
@@ -166,6 +167,16 @@
                </children>
             </HBox>
             <Separator layoutY="675.0" prefWidth="650.0" />
+            <ScrollPane layoutY="100.0" prefHeight="575.0" prefWidth="650.0">
+               <content>
+                  <VBox prefHeight="575.0" prefWidth="630.0">
+                     <children>
+                        <HBox prefHeight="100.0" prefWidth="200.0" />
+                        <HBox prefHeight="100.0" prefWidth="200.0" />
+                     </children>
+                  </VBox>
+               </content>
+            </ScrollPane>
          </children>
       </AnchorPane>
    </children>

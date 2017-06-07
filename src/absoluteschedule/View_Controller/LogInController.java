@@ -52,7 +52,7 @@ public class LogInController implements Initializable {
     @FXML void LoginSubmitClicked(ActionEvent event) throws IOException {
         System.out.println("Login clicked");
         
-    //Load Add Parts Screen
+    //Load MainView scene
         Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));
         Scene scene = new Scene(mainView);
         
@@ -68,6 +68,7 @@ public class LogInController implements Initializable {
         window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
         window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
     }
+    
     /**
      * Initializes the controller class.
      */

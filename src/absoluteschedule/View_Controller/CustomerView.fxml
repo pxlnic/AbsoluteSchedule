@@ -1,14 +1,199 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" styleClass="mainFxmlClass" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111" fx:controller="absoluteschedule.View_Controller.CustomerViewController">
+<AnchorPane id="AnchorPane" prefHeight="750.0" prefWidth="1000.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="absoluteschedule.View_Controller.CustomerViewController">
     <stylesheets>
         <URL value="@customerview.css" />
     </stylesheets>
    <children>
-      <Label layoutX="202.0" layoutY="149.0" text="Who dat!?!" />
+      <AnchorPane prefHeight="750.0" prefWidth="350.0">
+         <children>
+            <AnchorPane prefHeight="100.0" prefWidth="350.0">
+               <children>
+                  <Label layoutX="20.0" layoutY="42.0" text="Customers">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Label>
+               </children>
+            </AnchorPane>
+            <AnchorPane layoutY="100.0">
+               <children>
+                  <VBox alignment="CENTER_LEFT" prefHeight="550.0" prefWidth="350.0">
+                     <children>
+                        <Label text="ID">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                           <padding>
+                              <Insets bottom="10.0" />
+                           </padding>
+                           <VBox.margin>
+                              <Insets left="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="CustomerIDField">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label text="Name">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="CustomerNameField">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label text="Address 1">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="CustomerAddress1Field">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label text="Address 2">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="CustomerAddress2Field">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label text="City">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="CustomerCityField">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label text="Postal Code">
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="CustomerPostalCodeField">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <Label text="Active">
+                                 <font>
+                                    <Font size="18.0" />
+                                 </font>
+                                 <HBox.margin>
+                                    <Insets left="10.0" right="20.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <CheckBox fx:id="CustomerActiveCheckbox" mnemonicParsing="false" />
+                           </children>
+                        </HBox>
+                     </children>
+                     <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                     </padding>
+                  </VBox>
+               </children>
+            </AnchorPane>
+            <HBox alignment="CENTER" layoutY="650.0" prefHeight="100.0" prefWidth="350.0">
+               <children>
+                  <Button fx:id="CustomerCancelButton" mnemonicParsing="false" onAction="#CustomerCancelClick" prefWidth="80.0" text="Cancel">
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin>
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="CustomerClearButton" mnemonicParsing="false" onAction="#CustomerClearClick" prefWidth="80.0" text="Clear">
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin>
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Button>
+                  <Button fx:id="CustomerSaveButton" mnemonicParsing="false" onAction="#CustomerSaveClick" prefWidth="80.0" text="Save">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Button>
+               </children>
+            </HBox>
+         </children>
+      </AnchorPane>
+      <AnchorPane layoutX="350.0" prefHeight="750.0" prefWidth="650.0">
+         <children>
+            <AnchorPane prefHeight="100.0" prefWidth="650.0">
+               <children>
+                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="650.0">
+                     <children>
+                        <TextField fx:id="CustomerSearchField" prefHeight="25.0" prefWidth="200.0" promptText="Enter customer name or ID">
+                           <HBox.margin>
+                              <Insets right="20.0" />
+                           </HBox.margin>
+                        </TextField>
+                        <Button fx:id="CustomerSearchButton" mnemonicParsing="false" onAction="#CustomerSearchClick" text="Search">
+                           <HBox.margin>
+                              <Insets right="20.0" />
+                           </HBox.margin>
+                        </Button>
+                        <Button fx:id="CustomerSearchClearButton" mnemonicParsing="false" onAction="#CustomerSearchClearClick" text="Clear" />
+                     </children>
+                  </HBox>
+               </children>
+            </AnchorPane>
+            <TableView fx:id="CustomerTableView" layoutY="100.0" prefHeight="630.0" prefWidth="650.0">
+              <columns>
+                <TableColumn prefWidth="75.0" text="ID" />
+                <TableColumn prefWidth="175.0" text="Name" />
+                  <TableColumn prefWidth="275.0" text="Address" />
+                  <TableColumn prefWidth="125.0" text="Postal Code" />
+              </columns>
+            </TableView>
+         </children>
+         <padding>
+            <Insets right="20.0" />
+         </padding>
+      </AnchorPane>
    </children>
 </AnchorPane>
