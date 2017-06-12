@@ -35,13 +35,10 @@
                      <children>
                         <Label text="ID">
                            <font>
-                              <Font size="18.0" />
+                              <Font size="16.0" />
                            </font>
-                           <padding>
-                              <Insets bottom="10.0" />
-                           </padding>
                            <VBox.margin>
-                              <Insets left="10.0" />
+                              <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                         </Label>
                         <TextField fx:id="CustomerIDField">
@@ -51,10 +48,10 @@
                         </TextField>
                         <Label text="Name">
                            <font>
-                              <Font size="18.0" />
+                              <Font size="16.0" />
                            </font>
                            <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" />
+                              <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                         </Label>
                         <TextField fx:id="CustomerNameField">
@@ -62,12 +59,25 @@
                               <Insets bottom="10.0" />
                            </VBox.margin>
                         </TextField>
-                        <Label text="Address 1">
+                        <Label text="Phone Number">
                            <font>
-                              <Font size="18.0" />
+                              <Font size="16.0" />
                            </font>
                            <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" />
+                              <Insets bottom="3.0" left="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="CustomerPhoneNumberField">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label text="Address 1">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                         </Label>
                         <TextField fx:id="CustomerAddress1Field">
@@ -77,10 +87,10 @@
                         </TextField>
                         <Label text="Address 2">
                            <font>
-                              <Font size="18.0" />
+                              <Font size="16.0" />
                            </font>
                            <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" />
+                              <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                         </Label>
                         <TextField fx:id="CustomerAddress2Field">
@@ -90,10 +100,10 @@
                         </TextField>
                         <Label text="City">
                            <font>
-                              <Font size="18.0" />
+                              <Font size="16.0" />
                            </font>
                            <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" />
+                              <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                         </Label>
                         <TextField fx:id="CustomerCityField">
@@ -101,12 +111,25 @@
                               <Insets bottom="10.0" />
                            </VBox.margin>
                         </TextField>
-                        <Label text="Postal Code">
+                        <Label text="Country">
                            <font>
-                              <Font size="18.0" />
+                              <Font size="16.0" />
                            </font>
                            <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" />
+                              <Insets bottom="3.0" left="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="CustomerCountryField">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </TextField>
+                        <Label text="Postal Code">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                         </Label>
                         <TextField fx:id="CustomerPostalCodeField">
@@ -114,11 +137,11 @@
                               <Insets bottom="10.0" />
                            </VBox.margin>
                         </TextField>
-                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                        <HBox alignment="CENTER_LEFT" prefHeight="25.0" prefWidth="200.0">
                            <children>
                               <Label text="Active">
                                  <font>
-                                    <Font size="18.0" />
+                                    <Font size="16.0" />
                                  </font>
                                  <HBox.margin>
                                     <Insets left="10.0" right="20.0" />
@@ -184,10 +207,10 @@
             </AnchorPane>
             <TableView fx:id="CustomerTableView" layoutY="100.0" prefHeight="630.0" prefWidth="650.0">
               <columns>
-                <TableColumn prefWidth="75.0" text="ID" />
-                <TableColumn prefWidth="175.0" text="Name" />
-                  <TableColumn prefWidth="275.0" text="Address" />
-                  <TableColumn prefWidth="125.0" text="Postal Code" />
+                <TableColumn fx:id="CustomerID" prefWidth="75.0" text="ID" />
+                <TableColumn fx:id="CustomerName" prefWidth="175.0" text="Name" />
+                  <TableColumn fx:id="CustomerAddress" prefWidth="275.0" text="Address" />
+                  <TableColumn fx:id="CustomerPostalCode" prefWidth="125.0" text="Postal Code" />
               </columns>
             </TableView>
          </children>

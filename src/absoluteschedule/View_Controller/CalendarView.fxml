@@ -2,15 +2,22 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
@@ -39,11 +46,11 @@
                               <Insets bottom="10.0" left="10.0" />
                            </VBox.margin>
                         </Label>
-                        <ComboBox prefWidth="150.0">
+                        <DatePicker fx:id="CalendarDatePicker">
                            <VBox.margin>
                               <Insets bottom="10.0" />
                            </VBox.margin>
-                        </ComboBox>
+                        </DatePicker>
                         <Label text="Time">
                            <font>
                               <Font size="18.0" />
@@ -52,11 +59,24 @@
                               <Insets bottom="10.0" left="10.0" />
                            </VBox.margin>
                         </Label>
-                        <ComboBox prefWidth="150.0">
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <ComboBox fx:id="CalendarTimeHourCombo" prefWidth="70.0">
+                                 <HBox.margin>
+                                    <Insets right="10.0" />
+                                 </HBox.margin>
+                              </ComboBox>
+                              <ComboBox fx:id="CalendarTimeMinCombo" prefWidth="70.0">
+                                 <HBox.margin>
+                                    <Insets right="10.0" />
+                                 </HBox.margin>
+                              </ComboBox>
+                              <CheckBox fx:id="CalendaryAllDayCheckbox" mnemonicParsing="false" text="All Day" />
+                           </children>
                            <VBox.margin>
                               <Insets bottom="10.0" />
                            </VBox.margin>
-                        </ComboBox>
+                        </HBox>
                         <Label text="Duration">
                            <font>
                               <Font size="18.0" />
@@ -65,7 +85,7 @@
                               <Insets bottom="10.0" left="10.0" />
                            </VBox.margin>
                         </Label>
-                        <ComboBox prefWidth="150.0">
+                        <ComboBox fx:id="CalendarDurationCombo" prefWidth="150.0">
                            <VBox.margin>
                               <Insets bottom="10.0" />
                            </VBox.margin>
@@ -78,7 +98,20 @@
                               <Insets bottom="10.0" left="10.0" />
                            </VBox.margin>
                         </Label>
-                        <ComboBox prefWidth="150.0">
+                        <ComboBox fx:id="CalendarCustomerCombo" prefWidth="150.0">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </ComboBox>
+                        <Label text="Location">
+                           <VBox.margin>
+                              <Insets bottom="10.0" left="10.0" />
+                           </VBox.margin>
+                           <font>
+                              <Font size="18.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="CalendarLocationCombo" prefWidth="150.0">
                            <VBox.margin>
                               <Insets bottom="10.0" />
                            </VBox.margin>
@@ -91,7 +124,7 @@
                               <Insets bottom="10.0" left="10.0" />
                            </VBox.margin>
                         </Label>
-                        <TextField>
+                        <TextField fx:id="CalendarTitleField">
                            <VBox.margin>
                               <Insets bottom="10.0" />
                            </VBox.margin>
@@ -104,7 +137,7 @@
                               <Insets bottom="10.0" left="10.0" />
                            </VBox.margin>
                         </Label>
-                        <TextArea prefHeight="200.0" prefWidth="200.0" />
+                        <TextArea fx:id="CalendarDescriptionArea" prefHeight="200.0" prefWidth="200.0" />
                      </children>
                      <padding>
                         <Insets left="20.0" right="20.0" />
@@ -129,7 +162,7 @@
                                        <children>
                                           <AnchorPane prefHeight="200.0" prefWidth="50.0" />
                                           <Separator orientation="VERTICAL" prefHeight="200.0" />
-                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="100.0">
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="90.0">
                                              <children>
                                                 <Label text="Sunday" />
                                              </children>
@@ -159,25 +192,41 @@
                                                 <Label text="Friday" />
                                              </children>
                                           </HBox>
-                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="100.0">
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="90.0">
                                              <children>
                                                 <Label text="Saturday" />
                                              </children>
                                           </HBox>
                                        </children>
+                                       <VBox.margin>
+                                          <Insets right="15.0" />
+                                       </VBox.margin>
                                     </HBox>
                                     <Separator prefWidth="200.0" />
-                                    <HBox alignment="CENTER" prefHeight="625.0" prefWidth="200.0">
+                                    <HBox alignment="CENTER" prefHeight="615.0" prefWidth="200.0">
                                        <children>
-                                          <AnchorPane prefHeight="200.0" prefWidth="50.0" />
-                                          <Separator orientation="VERTICAL" prefHeight="200.0" />
-                                          <AnchorPane prefHeight="200.0" prefWidth="100.0" />
-                                          <AnchorPane prefHeight="200.0" prefWidth="120.0" />
-                                          <AnchorPane prefHeight="200.0" prefWidth="120.0" />
-                                          <AnchorPane prefHeight="200.0" prefWidth="120.0" />
-                                          <AnchorPane prefHeight="200.0" prefWidth="120.0" />
-                                          <AnchorPane prefHeight="200.0" prefWidth="120.0" />
-                                          <AnchorPane prefHeight="200.0" prefWidth="100.0" />
+                                          <ScrollPane prefHeight="620.0" prefWidth="850.0">
+                                             <content>
+                                                <HBox prefHeight="620.0" prefWidth="835.0">
+                                                   <children>
+                                                      <AnchorPane prefHeight="200.0" prefWidth="50.0">
+                                                         <children>
+                                                            <ListView prefHeight="650.0" prefWidth="48.0" />
+                                                            <Label layoutX="10.0" layoutY="15.0" text="Label" />
+                                                         </children>
+                                                      </AnchorPane>
+                                                      <Separator orientation="VERTICAL" prefHeight="200.0" />
+                                                      <AnchorPane prefHeight="200.0" prefWidth="90.0" />
+                                                      <AnchorPane prefHeight="200.0" prefWidth="120.0" />
+                                                      <AnchorPane prefHeight="200.0" prefWidth="120.0" />
+                                                      <AnchorPane prefHeight="200.0" prefWidth="120.0" />
+                                                      <AnchorPane prefHeight="200.0" prefWidth="120.0" />
+                                                      <AnchorPane prefHeight="200.0" prefWidth="120.0" />
+                                                      <AnchorPane prefHeight="200.0" prefWidth="90.0" />
+                                                   </children>
+                                                </HBox>
+                                             </content>
+                                          </ScrollPane>
                                        </children>
                                     </HBox>
                                  </children>
@@ -189,7 +238,101 @@
                 </Tab>
                 <Tab text="Month">
                   <content>
-                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="171.0" prefWidth="383.0" />
+                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="171.0" prefWidth="383.0">
+                           <children>
+                              <VBox prefHeight="650.0" prefWidth="850.0">
+                                 <children>
+                                    <HBox alignment="CENTER" prefHeight="50.0" prefWidth="200.0">
+                                       <children>
+                                          <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="275.0">
+                                             <children>
+                                                <Button fx:id="CalendarMonthBackButton" mnemonicParsing="false" onAction="#CalendarMonthBackClick" text="&lt;" />
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="275.0">
+                                             <children>
+                                                <Label fx:id="CalendarMonthTabHeader" text="Month" />
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="275.0">
+                                             <children>
+                                                <Button fx:id="CalendarMonthNextButton" mnemonicParsing="false" onAction="#CalendarMonthNextClick" text="&gt;" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                    </HBox>
+                                    <HBox alignment="CENTER" prefHeight="25.0" prefWidth="850.0">
+                                       <children>
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="100.0">
+                                             <children>
+                                                <Label text="Sunday" />
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="130.0">
+                                             <children>
+                                                <Label text="Monday" />
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="CENTER" prefHeight="25.0" prefWidth="130.0">
+                                             <children>
+                                                <Label text="Tuesday" />
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="130.0">
+                                             <children>
+                                                <Label text="Wednesday" />
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="130.0">
+                                             <children>
+                                                <Label text="Thursday" />
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="130.0">
+                                             <children>
+                                                <Label text="Friday" />
+                                             </children>
+                                          </HBox>
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="100.0">
+                                             <children>
+                                                <Label text="Saturday" />
+                                             </children>
+                                          </HBox>
+                                       </children>
+                                       <VBox.margin>
+                                          <Insets />
+                                       </VBox.margin>
+                                    </HBox>
+                                    <Separator prefWidth="200.0" />
+                                    <GridPane fx:id="CalendarMonthGrid" prefHeight="575.0">
+                                      <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                      </columnConstraints>
+                                      <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                      </rowConstraints>
+                                    </GridPane>
+                                 </children>
+                                 <padding>
+                                    <Insets right="20.0" />
+                                 </padding>
+                              </VBox>
+                           </children>
+                           <padding>
+                              <Insets right="20.0" />
+                           </padding></AnchorPane>
                   </content>
                 </Tab>
               </tabs>
@@ -200,7 +343,7 @@
          <children>
             <HBox alignment="CENTER" prefHeight="100.0" prefWidth="350.0">
                <children>
-                  <Button mnemonicParsing="false" prefWidth="80.0" text="Cancel">
+                  <Button fx:id="CalendarCancelButton" mnemonicParsing="false" onAction="#CalendarCancelClick" prefWidth="80.0" text="Cancel">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -208,7 +351,7 @@
                         <Insets right="20.0" />
                      </HBox.margin>
                   </Button>
-                  <Button mnemonicParsing="false" prefWidth="80.0" text="Clear">
+                  <Button fx:id="CalendarClearButton" mnemonicParsing="false" onAction="#CalendarClearClick" prefWidth="80.0" text="Clear">
                      <font>
                         <Font size="18.0" />
                      </font>
@@ -216,7 +359,7 @@
                         <Insets right="20.0" />
                      </HBox.margin>
                   </Button>
-                  <Button mnemonicParsing="false" prefWidth="80.0" text="Save">
+                  <Button fx:id="CalendarSaveButton" mnemonicParsing="false" onAction="#CalendarSaveClick" prefWidth="80.0" text="Save">
                      <font>
                         <Font size="18.0" />
                      </font>

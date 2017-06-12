@@ -72,6 +72,8 @@ public class AbsoluteSchedule extends Application {
     //SQL connection test
         Connection conn = DriverManager.getConnection("jdbc:mysql://52.206.157.109/U04H1H", "U04H1H","53688238168");
         System.out.println("Connection: " + conn + " was successful.");
+        
+        
     }
 
     /**
