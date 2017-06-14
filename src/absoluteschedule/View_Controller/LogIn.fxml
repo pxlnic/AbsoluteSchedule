@@ -6,6 +6,7 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
 
 <AnchorPane id="AnchorPane" prefHeight="300.0" prefWidth="400.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="absoluteschedule.View_Controller.LogInController">
     <stylesheets>
@@ -15,10 +16,14 @@
       <Label layoutX="80.0" layoutY="124.0" text="User Name:" />
       <Label layoutX="80.0" layoutY="159.0" text="Password:" />
       <Label layoutX="151.0" layoutY="42.0" text="Absolute Schedule" />
-      <PasswordField fx:id="LoginPasswordField" layoutX="150.0" layoutY="155.0" prefHeight="25.0" prefWidth="170.0" promptText="Enter Password..." />
       <TextField fx:id="LoginUserNameField" layoutX="150.0" layoutY="120.0" prefHeight="25.0" prefWidth="170.0" promptText="Enter User Name..." />
+      <PasswordField fx:id="LoginPasswordField" layoutX="150.0" layoutY="155.0" prefHeight="25.0" prefWidth="170.0" promptText="Enter Password..." />
       <Button fx:id="LoginSubmitButton" layoutX="177.0" layoutY="261.0" mnemonicParsing="false" onAction="#LoginSubmitClicked" text="Login" />
       <Button fx:id="LoginExitButton" layoutX="351.0" layoutY="261.0" mnemonicParsing="false" onAction="#LoginExitClicked" text="Exit" />
-      <Label fx:id="LoginMessageLabel" layoutX="161.0" layoutY="211.0" text="Login Message" />
+      <HBox alignment="CENTER" layoutX="1.0" layoutY="207.0" prefHeight="25.0" prefWidth="400.0">
+         <children>
+            <Label fx:id="LoginMessageLabel" />
+         </children>
+      </HBox>
    </children>
 </AnchorPane>

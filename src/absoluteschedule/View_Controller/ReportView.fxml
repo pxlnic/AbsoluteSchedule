@@ -146,7 +146,7 @@
                      <children>
                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
                            <children>
-                              <Label fx:id="ReportDateLabel" text="Month/Year">
+                              <Label fx:id="ReportDateLabel" text="Month - Year">
                                  <font>
                                     <Font size="18.0" />
                                  </font>

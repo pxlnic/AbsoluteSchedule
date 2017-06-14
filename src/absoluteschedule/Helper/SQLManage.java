@@ -18,39 +18,26 @@ import java.sql.Statement;
 public class SQLManage {
 
 //Instance Variables
-    private Connection conn;
-    private String dbType = "mysql";
-    private String url = "52.206.157.109/U04H1H";
-    private String userName = "U04H1H";
-    private String password = "53688238168";
-    private Statement stmnt;
+    private static String dbType = "mysql";
+    private static String url = "52.206.157.109/U04H1H";
+    private static String userName = "U04H1H";
+    private static String password = "53688238168";
     
 //Statment - Update
-    public void sqlUpdate(String sqlUpdate) throws SQLException{
-        try{
-            conn = DriverManager.getConnection("jdbc:"+ dbType + "://" + url + ", " + userName + ", " + password);
-            stmnt = conn.createStatement();
-            String sql = sqlUpdate;
-            System.out.println(sql);
-            stmnt.executeUpdate(sql);
-        }
-        catch(SQLException err){
-            err.printStackTrace();
-        }
+    public static String getConnText() throws SQLException{
+            System.out.println("Connections to SQL DB Opened");
+            String text = "jdbc:"+ dbType + "://" + url + ", " + userName + ", " + password;
+        return text;
     }
     
-//Statement - Query
-    public ResultSet sqlQuery(String sqlQuery){
+//Statement - Query 
+    public void stopConn(Connection conn) throws SQLException{
         try{
-            conn = DriverManager.getConnection("jdbc:"+ dbType + "://" + url + ", " + userName + ", " + password);
-            stmnt = conn.createStatement();
-            String sql = sqlQuery;
-            System.out.println(sql);
-            stmnt.executeUpdate(sql);
+            conn.close();
+            System.out.println("Connection to SQL DB closed");
         }
         catch(SQLException err){
             err.printStackTrace();
         }
-        return null;
     }
 }

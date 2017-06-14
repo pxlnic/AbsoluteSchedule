@@ -33,9 +33,9 @@ import javafx.stage.Stage;
 public class ReportViewController implements Initializable {
 
 //FXML Declarations
-    @FXML private ComboBox<?> ReportTypeCombo;
-    @FXML private ComboBox<?> ReportMonthCombo;
-    @FXML private ComboBox<?> ReportYearCombo;
+    @FXML private ComboBox<String> ReportTypeCombo;
+    @FXML private ComboBox<String> ReportMonthCombo;
+    @FXML private ComboBox<Integer> ReportYearCombo;
     @FXML private TextField ReportExportTitleField;
     @FXML private TextArea ReportExportNotesField;
     @FXML private Button ReportCancelButton;
@@ -70,11 +70,18 @@ public class ReportViewController implements Initializable {
     }
 //Clear Button handler
     @FXML void ReportClearClick(ActionEvent event) {
-
+        ReportTypeCombo.getItems().clear();
+        ReportMonthCombo.getItems().clear();
+        ReportYearCombo.getItems().clear();
+        ReportExportTitleField.setText("");
+        ReportExportNotesField.setText("");
+        ReportNameLabel.setText("Report Name");
+        ReportDateLabel.setText("Month - Year");
     }
 //View/Generate Report Button handler
     @FXML void ReportViewClick(ActionEvent event) {
-
+        ReportNameLabel.setText(ReportTypeCombo.getValue());
+        ReportDateLabel.setText(ReportMonthCombo.getValue() + " - " + ReportYearCombo.getValue());
     }
 //Save Button handler
     @FXML void ReportSaveClick(ActionEvent event) {
@@ -86,7 +93,12 @@ public class ReportViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+    //Report Type Combo Options
+        ReportTypeCombo.getItems().addAll("Monthly Appointment Count","Consultant Schedule", "Appointments By Day");
+        
+    //Month/Year Combo Options
+        ReportMonthCombo.getItems().addAll("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+        ReportYearCombo.getItems().addAll(2015, 2016, 2017, 2018, 2019, 2020);
     }    
     
 }

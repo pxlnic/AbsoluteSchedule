@@ -71,6 +71,8 @@ public class CustomerViewController implements Initializable {
     @FXML void CustomerCancelClick(ActionEvent event) throws IOException {
         System.out.println("Cancel clicked. Returning to main screen.");
         
+    //Popup to confirm cancel
+        
     //Load MainView scene
         Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));
         Scene scene = new Scene(mainView);
@@ -100,7 +102,20 @@ public class CustomerViewController implements Initializable {
     }
 //Save Button handler
     @FXML void CustomerSaveClick(ActionEvent event) {
-
+    //Open Connection
+        
+        
+    //Create Updates
+    //Start with Country (return ID to insert into city)
+    
+    //Next City (return ID to insert into address)
+    
+    //Next Address (return ID to insert into customer
+    
+    //Last Customer
+        
+        
+    //
     }
 //Search Button handler
     @FXML void CustomerSearchClick(ActionEvent event) {
@@ -118,6 +133,9 @@ public class CustomerViewController implements Initializable {
     public void initialize(URL url, ResourceBundle rb) {
     //Populate TableView Data
         CustomerID.setCellValueFactory(cellData -> cellData.getValue().custIDProperty().asObject());
+        CustomerName.setCellValueFactory(cellData -> cellData.getValue().custNameProperty());
+        CustomerAddress.setCellValueFactory(cellData -> cellData.getValue().custAddressProperty());
+        CustomerPostalCode.setCellValueFactory(cellData -> cellData.getValue().custPostalCodeProperty());
     }    
     
 }
