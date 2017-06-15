@@ -6,16 +6,28 @@
 package absoluteschedule.View_Controller;
 
 import absoluteschedule.AbsoluteSchedule;
+import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import static absoluteschedule.Helper.SQLManage.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.util.Locale;
+import static java.util.Locale.getDefault;
+import static java.util.Locale.setDefault;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import javafx.event.ActionEvent;
@@ -52,6 +64,7 @@ public class LogInController implements Initializable {
     private Connection conn;
     private PreparedStatement ps = null;
     private ResultSet rs = null;
+    private ResourceBundle localization;
     
 //FXML Button Handlers
 
@@ -64,19 +77,20 @@ public class LogInController implements Initializable {
     @FXML void LoginSubmitClicked(ActionEvent event) throws IOException, SQLException, InterruptedException {
         System.out.println("Login clicked");
         
+    //Load Resources
+        localization = loadResourceBundle();
+        
     //Capture textfield info
         String userName = LoginUserNameField.getText().trim();
         String password = LoginPasswordField.getText().trim();
         
     //Login Success/Failure Boolean & Message
-        boolean isLoginValid = false;
         String logMessage = "";
         
     //Try statement to run query and complete login
         try{
-        //open connection
-            //String dbText = getConnText();
-            Connection conn = DriverManager.getConnection("jdbc:mysql://52.206.157.109/U04H1H", "U04H1H","53688238168");
+        //Open connection
+            Connection conn = getConn();
 
         //Validating textfield data was gathered and SQL Query values to select instnatiated
             System.out.println("Username: " + userName);
@@ -99,12 +113,12 @@ public class LogInController implements Initializable {
             }
             
             if(userName.equals(dbUserName) && password.equals(dbPassword)){
-                LoginMessageLabel.setText("Login Successful!");
+                LoginMessageLabel.setText(localization.getString("login_successful"));
                 
-            //Log File Message and Login Boolean updated
-                logMessage = "Successful login attempt by User: " + userName + " at " + "Time" + ".";
+            //Log File Message updated
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MMM-dd HH:mm:ssZ");
+                logMessage = ZonedDateTime.now().format(formatter) + " - " + "Successful login attempt by User: " + userName + ".";
                 System.out.println(logMessage);
-                isLoginValid = true;
                 
             //Wait 3 seconds
                 TimeUnit.SECONDS.sleep(3);
@@ -126,12 +140,12 @@ public class LogInController implements Initializable {
                 window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2); 
             }
             else{
-                LoginMessageLabel.setText("Login Credentials Incorrect");
+                LoginMessageLabel.setText(localization.getString("login_error"));
             
-            //Log File Message and Login Boolean updated
-                logMessage = "Failed login attempt by User: " + userName + " at " + "Time" + ".";
+            //Log File Message updated
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MMM-dd HH:mm:ssZ");
+                logMessage = ZonedDateTime.now().format(formatter) + " - " + "Failed login attempt by User: " + userName + ".";
                 System.out.println(logMessage);
-                isLoginValid = false;
             }
         }
         catch(SQLException err){
@@ -147,14 +161,35 @@ public class LogInController implements Initializable {
         }
         
     //Create/Write log file
-        if(Files.exists(Paths.get("../Login_Log.txt"))){
+        String file = "Login_Log.txt"; //File is located in the root directory of the application
+    
+        if(Files.exists(Paths.get(file))){
         //Append login attempt to existing log file
             System.out.println("File exists and login attempt appended to log");
             
+        //Here true is to append the content to file
+            FileWriter fileWriter = new FileWriter(file,true);
+            
+        //Use try-with-resource to get auto-closeable writer instance
+            try (BufferedWriter writer = new BufferedWriter(fileWriter)) 
+            {
+                writer.write(logMessage + " appended");
+                writer.newLine();
+            }
         }
         else{
         //Create file and add login attempt to new log file
             System.out.println("File created and login attempt logged");
+ 
+        //Use try-with-resource to get auto-closeable writer instance
+            try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(file))) 
+            {
+                writer.write("Login Log data for the month of: " + "June, 2017");
+                writer.newLine();
+                writer.newLine();
+                writer.write(logMessage + " created");
+                writer.newLine();
+            }
         }
     }
     
@@ -163,12 +198,12 @@ public class LogInController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+    //Load Resource Bundle
+
     }
     
 //Set mainApp to the main application.
     public void setMainApp(AbsoluteSchedule mainApp) {
         this.mainApp = mainApp;
     }
-    
 }

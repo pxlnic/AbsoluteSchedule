@@ -24,10 +24,10 @@ public class SQLManage {
     private static String password = "53688238168";
     
 //Statment - Update
-    public static String getConnText() throws SQLException{
-            System.out.println("Connections to SQL DB Opened");
-            String text = "jdbc:"+ dbType + "://" + url + ", " + userName + ", " + password;
-        return text;
+    public static Connection getConn() throws SQLException{
+        System.out.println("Connections to SQL DB Opened");
+        Connection conn = DriverManager.getConnection("jdbc:mysql://52.206.157.109/U04H1H", "U04H1H","53688238168");
+        return conn;
     }
     
 //Statement - Query 
@@ -37,7 +37,7 @@ public class SQLManage {
             System.out.println("Connection to SQL DB closed");
         }
         catch(SQLException err){
-            err.printStackTrace();
         }
     }
+    //"jdbc:mysql://52.206.157.109/U04H1H", "U04H1H","53688238168"
 }

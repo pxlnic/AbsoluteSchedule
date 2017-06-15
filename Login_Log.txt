@@ -1,0 +1,5 @@
+Login Log data for the month of: June, 2017
+
+2017-Jun-15 14:57:46-0700 - Failed login attempt by User: Nic. created
+2017-jun-15 15:00:58-0700 - Failed login attempt by User: Nic. appended
+2017-Jun-15 15:11:58-0700 - Successful login attempt by User: NicReichelt. appended
