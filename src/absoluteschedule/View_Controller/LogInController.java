@@ -13,21 +13,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
-import java.util.Locale;
-import static java.util.Locale.getDefault;
-import static java.util.Locale.setDefault;
 import java.util.ResourceBundle;
 import java.util.concurrent.TimeUnit;
 import javafx.event.ActionEvent;
@@ -65,6 +57,7 @@ public class LogInController implements Initializable {
     private PreparedStatement ps = null;
     private ResultSet rs = null;
     private ResourceBundle localization;
+    private static String user;
     
 //FXML Button Handlers
 
@@ -83,6 +76,7 @@ public class LogInController implements Initializable {
     //Capture textfield info
         String userName = LoginUserNameField.getText().trim();
         String password = LoginPasswordField.getText().trim();
+        user = userName;
         
     //Login Success/Failure Boolean & Message
         String logMessage = "";
@@ -191,6 +185,11 @@ public class LogInController implements Initializable {
                 writer.newLine();
             }
         }
+    }
+    
+//Method to pass username to various screens for creation and update fields for SQL DB
+    public static String loggedOnUser(){
+        return user;
     }
     
     /**

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
@@ -14,9 +13,6 @@
 <?import javafx.scene.text.Font?>
 
 <AnchorPane id="AnchorPane" prefHeight="750.0" prefWidth="1000.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="absoluteschedule.View_Controller.CustomerViewController">
-    <stylesheets>
-        <URL value="@customerview.css" />
-    </stylesheets>
    <children>
       <AnchorPane prefHeight="750.0" prefWidth="350.0">
          <children>
@@ -41,7 +37,7 @@
                               <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                         </Label>
-                        <TextField fx:id="CustomerIDField">
+                        <TextField fx:id="CustomerIDField" disable="true" editable="false" promptText="ID is set automatically">
                            <VBox.margin>
                               <Insets bottom="10.0" />
                            </VBox.margin>
@@ -159,27 +155,17 @@
             </AnchorPane>
             <HBox alignment="CENTER" layoutY="650.0" prefHeight="100.0" prefWidth="350.0">
                <children>
-                  <Button fx:id="CustomerCancelButton" mnemonicParsing="false" onAction="#CustomerCancelClick" prefWidth="80.0" text="Cancel">
+                  <Button fx:id="CustomerCancelButton" mnemonicParsing="false" onAction="#CustomerCancelClick" prefWidth="55.0" text="Cancel">
                      <HBox.margin>
                         <Insets right="20.0" />
                      </HBox.margin>
-                     <font>
-                        <Font size="18.0" />
-                     </font>
                   </Button>
-                  <Button fx:id="CustomerClearButton" mnemonicParsing="false" onAction="#CustomerClearClick" prefWidth="80.0" text="Clear">
+                  <Button fx:id="CustomerClearButton" mnemonicParsing="false" onAction="#CustomerClearClick" prefWidth="55.0" text="Clear">
                      <HBox.margin>
                         <Insets right="20.0" />
                      </HBox.margin>
-                     <font>
-                        <Font size="18.0" />
-                     </font>
                   </Button>
-                  <Button fx:id="CustomerSaveButton" mnemonicParsing="false" onAction="#CustomerSaveClick" prefWidth="80.0" text="Save">
-                     <font>
-                        <Font size="18.0" />
-                     </font>
-                  </Button>
+                  <Button fx:id="CustomerSaveButton" mnemonicParsing="false" onAction="#CustomerSaveClick" prefWidth="55.0" text="Save" />
                </children>
             </HBox>
          </children>
