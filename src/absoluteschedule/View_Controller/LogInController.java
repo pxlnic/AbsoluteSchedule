@@ -67,7 +67,7 @@ public class LogInController implements Initializable {
         System.exit(0);
     }
 //Login Login Button Clicked
-    @FXML void LoginSubmitClicked(ActionEvent event) throws IOException, SQLException, InterruptedException {
+    @FXML void LoginSubmitClicked(ActionEvent event) throws IOException, SQLException {
         System.out.println("Login clicked");
         
     //Load Resources
@@ -113,9 +113,6 @@ public class LogInController implements Initializable {
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MMM-dd HH:mm:ssZ");
                 logMessage = ZonedDateTime.now().format(formatter) + " - " + "Successful login attempt by User: " + userName + ".";
                 System.out.println(logMessage);
-                
-            //Wait 3 seconds
-                TimeUnit.SECONDS.sleep(3);
                 
             //Load MainView scene
                 Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));

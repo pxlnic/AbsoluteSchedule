@@ -5,6 +5,7 @@
  */
 package absoluteschedule.View_Controller;
 
+import static absoluteschedule.AbsoluteSchedule.getCustList;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import absoluteschedule.Model.Customer;
 import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
@@ -75,6 +76,14 @@ public class CustomerViewController implements Initializable {
     //ObservableList to hold customer data for TableView
     private static ObservableList<Customer> customerList = FXCollections.observableArrayList();
     
+    //Variables to hold onto selected customer for editing
+    private int prevCustID;
+    private int prevCustAddrID;
+    private int prevCustActive;
+    private String prevCustPhone;
+    private String prevCustPostalCode;
+    private String prevCustCity;
+    
     //SQL DB Variables
     private Connection conn;
     private PreparedStatement ps = null;
@@ -125,8 +134,9 @@ public class CustomerViewController implements Initializable {
         int addressID = -1;
         int customerID = -1;
         Customer tempCust = new Customer();
+        String user = loggedOnUser();
         
-    //Getting TextField entries
+    //Getting TextField entries for customer
         tempCust.setCountry(CustomerCountryField.getText().trim());
         tempCust.setCity(CustomerCityField.getText().trim());
         tempCust.setAddress(CustomerAddress1Field.getText().trim(), CustomerAddress2Field.getText().trim());
@@ -151,27 +161,39 @@ public class CustomerViewController implements Initializable {
         customerID = tempCust.isIDValid("Customer", "customerName", "customerId", tempCust.getCustName());
         
         System.out.println("CountryID: " + countryID + ", CityID: " + cityID + ", AddressID: " + addressID + ", CustomerID: " + customerID);
-        System.out.println("Submission was made by: " + loggedOnUser());
+        System.out.println("Submission was made by: " + user);
 
-    //Run add customer methods
+    //Run add/update customer methods for respective tables
+        //Add country
         if(countryID == -1){
-            tempCust.addCountry(tempCust.getCustCountry(), loggedOnUser());
+            tempCust.addCountry(tempCust.getCustCountry(), user);
         }
-                //Add Else Statement once update logic added
+        else{
+            System.out.println("Country already exists in DB.");
+        }
+        //Add city
         if(cityID == -1){
-            tempCust.addCity(tempCust.getCustCity(), tempCust.getCustCountry(), loggedOnUser());
+            tempCust.addCity(tempCust.getCustCity(), tempCust.getCustCountry(), user);
         }
-                //Add Else Statement once update logic added
-        if(addressID == -1){
-            tempCust.addAddress(tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustCity(), tempCust.getCustPostalCode(), tempCust.getCustPhone(), loggedOnUser());
+        else{
+            System.out.println("City already exists in DB.");
         }
-                //Add Else Statement once update logic added
-        if(customerID == -1){
-            tempCust.addCustomer(tempCust.getCustName(), tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustActive(), loggedOnUser());
+        //Add/Update address
+        if(addressID == -1 && CustomerIDField.getText().trim() == null){
+            tempCust.addAddress(tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustCity(), tempCust.getCustPostalCode(), tempCust.getCustPhone(), user);
         }
-                //Add Else Statement once update logic added
-        
-        
+        else{
+            System.out.println("Address info updated for this customer.");
+            tempCust.updateAddress(prevCustAddrID, tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustCity(), tempCust.getCustPostalCode(), tempCust.getCustPhone(), user);
+        }
+        //Add/Update customer
+        if(customerID == -1 && (CustomerIDField.getText().trim() == null)){
+            tempCust.addCustomer(tempCust.getCustName(), tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustActive(), user);
+        }
+        else{
+            System.out.println("Customer info updated for this customer.");
+            tempCust.updateCust(prevCustID, tempCust.getCustName(), tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustActive(), user);
+        }
     }
 //Search Button handler
     @FXML void CustomerSearchClick(ActionEvent event) {
@@ -187,11 +209,8 @@ public class CustomerViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        try {
-            loadCustomers();
-        } catch (SQLException ex) {
-            Logger.getLogger(CustomerViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        customerList = getCustList();
+        
     //Populate TableView Data
         CustomerID.setCellValueFactory(cellData -> cellData.getValue().custIDProperty().asObject());
         CustomerName.setCellValueFactory(cellData -> cellData.getValue().custNameProperty());
@@ -204,6 +223,7 @@ public class CustomerViewController implements Initializable {
     //Enable TableView Selection to populate textfields
         CustomerTableView.getSelectionModel().selectedItemProperty().addListener((Observable, oldValue, selectedCust) -> {
             System.out.println("Customer: " + selectedCust.getCustName() + " was selected.");
+            System.out.println("City: " + selectedCust.getCustCity() + ", Phone: " + selectedCust.getCustPhone() + ", Country: " + selectedCust.getCustCountry());
         //Set textfield values
             String id = Integer.toString(selectedCust.getCustID());
             CustomerIDField.setText(id);
@@ -220,6 +240,12 @@ public class CustomerViewController implements Initializable {
             else{
                 CustomerActiveCheckbox.setSelected(false);
             }
+            prevCustID = selectedCust.getCustID();
+            prevCustAddrID = selectedCust.getAddrID();
+            prevCustActive = selectedCust.getCustActive();
+            prevCustPhone = selectedCust.getCustPhone();
+            prevCustPostalCode = selectedCust.getCustPostalCode();
+            prevCustCity = selectedCust.getCustCity();
         });
     }
     
@@ -227,53 +253,4 @@ public class CustomerViewController implements Initializable {
     private void updateCustomerTableView(){
         CustomerTableView.setItems(customerList);
     }
-    
-    public ObservableList<Customer> loadCustomers() throws SQLException{
-        try{
-
-        //Open connection
-            conn = getConn();
-
-        //Prepare statement to pull customer data and loop through to add to oberservable list
-            ps = conn.prepareStatement("SELECT customer.customerId, customer.customerName, customer.addressId, customer.active, address.addressId, address.address, address.address2, address.cityId, address.postalCode, address.phone, city.cityId, city.city, city.countryId, country.countryId, country.country\n" +
-                                       "FROM customer\n" +
-                                       "LEFT JOIN address on customer.addressId = address.addressId\n" +
-                                       "LEFT JOIN city on address.cityId = city.cityId\n" +
-                                       "LEFT JOIN country on city.countryId = country.countryId;");
-            rs = ps.executeQuery();
-            
-            System.out.println("Loading Customers");
-
-            while(rs.next()){
-                Customer cust = new Customer();
-                cust.setCustID(rs.getInt("customerId"));
-                cust.setCustName(rs.getString("customerName"));
-                cust.setCustActive(rs.getInt("active"));
-                cust.setAddrID(rs.getInt("addressId"));
-                cust.setAddress(rs.getString("address"), rs.getString("address2"));
-                cust.setPostalCode(rs.getString("postalCode"));
-                cust.setPhone("phone");
-                cust.setCityID(rs.getInt("cityId"));
-                cust.setCity("city");
-                cust.setCountryID(rs.getInt("countryId"));
-                cust.setCountry("country");
-                customerList.add(cust);
-                System.out.println("Customer: " + cust.getCustName() + " was added.");
-            }
-        }
-        catch(SQLException err){
-            
-        }
-        finally{
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-        System.out.println("# of customers: " + customerList.size());
-        return customerList;
-    }
-    
 }

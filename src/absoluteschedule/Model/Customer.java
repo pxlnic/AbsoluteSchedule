@@ -40,8 +40,6 @@ public class Customer {
     protected IntegerProperty custActive;
     
     //SQL Variables
-    private Connection conn;
-    private PreparedStatement ps = null;
     private ResultSet rs = null;
     private ResourceBundle localization;
     
@@ -172,15 +170,9 @@ public class Customer {
 //Add New Customer Methods
     //Add Country
     public void addCountry(String countryName, String user) throws SQLException{
-        try{
-        //Set SQL based variables
-            conn = getConn();
-            
-        //Based on ID values perform update or add to DB
-            //Add country
-            
-            ps = conn.prepareStatement("INSERT INTO country (country, createDate, createdBy, lastUpdate, lastUpdateBy) "
-                                     + "VALUES (?, NOW(), ?, NOW(), ?)");
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO country (country, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                                     + "VALUES (?, NOW(), ?, NOW(), ?)")){
             ps.setString(1, countryName);
             ps.setString(2, user);
             ps.setString(3, user);
@@ -188,163 +180,149 @@ public class Customer {
             System.out.println("Country: " + countryName + " was submitted by User: " + user);
         }
         catch(SQLException err){
-            
-        }
-        finally{
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
+            err.printStackTrace();
         }
     }
     //Add City
     public void addCity(String cityName, String countryName, String user) throws SQLException{
-        try{
-        //Set SQL based variables
-            conn = getConn();
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM country WHERE country=?");
+            PreparedStatement ps2 = conn.prepareStatement("INSERT INTO city (city, countryId, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                                     + "VALUES (?, ?, NOW(), ?, NOW(), ?)")){
+        //Get countryID
             int countryID = -1;
-            
-        //Gets countryID
-            ps = conn.prepareStatement("SELECT * FROM country WHERE country=?");
             ps.setString(1, countryName);
             rs = ps.executeQuery();
                 while(rs.next()){
                     countryID = rs.getInt("countryId");
-                }
-            
-        //Add country
-            ps = conn.prepareStatement("INSERT INTO city (city, countryId, createDate, createdBy, lastUpdate, lastUpdateBy) "
-                                     + "VALUES (?, ?, NOW(), ?, NOW(), ?)");
-            ps.setString(1, cityName);
-            ps.setInt(2, countryID);
-            ps.setString(3, user);
-            ps.setString(4, user);
-            ps.execute();
+                }     
+        //Add city
+            ps2.setString(1, cityName);
+            ps2.setInt(2, countryID);
+            ps2.setString(3, user);
+            ps2.setString(4, user);
+            ps2.execute();
             System.out.println("City: " + cityName + " was submitted by User: " + user);
         }
         catch(SQLException err){
-            
-        }
-        finally{
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
+            err.printStackTrace();
         }
     }
     //Add Address
     public void addAddress(String address1, String address2, String cityName, String postalCode, String phoneNum, String user) throws SQLException{
-        try{
-        //Set SQL based variables
-            conn = getConn();
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM city WHERE city=?");
+            PreparedStatement ps2 = conn.prepareStatement("INSERT INTO address (address, address2, cityId, postalCode, phone, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                                     + "VALUES (?, ?, ?, ?, ?, NOW(), ?, NOW(), ?)")){
+        //Get cityID
             int cityID = -1;
-            
-        //Gets countryID
-            ps = conn.prepareStatement("SELECT * FROM city WHERE city=?");
             ps.setString(1, cityName);
             rs = ps.executeQuery();
                 while(rs.next()){
                     cityID = rs.getInt("cityId");
                 }
-        //Add country
-            ps = conn.prepareStatement("INSERT INTO address (address, address2, cityId, postalCode, phone, createDate, createdBy, lastUpdate, lastUpdateBy) "
-                                     + "VALUES (?, ?, ?, ?, ?, NOW(), ?, NOW(), ?)");
-            ps.setString(1, address1);
-            ps.setString(2, address2);
-            ps.setInt(3, cityID);
-            ps.setString(4, postalCode);
-            ps.setString(5, phoneNum);
-            ps.setString(6, user);
-            ps.setString(7, user);
-            ps.execute();
+        //Add Address
+            ps2.setString(1, address1);
+            ps2.setString(2, address2);
+            ps2.setInt(3, cityID);
+            ps2.setString(4, postalCode);
+            ps2.setString(5, phoneNum);
+            ps2.setString(6, user);
+            ps2.setString(7, user);
+            ps2.execute();
             System.out.println("Address: " + address1 + " " + address2 + " was submitted by User: " + user);
         }
         catch(SQLException err){
-            
-        }
-        finally{
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
+            err.printStackTrace();
         }
     }
     //Add Customer
     public void addCustomer(String custName, String address1, String address2, int active, String user) throws SQLException{
-        try{
-        //Set SQL based variables
-            conn = getConn();
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM address WHERE address=? AND address2=?");
+            PreparedStatement ps2 = conn.prepareStatement("INSERT INTO customer (customerName, addressId, active, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                                     + "VALUES (?, ?, ?, NOW(), ?, NOW(), ?)")){
+        //Get addressID   
             int addressID = -1;
+            ps.setString(1, address1);
+            ps.setString(2, address2);
+            rs = ps.executeQuery();
+                while(rs.next()){
+                    addressID = rs.getInt("addressId");
+                }            
+        //Add customer 
+            ps2.setString(1, custName);
+            ps2.setInt(2, addressID);
+            ps2.setInt(3, active);
+            ps2.setString(4, user);
+            ps2.setString(5, user);
+            ps2.execute();
+            System.out.println("Customer: " + custName + " was submitted by User: " + user);
+        }
+        catch(SQLException err){
+            err.printStackTrace();
+        }
+    }
+    
+//Update Existing Customer Methods
+    //Update Address
+    public void updateAddress(Integer addressID, String address1, String address2, String cityName, String postalCode, String phone, String user) throws SQLException{
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM city WHERE city=?");
+            PreparedStatement ps2 = conn.prepareStatement("UPDATE address SET address=?, address2=?, cityId=?, postalCode=?, phone=?, lastUpdate=NOW(), lastUpdateBy=? WHERE addressId=?")){
+        //Get cityID
+            int cityID = -1;
+            ps.setString(1, cityName);
+            rs = ps.executeQuery();
+                while(rs.next()){
+                    cityID = rs.getInt("cityId");
+                }            
+        //Update Address info
+            ps2.setString(1, address1);
+            ps2.setString(2, address2);
+            ps2.setInt(3, cityID);
+            ps2.setString(4, postalCode);
+            ps2.setString(5, phone);
+            ps2.setString(6, user);
+            ps2.setInt(7, addressID);
+            ps2.executeUpdate();
+            System.out.println("Address: " + address1 + " " + address2 + " has been updated");
+        }
+        catch(SQLException err){
+            err.printStackTrace();
+        }
+    }
+    //Update Customer
+    public void updateCust(Integer custID, String custName, String address1, String address2, int active, String user) throws SQLException{
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM address WHERE address=? AND address2=?");
+            PreparedStatement ps2 = conn.prepareStatement("UPDATE customer SET customerName=?, addressId=?, active=?, lastUpdate=NOW(), lastUpdateBy=? WHERE customerId=?")){
             
-        //Gets countryID
-            ps = conn.prepareStatement("SELECT * FROM address WHERE address=? AND address2=?");
+        //Get addressID
+            int addressID = -1;
             ps.setString(1, address1);
             ps.setString(2, address2);
             rs = ps.executeQuery();
                 while(rs.next()){
                     addressID = rs.getInt("addressId");
                 }
-            
-        //Add country
-            ps = conn.prepareStatement("INSERT INTO customer (customerName, addressId, active, createDate, createdBy, lastUpdate, lastUpdateBy) "
-                                     + "VALUES (?, ?, ?, NOW(), ?, NOW(), ?)");
-            ps.setString(1, custName);
-            ps.setInt(2, addressID);
-            ps.setInt(3, active);
-            ps.setString(4, user);
-            ps.setString(5, user);
-            ps.execute();
-            System.out.println("Customer: " + custName + " was submitted by User: " + user);
+            System.out.println("Address ID: " + addressID);
+        //Update customer info    
+            ps2.setString(1, custName);
+            ps2.setInt(2, addressID);
+            ps2.setInt(3, active);
+            ps2.setString(4, user);
+            ps2.setInt(5, custID);
+            ps2.executeUpdate();
+            System.out.println("Customer: " + custName + " has been updated");
         }
         catch(SQLException err){
-            
-        }
-        finally{
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
+            err.printStackTrace();
         }
     }
-    
-//Update Existing Customer Methods
-    //Update Country
-    public void updateCountry(Integer countryID, String countryName, String user) throws SQLException{
-        try{
-            conn = getConn();
-            ps = conn.prepareStatement("UPDATE country SET country=?, lastUpdate=NOW(), lastUpdatedBy=? WHERE countryId=?");
-            ps.setString(1, countryName);
-            ps.setString(2, user);
-            ps.setInt(3, countryID);
-            ps.executeUpdate();
-            
-        }
-        catch(SQLException err){
-            
-        }
-        finally{
-            
-        }
-    }
-    //Update City
-    
-    //Update Address
-    
-    //Update Customer
-    
-//Pull customer data for update (from observable arraylist)
-    
     
 //Validate customer info with database to see if needs to added or if exists 
-    //Check Country - (Add to SQL DB if does not exist and return ID to add to city)
+    //Check Country, City, and Customer logic - (Add to SQL DB if does not exist and return ID to add to city)
     public int isIDValid(String itemTable, String itemCol, String itemIDCol, String itemName) throws SQLException{
         System.out.println("Checking if "+ itemTable + " exists in DB.");
     //Create method variables
@@ -354,12 +332,8 @@ public class Customer {
         int count = 0;
         
     //Try clause
-        try{
-        //Open Connection
-            conn = getConn();
-            
-        //Create and Execute Statement
-            ps = conn.prepareStatement("SELECT * FROM " + itemTable.toLowerCase() + " WHERE " + itemCol + "=?");
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM " + itemTable.toLowerCase() + " WHERE " + itemCol + "=?")){
             ps.setString(1, itemName);
             rs = ps.executeQuery();
 
@@ -379,14 +353,7 @@ public class Customer {
             passedID = dbItemID;
         }
         catch(SQLException err){
-        }
-        finally{
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
+            err.printStackTrace();
         }
               
     //Return ID. If no match then returns -1
@@ -406,12 +373,8 @@ public class Customer {
         String addrText = "address";
         
     //Try clause
-        try{
-        //Open Connection
-            conn = getConn();
-            
-        //Create and Execute Statement
-            ps = conn.prepareStatement("SELECT * FROM address WHERE address=? AND address2=?");
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM address WHERE address=? AND address2=?")){
             ps.setString(1, addr1);
             ps.setString(2, addr2);
             rs = ps.executeQuery();
@@ -432,19 +395,11 @@ public class Customer {
             passedID = dbAddrID;
         }
         catch(SQLException err){
-        }
-        finally{
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
+            err.printStackTrace();
         }
               
     //Return ID. If no match then returns -1
         System.out.println("Passed ID: " + passedID);
         return passedID;
-    }    
-
+    }
 }

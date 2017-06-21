@@ -6,6 +6,7 @@
 package absoluteschedule.View_Controller;
 
 import absoluteschedule.AbsoluteSchedule;
+import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -122,7 +123,7 @@ public class MainViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
-         //Application.setUserAgentStylesheet(getClass().getResource("Style_Sheets/mainview.css").toExternalForm());
+        MainWelcomeLabel.setText("Welcome, " + loggedOnUser());
     }    
     
 //Set mainApp to the main application.

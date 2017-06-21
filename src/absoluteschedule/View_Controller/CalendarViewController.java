@@ -5,11 +5,25 @@
  */
 package absoluteschedule.View_Controller;
 
+import static absoluteschedule.AbsoluteSchedule.getCustList;
+import static absoluteschedule.Helper.SQLManage.getConn;
+import absoluteschedule.Model.Calendar;
+import absoluteschedule.Model.Customer;
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -41,10 +55,12 @@ public class CalendarViewController implements Initializable {
     @FXML private DatePicker CalendarDatePicker;
     @FXML private ComboBox<Integer> CalendarTimeHourCombo;
     @FXML private ComboBox<Integer> CalendarTimeMinCombo;
-    @FXML private ComboBox<Integer> CalendarDurationCombo;
+    @FXML private ComboBox<Integer> CalendarEndTimeHourCombo;
+    @FXML private ComboBox<Integer> CalendarEndTimeMinCombo;
     @FXML private CheckBox CalendaryAllDayCheckbox;
     @FXML private ComboBox<String> CalendarCustomerCombo;
     @FXML private ComboBox<String> CalendarLocationCombo;
+    @FXML private ComboBox<String> CalendarConsultantCombo;
     @FXML private TextField CalendarTitleField;
     @FXML private TextArea CalendarDescriptionArea;
     @FXML private Button CalendarCancelButton;
@@ -60,7 +76,18 @@ public class CalendarViewController implements Initializable {
     @FXML private GridPane CalendarMonthGrid;
     
 //Instance Variables
-
+    private List<Customer> calCustList = new ArrayList<>();
+    private List<String> custNames = new ArrayList<>();
+    private List<Integer> hourList = new ArrayList<>();
+    private List<Integer> minList = new ArrayList<>();
+    private List<String> locList = new ArrayList<>();
+    private List<String> consultantList = new ArrayList<>();
+    
+//SQL DB Variables
+    private Connection conn;
+    private PreparedStatement ps = null;
+    private ResultSet rs = null;
+    private ResourceBundle localization;
     
 //Footer Button handlers
     //Cancel Button handler
@@ -88,7 +115,8 @@ public class CalendarViewController implements Initializable {
         CalendarDatePicker.setValue(LocalDate.now());
         CalendarTimeHourCombo.getItems().clear();
         CalendarTimeMinCombo.getItems().clear();
-        CalendarDurationCombo.getItems().clear();
+        CalendarEndTimeHourCombo.getItems().clear();
+        CalendarEndTimeMinCombo.getItems().clear();
         CalendarCustomerCombo.getItems().clear();
         CalendarLocationCombo.getItems().clear();
         CalendaryAllDayCheckbox.setSelected(false);
@@ -97,7 +125,24 @@ public class CalendarViewController implements Initializable {
     }
     //Save Button handler
     @FXML void CalendarSaveClick(ActionEvent event) {
-
+    //Variables
+        int apptID = -1;
+        int custID = getCustID(CalendarCustomerCombo.getValue());
+        Calendar tempAppt = new Calendar();
+        
+    //Getting textfield entries for appt
+        tempAppt.setCustID(custID);
+        tempAppt.setApptTitle(CalendarTitleField.getText().trim());
+        tempAppt.setApptDesc(CalendarDescriptionArea.getText().trim());
+        tempAppt.setApptDate(CalendarDatePicker.getValue() + " ");
+        tempAppt.setApptStartTime(CalendarTimeHourCombo.getValue(), CalendarTimeMinCombo.getValue());
+        tempAppt.setApptEndTime(CalendarEndTimeHourCombo.getValue(), CalendarEndTimeMinCombo.getValue());
+        tempAppt.setApptLoc(CalendarLocationCombo.getValue());
+        tempAppt.setApptContact(CalendarConsultantCombo.getValue());
+        
+    //Validate if appointment is already in system
+        
+    //Add appointment
     }
     //Month Back Button handler
     @FXML void CalendarMonthBackClick(ActionEvent event) {
@@ -113,21 +158,122 @@ public class CalendarViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+        calCustList = getCustList();
+        loadCustNames();
+        try {
+            loadLocList();
+            loadConsultList();
+        } catch (SQLException ex) {
+            Logger.getLogger(CalendarViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        loadHour();
+        loadMin();
+
     //Populate Datepicker
         CalendarDatePicker.setValue(LocalDate.now());
         
     //Populate Hour/Min Combo Boxes
-        CalendarTimeHourCombo.getItems().addAll(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23);
-        CalendarTimeMinCombo.getItems().addAll(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55);
+        CalendarTimeHourCombo.getItems().addAll(hourList);
+        CalendarTimeMinCombo.getItems().addAll(minList);
         
     //Populate Duration Combo Box
-        CalendarDurationCombo.getItems().addAll(15, 30, 45, 60, 90, 120, 180, 240, 360, 480);
+        CalendarEndTimeHourCombo.getItems().addAll(hourList);
+        CalendarEndTimeMinCombo.getItems().addAll(minList);
         
     //Populate Customer Combo Box
-        CalendarCustomerCombo.getItems().addAll("Name1", "Name2", "Name3", "Name4", "Name5");
+        CalendarCustomerCombo.getItems().addAll(custNames);
+        
+    //Populate Consultant Combo Box
+        CalendarConsultantCombo.getItems().addAll(consultantList);
         
     //Populate Location Combo Box
-        CalendarLocationCombo.getItems().addAll("Location1", "Location2", "Location3");
-    }    
+        CalendarLocationCombo.getItems().addAll(locList);
+    }
     
+//Get customerID
+    private int getCustID(String name){
+        int id = -1;
+        for(int i=0; i<calCustList.size(); i++){
+            if(calCustList.get(i).getCustName().equals(name)){
+                id = calCustList.get(i).getCustID();
+            }
+        }
+        return id;
+    }
+    
+//Load hours and min into ArrayList
+    private void loadHour(){
+        for(int i=0; i<24; i++){
+            hourList.add(i);
+            System.out.println("Hour: " + i + " was added to list.");
+        }
+    }
+    private void loadMin(){
+        for(int i=1; i<12; i++){
+            minList.add(i*5);
+            System.out.println("Min : " + i*5 + " was added to list.");
+        }
+    }
+    
+//Load customer names to arraylist
+    private void loadCustNames(){
+        String name = "";
+        for(int i=0; i<calCustList.size(); i++){
+            name = calCustList.get(i).getCustName();
+            custNames.add(name);
+        }
+    }
+    
+//Load locations to arraylist
+    private void loadLocList() throws SQLException{
+        try{
+            conn = getConn();
+            ps = conn.prepareStatement("SELECT * FROM city");
+            rs = ps.executeQuery();
+            
+            while(rs.next()){
+                String loc = rs.getString("city");
+                locList.add(loc);
+                System.out.println("Location: " + loc + " was added to list.");
+            }
+        }
+        catch(SQLException err){
+            
+        }
+        finally{
+            if (ps != null) {
+                ps.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } 
+    }
+    
+//Load consultants to arraylist
+    private void loadConsultList() throws SQLException{
+        try{
+            conn = getConn();
+            ps = conn.prepareStatement("SELECT * FROM user");
+            rs = ps.executeQuery();
+            
+            while(rs.next()){
+                String user = rs.getString("userName");
+                consultantList.add(user);
+                System.out.println("Consultant: " + user + " was added to list.");
+            }
+        }
+        catch(SQLException err){
+            
+        }
+        finally{
+            if (ps != null) {
+                ps.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
+        } 
+    }
 }
+

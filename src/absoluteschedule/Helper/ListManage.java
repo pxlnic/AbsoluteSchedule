@@ -36,9 +36,7 @@ public class ListManage {
 //Customer DB/List Handling
     
 //Load all customers
-   /* public ObservableList<Customer> loadCustomers() throws SQLException{
-    //Arraylist
-        ObservableList<Customer> tempCustList = FXCollections.observableArrayList();
+   public ObservableList<Customer> loadCustomers() throws SQLException{
         try{
 
         //Open connection
@@ -62,12 +60,14 @@ public class ListManage {
                 cust.setAddrID(rs.getInt("addressId"));
                 cust.setAddress(rs.getString("address"), rs.getString("address2"));
                 cust.setPostalCode(rs.getString("postalCode"));
-                cust.setPhone("phone");
+                cust.setPhone(rs.getString("phone"));
                 cust.setCityID(rs.getInt("cityId"));
-                cust.setCity("city");
+                cust.setCity(rs.getString("city"));
                 cust.setCountryID(rs.getInt("countryId"));
-                cust.setCountry("country");
-                tempCustList.add(cust);
+                cust.setCountry(rs.getString("country"));
+                custList.add(cust);
+                System.out.println("Customer: " + cust.getCustName() + " was added.");
+                System.out.println("Phone: " + cust.getCustPhone() + ", City: " + cust.getCustCity() + ", Country: " + cust.getCustCountry());
             }
         }
         catch(SQLException err){
@@ -81,11 +81,12 @@ public class ListManage {
                 conn.close();
             }
         }
+        System.out.println("# of customers: " + custList.size());
         return custList;
-    }*/
+    }
     
     public ObservableList<Customer> getCustList() throws SQLException{
-        //loadCustomers();
+        loadCustomers();
         return custList;
     }
     

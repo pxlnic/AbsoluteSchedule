@@ -5,6 +5,8 @@
  */
 package absoluteschedule;
 
+import absoluteschedule.Helper.ListManage;
+import absoluteschedule.Model.Customer;
 import absoluteschedule.View_Controller.LogInController;
 import absoluteschedule.View_Controller.MainViewController;
 import static java.awt.SystemColor.window;
@@ -12,7 +14,11 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
@@ -31,18 +37,24 @@ public class AbsoluteSchedule extends Application {
     
 //Instance Variables
     Stage window;
+    private static ObservableList<Customer> loadCustomerList = FXCollections.observableArrayList();
+    private static List<String> custNameList = new ArrayList<>();
+    public static ObservableList<Customer> getCustList(){
+        return loadCustomerList;
+    }
     
-    //RootLayout
+    
+//RootLayout
     public void initLogin() throws IOException{
-//Load parts overview
+    //Load parts overview
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(AbsoluteSchedule.class.getResource("View_Controller/LogIn.fxml"));
         AnchorPane LoginLoader = (AnchorPane) loader.load();
     
-//Setting the scene
+    //Setting the scene
         Scene scene = new Scene(LoginLoader);
         
-//Showing the scene on the stage
+    //Showing the scene on the stage
         window.setScene(scene);
         window.show();
     }
@@ -73,6 +85,10 @@ public class AbsoluteSchedule extends Application {
         Connection conn = DriverManager.getConnection("jdbc:mysql://52.206.157.109/U04H1H", "U04H1H","53688238168");
         System.out.println("Connection: " + conn + " was successful.");
         conn.close();
+        
+    //Populate Customer and Calendar data
+        ListManage l= new ListManage();
+        loadCustomerList = l.getCustList();
     }
 
     /**

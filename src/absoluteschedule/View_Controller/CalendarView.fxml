@@ -40,10 +40,10 @@
                      <children>
                         <Label text="Date">
                            <font>
-                              <Font size="18.0" />
+                              <Font size="16.0" />
                            </font>
                            <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" />
+                              <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                         </Label>
                         <DatePicker fx:id="CalendarDatePicker">
@@ -51,12 +51,12 @@
                               <Insets bottom="10.0" />
                            </VBox.margin>
                         </DatePicker>
-                        <Label text="Time">
+                        <Label text="Start Time">
                            <font>
-                              <Font size="18.0" />
+                              <Font size="16.0" />
                            </font>
                            <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" />
+                              <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                         </Label>
                         <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
@@ -77,25 +77,37 @@
                               <Insets bottom="10.0" />
                            </VBox.margin>
                         </HBox>
-                        <Label text="Duration">
+                        <Label text="End Time">
                            <font>
-                              <Font size="18.0" />
+                              <Font size="16.0" />
                            </font>
                            <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" />
+                              <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                         </Label>
-                        <ComboBox fx:id="CalendarDurationCombo" prefWidth="150.0">
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <ComboBox fx:id="CalendarEndTimeHourCombo" prefWidth="70.0">
+                                 <HBox.margin>
+                                    <Insets right="10.0" />
+                                 </HBox.margin>
+                              </ComboBox>
+                              <ComboBox fx:id="CalendarEndTimeMinCombo" prefWidth="70.0">
+                                 <HBox.margin>
+                                    <Insets right="10.0" />
+                                 </HBox.margin>
+                              </ComboBox>
+                           </children>
                            <VBox.margin>
                               <Insets bottom="10.0" />
                            </VBox.margin>
-                        </ComboBox>
+                        </HBox>
                         <Label text="Customer">
                            <font>
-                              <Font size="18.0" />
+                              <Font size="16.0" />
                            </font>
                            <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" />
+                              <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                         </Label>
                         <ComboBox fx:id="CalendarCustomerCombo" prefWidth="150.0">
@@ -103,12 +115,25 @@
                               <Insets bottom="10.0" />
                            </VBox.margin>
                         </ComboBox>
-                        <Label text="Location">
+                        <Label text="Consultant">
                            <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" />
+                              <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                            <font>
-                              <Font size="18.0" />
+                              <Font size="16.0" />
+                           </font>
+                        </Label>
+                        <ComboBox fx:id="CalendarConsultantCombo" prefWidth="150.0">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </ComboBox>
+                        <Label text="Location">
+                           <VBox.margin>
+                              <Insets bottom="3.0" left="10.0" />
+                           </VBox.margin>
+                           <font>
+                              <Font size="16.0" />
                            </font>
                         </Label>
                         <ComboBox fx:id="CalendarLocationCombo" prefWidth="150.0">
@@ -118,10 +143,10 @@
                         </ComboBox>
                         <Label text="Title">
                            <font>
-                              <Font size="18.0" />
+                              <Font size="16.0" />
                            </font>
                            <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" />
+                              <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                         </Label>
                         <TextField fx:id="CalendarTitleField">
@@ -131,10 +156,10 @@
                         </TextField>
                         <Label text="Description">
                            <font>
-                              <Font size="18.0" />
+                              <Font size="16.0" />
                            </font>
                            <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" />
+                              <Insets bottom="3.0" left="10.0" />
                            </VBox.margin>
                         </Label>
                         <TextArea fx:id="CalendarDescriptionArea" prefHeight="200.0" prefWidth="200.0" />
