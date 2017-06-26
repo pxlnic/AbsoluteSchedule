@@ -8,6 +8,7 @@ package absoluteschedule.Helper;
 import java.util.Locale;
 import static java.util.Locale.getDefault;
 import java.util.ResourceBundle;
+import java.util.TimeZone;
 
 /**
  *
@@ -20,6 +21,7 @@ public class ResourcesHelper {
     public static ResourceBundle loadResourceBundle(){
         //Locale.setDefault(new Locale("es", "US"));
         ResourceBundle localization = ResourceBundle.getBundle("resources", currentLocale);
+        System.out.println("Current TimeZone: " + TimeZone.getDefault());
         return localization;
     }
     

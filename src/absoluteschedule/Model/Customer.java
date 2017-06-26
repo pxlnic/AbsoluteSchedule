@@ -10,14 +10,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.ResourceBundle;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import static jdk.nashorn.internal.objects.NativeError.printStackTrace;
 
 /**
  *
@@ -329,7 +326,6 @@ public class Customer {
         int dbItemID = 0;
         String dbItemName = "";
         int passedID = 0;
-        int count = 0;
         
     //Try clause
         try(Connection conn = getConn();

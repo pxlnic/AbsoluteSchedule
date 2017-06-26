@@ -16,14 +16,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -53,10 +55,10 @@ public class CalendarViewController implements Initializable {
 //FXML Declarations
     //Appointment entry items
     @FXML private DatePicker CalendarDatePicker;
-    @FXML private ComboBox<Integer> CalendarTimeHourCombo;
-    @FXML private ComboBox<Integer> CalendarTimeMinCombo;
-    @FXML private ComboBox<Integer> CalendarEndTimeHourCombo;
-    @FXML private ComboBox<Integer> CalendarEndTimeMinCombo;
+    @FXML private ComboBox<String> CalendarTimeHourCombo;
+    @FXML private ComboBox<String> CalendarTimeMinCombo;
+    @FXML private ComboBox<String> CalendarEndTimeHourCombo;
+    @FXML private ComboBox<String> CalendarEndTimeMinCombo;
     @FXML private CheckBox CalendaryAllDayCheckbox;
     @FXML private ComboBox<String> CalendarCustomerCombo;
     @FXML private ComboBox<String> CalendarLocationCombo;
@@ -78,14 +80,12 @@ public class CalendarViewController implements Initializable {
 //Instance Variables
     private List<Customer> calCustList = new ArrayList<>();
     private List<String> custNames = new ArrayList<>();
-    private List<Integer> hourList = new ArrayList<>();
-    private List<Integer> minList = new ArrayList<>();
+    private List<String> hourList = new ArrayList<>();
+    private List<String> minList = new ArrayList<>();
     private List<String> locList = new ArrayList<>();
     private List<String> consultantList = new ArrayList<>();
     
 //SQL DB Variables
-    private Connection conn;
-    private PreparedStatement ps = null;
     private ResultSet rs = null;
     private ResourceBundle localization;
     
@@ -124,23 +124,47 @@ public class CalendarViewController implements Initializable {
         CalendarDescriptionArea.setText("");
     }
     //Save Button handler
-    @FXML void CalendarSaveClick(ActionEvent event) {
+    @FXML void CalendarSaveClick(ActionEvent event) throws SQLException {
     //Variables
         int apptID = -1;
-        int custID = getCustID(CalendarCustomerCombo.getValue());
+        int custID = -1;
+        String customerName = CalendarCustomerCombo.getValue();
+        
+    //Temp appointment/customer constructors
         Calendar tempAppt = new Calendar();
+        Customer tempCust = new Customer();
+        List<Calendar> tempApptList = new ArrayList<>();
+        
+    //Testing setting date/time
+        String date = CalendarDatePicker.getValue() + " ";
+        String startTime = date + CalendarTimeHourCombo.getValue() + ":" + CalendarTimeMinCombo.getValue();
+        String endTime = date + CalendarEndTimeHourCombo.getValue() + ":" + CalendarEndTimeMinCombo.getValue();
+        
+        
+    //Get UTC and Local Times
+        String startUtc = convertToUTC(startTime);
+        String startLocal = convertToLocal(startUtc);
+        String endUtc = convertToUTC(endTime);
+        String endLocal = convertToLocal(endUtc);
+        
+        System.out.println("UTC Start Time: " + startUtc + ", Local Start Time: " + startLocal);
+        System.out.println("UTC End Time: " + endUtc + ", Local End Time: " + endLocal);
+
+    //Get Customer ID
+        tempCust.setCustName(customerName);
+        custID = getCustID(CalendarCustomerCombo.getValue());
         
     //Getting textfield entries for appt
         tempAppt.setCustID(custID);
         tempAppt.setApptTitle(CalendarTitleField.getText().trim());
         tempAppt.setApptDesc(CalendarDescriptionArea.getText().trim());
-        tempAppt.setApptDate(CalendarDatePicker.getValue() + " ");
-        tempAppt.setApptStartTime(CalendarTimeHourCombo.getValue(), CalendarTimeMinCombo.getValue());
-        tempAppt.setApptEndTime(CalendarEndTimeHourCombo.getValue(), CalendarEndTimeMinCombo.getValue());
+        tempAppt.setApptStartTime(startUtc);
+        tempAppt.setApptEndTime(endUtc);
         tempAppt.setApptLoc(CalendarLocationCombo.getValue());
         tempAppt.setApptContact(CalendarConsultantCombo.getValue());
         
     //Validate if appointment is already in system
+        tempApptList = tempAppt.isApptValid(tempAppt.getCustID(), tempAppt.getApptStartTime(), tempAppt.getApptEndTime(), tempAppt.getApptContact());
         
     //Add appointment
     }
@@ -201,16 +225,48 @@ public class CalendarViewController implements Initializable {
         return id;
     }
     
+//Convert Date/Time for SQL Statement
+    public String convertToUTC(String str){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime passedTime = LocalDateTime.parse(str, formatter);
+        ZonedDateTime localTime = ZonedDateTime.of(passedTime, ZoneId.systemDefault());
+        ZonedDateTime UTCTime = localTime.withZoneSameInstant(ZoneOffset.UTC);
+        String dateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(UTCTime);
+        System.out.println(dateTime);
+        
+        return dateTime;
+    }
+    public String convertToLocal(String str){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime passedTime = LocalDateTime.parse(str, formatter);
+        ZonedDateTime UTCTime = ZonedDateTime.of(passedTime, ZoneId.of("UTC"));
+        ZonedDateTime localTime = UTCTime.withZoneSameInstant(ZoneOffset.systemDefault());
+        String dateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(localTime);
+        System.out.println(dateTime);
+
+        return dateTime;
+    }
+    
 //Load hours and min into ArrayList
     private void loadHour(){
         for(int i=0; i<24; i++){
-            hourList.add(i);
+            if(i<10){
+                hourList.add("0"+i);
+            }
+            else{
+            hourList.add(""+i);
+            }
             System.out.println("Hour: " + i + " was added to list.");
         }
     }
     private void loadMin(){
-        for(int i=1; i<12; i++){
-            minList.add(i*5);
+        for(int i=0; i<12; i++){
+            if(i<2){
+                minList.add("0"+(i*5));
+            }
+            else{
+                minList.add(""+(i*5));
+            }
             System.out.println("Min : " + i*5 + " was added to list.");
         }
     }
@@ -226,9 +282,8 @@ public class CalendarViewController implements Initializable {
     
 //Load locations to arraylist
     private void loadLocList() throws SQLException{
-        try{
-            conn = getConn();
-            ps = conn.prepareStatement("SELECT * FROM city");
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM city")){;
             rs = ps.executeQuery();
             
             while(rs.next()){
@@ -238,23 +293,14 @@ public class CalendarViewController implements Initializable {
             }
         }
         catch(SQLException err){
-            
-        }
-        finally{
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
+            err.printStackTrace();
         } 
     }
     
 //Load consultants to arraylist
     private void loadConsultList() throws SQLException{
-        try{
-            conn = getConn();
-            ps = conn.prepareStatement("SELECT * FROM user");
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM user")){;
             rs = ps.executeQuery();
             
             while(rs.next()){
@@ -264,15 +310,7 @@ public class CalendarViewController implements Initializable {
             }
         }
         catch(SQLException err){
-            
-        }
-        finally{
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
+           err.printStackTrace();
         } 
     }
 }

@@ -10,11 +10,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Time;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -33,15 +34,12 @@ public class Calendar {
     private StringProperty apptDesc;
     private StringProperty apptLoc;
     private StringProperty apptContact;  //This is the consultant they are meeting with
-    private String apptURL;              //Need to find otu what this is for
-    private StringProperty apptDate;
+    private String apptURL;              //Need to find out what this is for
     private StringProperty apptStartTime;
     private StringProperty apptEndTime;
     
     
 //SQL Variables
-    private Connection conn;
-    private PreparedStatement ps = null;
     private ResultSet rs = null;
     private ResourceBundle localization;
     
@@ -54,7 +52,6 @@ public class Calendar {
         apptLoc = new SimpleStringProperty("Change this location");
         apptContact = new SimpleStringProperty("Change this consultant");
         apptURL = "Change this URL";
-        apptDate = new SimpleStringProperty("Change this date");
         apptStartTime = new SimpleStringProperty("change this time");
         apptEndTime = new SimpleStringProperty("change this time");
     }
@@ -99,7 +96,7 @@ public class Calendar {
     public void setApptContact(String contact){
         apptContact.set(contact);
     }
-    public String getApptCotnact(){
+    public String getApptContact(){
         return apptContact.get();
     }
     //Appt URL
@@ -109,45 +106,76 @@ public class Calendar {
     public String getApptURL(){
         return apptURL;
     }
-    //Appt Date
-    public void setApptDate(String date){
-        apptDate.set(date);
-    }
-    public String getApptDate(){
-        return apptDate.get();
-    }
     //Appt Start Time
-    public void setApptStartTime(int hour, int min){
-        apptStartTime.set(hour + ":" + min);
+    public void setApptStartTime(String zonedTime){
+        apptStartTime.set(zonedTime);
     }
     public String getApptStartTime(){
         return apptStartTime.get();
     }
     //Appt End Time
-    public void setApptEndTime(int hour, int min){
-        apptEndTime.set(hour + ":" + min);
+    public void setApptEndTime(String zonedTime){
+        apptEndTime.set(zonedTime);
     }
     public String getApptEndTime(){
         return apptEndTime.get();
     }
 
 //Check if appointment is already in DB
-    public int isApptValid(){
-        return apptID;
+    public List isApptValid(int custID, String startTime, String endTime, String consultName) throws SQLException{
+        System.out.println("Checking if appointment is conflicting with another.");
+        
+    //Checks Date/Time/Customer/Consultant.
+    //If eitheher customer or consultant are matched at the same date/time then those appts are returned
+        List<Calendar> tempApptsList = new ArrayList<>();
+        
+    //Try clause
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM appointment WHERE (customerID=? AND start>=? AND end<=?) OR (contact=? AND start>=? AND end<=?);")){
+            ps.setInt(1, custID);
+            ps.setTimestamp(2, java.sql.Timestamp.valueOf(startTime));
+            ps.setTimestamp(3, java.sql.Timestamp.valueOf(endTime));
+            ps.setString(4, consultName);
+            ps.setTimestamp(5, java.sql.Timestamp.valueOf(startTime));
+            ps.setTimestamp(6, java.sql.Timestamp.valueOf(endTime));
+            rs = ps.executeQuery();
+
+        //Set variables with data from DB
+            while(rs.next()){
+                System.out.println("An appointment exists for either customer or consultant");
+                Calendar tempAppt = new Calendar();
+             
+            //Create appointment and add to ArrayList
+                tempAppt.setApptID(rs.getInt("appointmentId"));
+                tempAppt.setCustID(rs.getInt("customerId"));
+                tempAppt.setApptContact("contact");
+                tempAppt.setApptStartTime("start");
+                tempAppt.setApptEndTime("end");
+                tempApptsList.add(tempAppt);
+            }
+            
+            int count = tempApptsList.size();
+            System.out.println("Count of Appts: " + count);
+
+        }
+        catch(SQLException err){
+            err.printStackTrace();
+        }
+
+        return tempApptsList;
     }
 
 //Add Appt method
     public void addAppt(String custName, String title, String desc, String loc, String contact, String url, String start, String end, String user) throws SQLException{
-        try{
-        //Set SQL based variables
-            conn = getConn();
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("INSERT INTO appointment (customerId, title, description, location, contact, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy) "
+                                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, NOW(), ?)")){
             
             Customer tempCust = new Customer();
             int custID = tempCust.isIDValid("Customer", "customerName", "customerId", custName);
 
         //SQL Statement to insert data
-            ps = conn.prepareStatement("INSERT INTO appointment (customerId, title, description, location, contact, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy) "
-                                     + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, NOW(), ?)");
+            
             ps.setInt(1, custID);
             ps.setString(2, title);
             ps.setString(3, desc);
@@ -163,14 +191,6 @@ public class Calendar {
         }
         catch(SQLException err){
             
-        }
-        finally{
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
         }
     }
 }

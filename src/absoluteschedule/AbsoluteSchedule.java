@@ -8,8 +8,6 @@ package absoluteschedule;
 import absoluteschedule.Helper.ListManage;
 import absoluteschedule.Model.Customer;
 import absoluteschedule.View_Controller.LogInController;
-import absoluteschedule.View_Controller.MainViewController;
-import static java.awt.SystemColor.window;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -19,15 +17,10 @@ import java.util.List;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import javafx.stage.Window;
 
 /**
  *
