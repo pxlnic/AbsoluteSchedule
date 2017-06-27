@@ -6,6 +6,7 @@
 package absoluteschedule;
 
 import absoluteschedule.Helper.ListManage;
+import absoluteschedule.Model.Calendar;
 import absoluteschedule.Model.Customer;
 import absoluteschedule.View_Controller.LogInController;
 import java.io.IOException;
@@ -31,9 +32,22 @@ public class AbsoluteSchedule extends Application {
 //Instance Variables
     Stage window;
     private static ObservableList<Customer> loadCustomerList = FXCollections.observableArrayList();
+    private static ObservableList<Calendar> loadApptList = FXCollections.observableArrayList();
     private static List<String> custNameList = new ArrayList<>();
+    
+//Load customers and Appointments
+    public static void reloadLists() throws SQLException{
+        loadCustomerList.clear();
+        loadApptList.clear();
+        ListManage l = new ListManage();
+        loadCustomerList = l.loadCustomers();
+        loadApptList = l.loadAppts();
+    }
     public static ObservableList<Customer> getCustList(){
         return loadCustomerList;
+    }
+    public static ObservableList<Calendar> getApptList(){
+        return loadApptList;
     }
     
     
@@ -80,8 +94,7 @@ public class AbsoluteSchedule extends Application {
         conn.close();
         
     //Populate Customer and Calendar data
-        ListManage l= new ListManage();
-        loadCustomerList = l.getCustList();
+        reloadLists();
     }
 
     /**

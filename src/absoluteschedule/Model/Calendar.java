@@ -11,6 +11,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -131,7 +133,7 @@ public class Calendar {
         
     //Try clause
         try(Connection conn = getConn();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM appointment WHERE (customerID=? AND start>=? AND end<=?) OR (contact=? AND start>=? AND end<=?);")){
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM appointment WHERE (customerID=? AND (start>=? OR end<=?)) OR (contact=? AND (start>=? OR end<=?));")){
             ps.setInt(1, custID);
             ps.setTimestamp(2, java.sql.Timestamp.valueOf(startTime));
             ps.setTimestamp(3, java.sql.Timestamp.valueOf(endTime));
@@ -166,13 +168,10 @@ public class Calendar {
     }
 
 //Add Appt method
-    public void addAppt(String custName, String title, String desc, String loc, String contact, String url, String start, String end, String user) throws SQLException{
+    public void addAppt(int custID, String title, String desc, String loc, String contact, String url, String start, String end, String user) throws SQLException{
         try(Connection conn = getConn();
             PreparedStatement ps = conn.prepareStatement("INSERT INTO appointment (customerId, title, description, location, contact, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy) "
                                      + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, NOW(), ?)")){
-            
-            Customer tempCust = new Customer();
-            int custID = tempCust.isIDValid("Customer", "customerName", "customerId", custName);
 
         //SQL Statement to insert data
             
@@ -182,8 +181,8 @@ public class Calendar {
             ps.setString(4, loc);
             ps.setString(5, contact);
             ps.setString(6, url);
-            ps.setString(7, start);
-            ps.setString(8, end);
+            ps.setTimestamp(7, java.sql.Timestamp.valueOf(start));
+            ps.setTimestamp(8, java.sql.Timestamp.valueOf(end));
             ps.setString(9, user);
             ps.setString(10, user);
             ps.execute();
@@ -192,6 +191,26 @@ public class Calendar {
         catch(SQLException err){
             
         }
+    }
+    
+//Convert Date/Time for SQL Statement
+    public static String convertToUTC(String str){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+        LocalDateTime passedTime = LocalDateTime.parse(str, formatter);
+        ZonedDateTime localTime = ZonedDateTime.of(passedTime, ZoneId.systemDefault());
+        ZonedDateTime UTCTime = localTime.withZoneSameInstant(ZoneOffset.UTC);
+        String dateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(UTCTime);
+        
+        return dateTime;
+    }
+    public static String convertToLocal(String str){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime passedTime = LocalDateTime.parse(str, formatter);
+        ZonedDateTime UTCTime = ZonedDateTime.of(passedTime, ZoneId.of("UTC"));
+        ZonedDateTime localTime = UTCTime.withZoneSameInstant(ZoneOffset.systemDefault());
+        String dateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(localTime);
+
+        return dateTime;
     }
 }
 

@@ -6,11 +6,28 @@
 package absoluteschedule.View_Controller;
 
 import absoluteschedule.AbsoluteSchedule;
+import static absoluteschedule.AbsoluteSchedule.getApptList;
+import absoluteschedule.Model.Calendar;
 import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
 import java.io.IOException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,6 +38,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.stage.Stage;
+import javax.swing.text.DateFormatter;
 
 /**
  * FXML Controller class
@@ -51,6 +69,10 @@ public class MainViewController implements Initializable {
     
 //Instance Variables
     private AbsoluteSchedule mainApp;
+    private List<Calendar> apptList = new ArrayList<>();
+    private int todaysCount = 0;
+    private int thisWeeksCount = 0;
+    private int thisMonthsCount = 0;
         
 //Constructor
     public MainViewController(){
@@ -123,11 +145,53 @@ public class MainViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
+        apptList = getApptList();
+        getApptCount();
+        System.out.println("Count of appts: " + apptList.size());
+        
         MainWelcomeLabel.setText("Welcome, " + loggedOnUser());
+        MainTodaysApptCountLabel.setText("Daily Appt. Count: " + todaysCount);
+        MainWeekApptCountLabel.setText("Weekly Appt. Count: " + thisWeeksCount);
+        MainMonthApptCountLabel.setText("Monthly Appt. Count: " + thisMonthsCount);
     }    
     
 //Set mainApp to the main application.
     public void setMainApp(AbsoluteSchedule mainApp) {
         this.mainApp = mainApp;
+    }
+    
+//Get appointment counts
+    public void getApptCount(){
+        LocalDate today = LocalDate.now();
+        for(int i = 0; i < apptList.size(); i++){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String dateString = apptList.get(i).getApptStartTime();
+            String subDate = dateString.substring(0,10);
+            String subToday = formatter.format(today);
+            LocalDate date = LocalDate.parse(subDate, formatter);
+            LocalDate todayFormatted = LocalDate.parse(subToday, formatter);
+            if(date.equals(todayFormatted)){
+                System.out.println("Date :" + date + " is today.");
+                todaysCount = todaysCount+1;
+            }
+            else{
+                System.out.println("Date: " + date + " is not today");
+            }
+            if(date.isAfter(todayFormatted.with(DayOfWeek.MONDAY)) && date.isBefore(todayFormatted.with(DayOfWeek.FRIDAY))){
+                System.out.println("Date: " + date + " is within current week.");
+                thisWeeksCount = thisWeeksCount+1;
+            }
+            else{
+                System.out.println("Date: " + date + " is not within current week.");
+            }
+            if(date.isAfter(todayFormatted.with(TemporalAdjusters.firstDayOfMonth())) && date.isBefore(todayFormatted.with(TemporalAdjusters.lastDayOfMonth()))){
+                System.out.println("Date: " + date + " is within current month.");
+                thisMonthsCount = thisMonthsCount+1;
+            }
+            else{
+                System.out.println("Date: " + date + " is not within this month.");
+            }
+        }
+        System.out.println("Today: " + todaysCount + ", This Week: " + thisWeeksCount + ", This Month: " + thisMonthsCount);
     }
 }

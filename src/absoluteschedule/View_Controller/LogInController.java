@@ -53,9 +53,8 @@ public class LogInController implements Initializable {
 //Instance Variables
     private AbsoluteSchedule mainApp;
     private Connection conn;
-    private PreparedStatement ps = null;
     private ResultSet rs = null;
-    private ResourceBundle localization;
+    private ResourceBundle localization = loadResourceBundle();;
     private static String user;
     
 //FXML Button Handlers
@@ -69,9 +68,6 @@ public class LogInController implements Initializable {
     @FXML void LoginSubmitClicked(ActionEvent event) throws IOException, SQLException {
         System.out.println("Login clicked");
         
-    //Load Resources
-        localization = loadResourceBundle();
-        
     //Capture textfield info
         String userName = LoginUserNameField.getText().trim();
         String password = LoginPasswordField.getText().trim();
@@ -81,9 +77,8 @@ public class LogInController implements Initializable {
         String logMessage = "";
         
     //Try statement to run query and complete login
-        try{
-        //Open connection
-            Connection conn = getConn();
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM user WHERE userName=? AND password=?")){
 
         //Validating textfield data was gathered and SQL Query values to select instnatiated
             System.out.println("Username: " + userName);
@@ -92,7 +87,7 @@ public class LogInController implements Initializable {
             String dbPassword = "";
 
         //Query to check macthing
-            ps = conn.prepareStatement("SELECT * FROM user WHERE userName=? AND password=?");
+            
             ps.setString(1, userName);
             ps.setString(2, password);
             rs = ps.executeQuery();
@@ -140,14 +135,6 @@ public class LogInController implements Initializable {
         }
         catch(SQLException err){
 
-        }
-        finally {
-            if (ps != null) {
-                ps.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
         }
         
     //Create/Write log file

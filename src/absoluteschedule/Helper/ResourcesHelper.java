@@ -21,7 +21,6 @@ public class ResourcesHelper {
     public static ResourceBundle loadResourceBundle(){
         //Locale.setDefault(new Locale("es", "US"));
         ResourceBundle localization = ResourceBundle.getBundle("resources", currentLocale);
-        System.out.println("Current TimeZone: " + TimeZone.getDefault());
         return localization;
     }
     

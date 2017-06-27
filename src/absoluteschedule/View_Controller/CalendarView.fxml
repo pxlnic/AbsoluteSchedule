@@ -38,6 +38,19 @@
                <children>
                   <VBox prefHeight="550.0" prefWidth="350.0">
                      <children>
+                        <Label text="Label">
+                           <font>
+                              <Font size="16.0" />
+                           </font>
+                           <VBox.margin>
+                              <Insets bottom="3.0" left="10.0" />
+                           </VBox.margin>
+                        </Label>
+                        <TextField fx:id="CalendarIDField" disable="true" editable="false" prefWidth="50.0" promptText="ID is created automatically">
+                           <VBox.margin>
+                              <Insets bottom="10.0" />
+                           </VBox.margin>
+                        </TextField>
                         <Label text="Date">
                            <font>
                               <Font size="16.0" />

@@ -6,6 +6,7 @@
 package absoluteschedule.View_Controller;
 
 import static absoluteschedule.AbsoluteSchedule.getCustList;
+import static absoluteschedule.AbsoluteSchedule.reloadLists;
 import absoluteschedule.Model.Customer;
 import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
 import java.io.IOException;
@@ -111,15 +112,7 @@ public class CustomerViewController implements Initializable {
     }
 //Clear Button handler
     @FXML void CustomerClearClick(ActionEvent event) {
-        CustomerIDField.setText("");
-        CustomerNameField.setText("");
-        CustomerAddress1Field.setText("");
-        CustomerAddress2Field.setText("");
-        CustomerCityField.setText("");
-        CustomerCountryField.setText("");
-        CustomerPostalCodeField.setText("");
-        CustomerPhoneNumberField.setText("");
-        CustomerActiveCheckbox.setSelected(false);
+        clearFields();
     }
 //Save Button handler
     @FXML void CustomerSaveClick(ActionEvent event) throws SQLException {
@@ -174,7 +167,7 @@ public class CustomerViewController implements Initializable {
             System.out.println("City already exists in DB.");
         }
         //Add/Update address
-        if(addressID == -1 && CustomerIDField.getText().trim() == null){
+        if(addressID == -1 && CustomerIDField.getText().trim().isEmpty()){
             tempCust.addAddress(tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustCity(), tempCust.getCustPostalCode(), tempCust.getCustPhone(), user);
         }
         else{
@@ -182,13 +175,16 @@ public class CustomerViewController implements Initializable {
             tempCust.updateAddress(prevCustAddrID, tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustCity(), tempCust.getCustPostalCode(), tempCust.getCustPhone(), user);
         }
         //Add/Update customer
-        if(customerID == -1 && (CustomerIDField.getText().trim() == null)){
+        if(customerID == -1 && (CustomerIDField.getText().trim().isEmpty())){
             tempCust.addCustomer(tempCust.getCustName(), tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustActive(), user);
         }
         else{
             System.out.println("Customer info updated for this customer.");
             tempCust.updateCust(prevCustID, tempCust.getCustName(), tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustActive(), user);
         }
+   
+    //Refresh Customer List
+        reloadLists();
     }
 //Search Button handler
     @FXML void CustomerSearchClick(ActionEvent event) {
@@ -204,19 +200,11 @@ public class CustomerViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        customerList = getCustList();
-        
-    //Populate TableView Data
-        CustomerID.setCellValueFactory(cellData -> cellData.getValue().custIDProperty().asObject());
-        CustomerName.setCellValueFactory(cellData -> cellData.getValue().custNameProperty());
-        CustomerAddress.setCellValueFactory(cellData -> Bindings.concat(cellData.getValue().custAddress1Property()," ",cellData.getValue().custAddress2Property()));
-        CustomerPostalCode.setCellValueFactory(cellData -> cellData.getValue().custPostalCodeProperty());
-            
-    //Load TableView
-        updateCustomerTableView();
+         reloadCustomers();
         
     //Enable TableView Selection to populate textfields
         CustomerTableView.getSelectionModel().selectedItemProperty().addListener((Observable, oldValue, selectedCust) -> {
+            if(CustomerTableView.isFocused() == true){
             System.out.println("Customer: " + selectedCust.getCustName() + " was selected.");
             System.out.println("City: " + selectedCust.getCustCity() + ", Phone: " + selectedCust.getCustPhone() + ", Country: " + selectedCust.getCustCountry());
         //Set textfield values
@@ -241,11 +229,38 @@ public class CustomerViewController implements Initializable {
             prevCustPhone = selectedCust.getCustPhone();
             prevCustPostalCode = selectedCust.getCustPostalCode();
             prevCustCity = selectedCust.getCustCity();
+            }
         });
     }
-    
-//Load TableView Data
-    private void updateCustomerTableView(){
+
+//Clear Fields
+    private void clearFields(){
+        CustomerIDField.setText("");
+        CustomerNameField.setText("");
+        CustomerAddress1Field.setText("");
+        CustomerAddress2Field.setText("");
+        CustomerCityField.setText("");
+        CustomerCountryField.setText("");
+        CustomerPostalCodeField.setText("");
+        CustomerPhoneNumberField.setText("");
+        CustomerActiveCheckbox.setSelected(false);
+    }
+//Load/Reload customer data and tableview
+    private void reloadCustomers(){
+    //Clear Fields
+        clearFields();
+        
+    //Clear and reload customer list
+        customerList.clear();
+        customerList = getCustList();
+        
+    //Populate TableView Data
+        CustomerID.setCellValueFactory(cellData -> cellData.getValue().custIDProperty().asObject());
+        CustomerName.setCellValueFactory(cellData -> cellData.getValue().custNameProperty());
+        CustomerAddress.setCellValueFactory(cellData -> Bindings.concat(cellData.getValue().custAddress1Property()," ",cellData.getValue().custAddress2Property()));
+        CustomerPostalCode.setCellValueFactory(cellData -> cellData.getValue().custPostalCodeProperty());
+            
+    //Load TableView
         CustomerTableView.setItems(customerList);
     }
 }

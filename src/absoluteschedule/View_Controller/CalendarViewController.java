@@ -8,7 +8,10 @@ package absoluteschedule.View_Controller;
 import static absoluteschedule.AbsoluteSchedule.getCustList;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import absoluteschedule.Model.Calendar;
+import static absoluteschedule.Model.Calendar.convertToLocal;
+import static absoluteschedule.Model.Calendar.convertToUTC;
 import absoluteschedule.Model.Customer;
+import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -16,11 +19,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -54,6 +52,7 @@ public class CalendarViewController implements Initializable {
 
 //FXML Declarations
     //Appointment entry items
+    @FXML private TextField CalendarIDField;
     @FXML private DatePicker CalendarDatePicker;
     @FXML private ComboBox<String> CalendarTimeHourCombo;
     @FXML private ComboBox<String> CalendarTimeMinCombo;
@@ -84,6 +83,7 @@ public class CalendarViewController implements Initializable {
     private List<String> minList = new ArrayList<>();
     private List<String> locList = new ArrayList<>();
     private List<String> consultantList = new ArrayList<>();
+    private String user = loggedOnUser();
     
 //SQL DB Variables
     private ResultSet rs = null;
@@ -112,12 +112,14 @@ public class CalendarViewController implements Initializable {
     }
     //Clear Button handler
     @FXML void CalendarClearClick(ActionEvent event) {
+        CalendarIDField.setText("");
         CalendarDatePicker.setValue(LocalDate.now());
         CalendarTimeHourCombo.getItems().clear();
         CalendarTimeMinCombo.getItems().clear();
         CalendarEndTimeHourCombo.getItems().clear();
         CalendarEndTimeMinCombo.getItems().clear();
         CalendarCustomerCombo.getItems().clear();
+        CalendarConsultantCombo.getItems().clear();
         CalendarLocationCombo.getItems().clear();
         CalendaryAllDayCheckbox.setSelected(false);
         CalendarTitleField.setText("");
@@ -166,7 +168,20 @@ public class CalendarViewController implements Initializable {
     //Validate if appointment is already in system
         tempApptList = tempAppt.isApptValid(tempAppt.getCustID(), tempAppt.getApptStartTime(), tempAppt.getApptEndTime(), tempAppt.getApptContact());
         
-    //Add appointment
+    //Add or update appointment
+        if(tempApptList.size()>0){
+            if(CalendarIDField.getText().trim().isEmpty()){
+                //Error Message
+                System.out.println("This appointment conflicts with " + tempApptList.size() + " appointments.");
+            }
+            else{
+                //Update appointment
+                System.out.println("This appointment is being updated.");
+            }
+        }
+        else{
+            tempAppt.addAppt(custID, tempAppt.getApptTitle(), tempAppt.getApptDesc(), tempAppt.getApptLoc(), tempAppt.getApptContact(), "url", startUtc, endUtc, user);
+        }
     }
     //Month Back Button handler
     @FXML void CalendarMonthBackClick(ActionEvent event) {
@@ -224,29 +239,7 @@ public class CalendarViewController implements Initializable {
         }
         return id;
     }
-    
-//Convert Date/Time for SQL Statement
-    public String convertToUTC(String str){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        LocalDateTime passedTime = LocalDateTime.parse(str, formatter);
-        ZonedDateTime localTime = ZonedDateTime.of(passedTime, ZoneId.systemDefault());
-        ZonedDateTime UTCTime = localTime.withZoneSameInstant(ZoneOffset.UTC);
-        String dateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(UTCTime);
-        System.out.println(dateTime);
-        
-        return dateTime;
-    }
-    public String convertToLocal(String str){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime passedTime = LocalDateTime.parse(str, formatter);
-        ZonedDateTime UTCTime = ZonedDateTime.of(passedTime, ZoneId.of("UTC"));
-        ZonedDateTime localTime = UTCTime.withZoneSameInstant(ZoneOffset.systemDefault());
-        String dateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(localTime);
-        System.out.println(dateTime);
-
-        return dateTime;
-    }
-    
+     
 //Load hours and min into ArrayList
     private void loadHour(){
         for(int i=0; i<24; i++){
