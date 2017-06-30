@@ -7,38 +7,42 @@ package absoluteschedule.View_Controller;
 
 import absoluteschedule.AbsoluteSchedule;
 import static absoluteschedule.AbsoluteSchedule.getApptList;
+import static absoluteschedule.AbsoluteSchedule.getMainCustList;
+import static absoluteschedule.AbsoluteSchedule.reloadMainApptList;
 import absoluteschedule.Model.Calendar;
+import static absoluteschedule.Model.Calendar.convertToLocal;
+import absoluteschedule.Model.Customer;
 import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
 import java.io.IOException;
 import java.net.URL;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.sql.SQLException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
-import javax.swing.text.DateFormatter;
+import javafx.util.Duration;
 
 /**
  * FXML Controller class
@@ -48,6 +52,9 @@ import javax.swing.text.DateFormatter;
 public class MainViewController implements Initializable {
 
 //FXML Declarations
+//Agenda Container
+    @FXML private VBox MainAgendaVbox;
+    
 //Header Labels
     @FXML private Label MainWelcomeLabel;
     @FXML private Label MainDateTimeLabel;
@@ -70,6 +77,8 @@ public class MainViewController implements Initializable {
 //Instance Variables
     private AbsoluteSchedule mainApp;
     private List<Calendar> apptList = new ArrayList<>();
+    private List<Calendar> todaysAppts = new ArrayList<>();
+    private List<Customer> localCustList = new ArrayList<>();
     private int todaysCount = 0;
     private int thisWeeksCount = 0;
     private int thisMonthsCount = 0;
@@ -144,15 +153,31 @@ public class MainViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        
+    //Load appointment data
+        try {
+            // TODO
+            reloadMainApptList();
+        } catch (SQLException ex) {
+            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         apptList = getApptList();
         getApptCount();
         System.out.println("Count of appts: " + apptList.size());
         
+    //Set Welcome message and appointments counts
         MainWelcomeLabel.setText("Welcome, " + loggedOnUser());
         MainTodaysApptCountLabel.setText("Daily Appt. Count: " + todaysCount);
         MainWeekApptCountLabel.setText("Weekly Appt. Count: " + thisWeeksCount);
         MainMonthApptCountLabel.setText("Monthly Appt. Count: " + thisMonthsCount);
+        
+    //Update Time
+        updateClock();
+        
+    //Load Agenda Items
+        for(int i=0; i<todaysAppts.size(); i++){
+            newAgendaItem(i);
+        }
     }    
     
 //Set mainApp to the main application.
@@ -173,6 +198,7 @@ public class MainViewController implements Initializable {
             if(date.equals(todayFormatted)){
                 System.out.println("Date :" + date + " is today.");
                 todaysCount = todaysCount+1;
+                todaysAppts.add(apptList.get(i));
             }
             else{
                 System.out.println("Date: " + date + " is not today");
@@ -193,5 +219,55 @@ public class MainViewController implements Initializable {
             }
         }
         System.out.println("Today: " + todaysCount + ", This Week: " + thisWeeksCount + ", This Month: " + thisMonthsCount);
+    }
+    
+//Get customer names
+    public void getCustNames(){
+        localCustList = getMainCustList();
+    }
+    
+//Update Time
+    public void updateClock(){
+    //
+        Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(1), ev -> {
+            MainDateTimeLabel.setText(DateTimeFormatter.ofPattern("MMM, dd yyyy  h:mm a").format(LocalDateTime.now()));
+        }));
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play(); 
+
+    }
+    
+//Create new HBox for agenda and format
+    public void newAgendaItem(int j){
+    //ArrayList for customers
+        getCustNames();
+        
+    //Create & add new HBox
+        VBox temp = new VBox();
+        MainAgendaVbox.getChildren().add(temp);
+        
+    //Create labels
+        //Time of meeting
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+        LocalDateTime time = LocalDateTime.parse(todaysAppts.get(j).getApptStartTime(), formatter);
+        String localTimeStr = convertToLocal(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(time));     
+        Label tempTime = new Label(localTimeStr);
+        //Title of meeting
+        Label tempTitle = new Label(todaysAppts.get(j).getApptTitle());
+        //Consultant and customer meeting
+        String custName = localCustList.get(todaysAppts.get(j).getCustID()-1).getCustName();
+        Label tempPersons = new Label(todaysAppts.get(j).getApptContact() + " meeting with " + custName);
+        
+    //Format Labels
+        MainAgendaVbox.setMargin(temp, new Insets(15,15,0,15));
+        temp.setPadding(new Insets(10,10,10,10));
+        temp.setMargin(tempTime, new Insets(0,0,5,5));
+        temp.setMargin(tempTitle, new Insets(0,0,5,15));
+        temp.setMargin(tempPersons, new Insets(0,0,5,15));
+        temp.setStyle("-fx-border-style: solid;");
+    
+    //Add Labels
+        temp.getChildren().addAll(tempTime, tempTitle, tempPersons);
+
     }
 }

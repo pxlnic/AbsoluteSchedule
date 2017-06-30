@@ -169,12 +169,7 @@
             <Separator layoutY="675.0" prefWidth="650.0" />
             <ScrollPane layoutY="100.0" prefHeight="575.0" prefWidth="650.0">
                <content>
-                  <VBox prefHeight="575.0" prefWidth="630.0">
-                     <children>
-                        <HBox prefHeight="100.0" prefWidth="200.0" />
-                        <HBox prefHeight="100.0" prefWidth="200.0" />
-                     </children>
-                  </VBox>
+                  <VBox fx:id="MainAgendaVbox" prefHeight="575.0" prefWidth="630.0" />
                </content>
             </ScrollPane>
          </children>

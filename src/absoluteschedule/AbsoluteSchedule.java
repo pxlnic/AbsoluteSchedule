@@ -31,23 +31,29 @@ public class AbsoluteSchedule extends Application {
     
 //Instance Variables
     Stage window;
-    private static ObservableList<Customer> loadCustomerList = FXCollections.observableArrayList();
-    private static ObservableList<Calendar> loadApptList = FXCollections.observableArrayList();
+    private static ObservableList<Customer> mainCustomerList = FXCollections.observableArrayList();
+    private static ObservableList<Calendar> mainApptList = FXCollections.observableArrayList();
     private static List<String> custNameList = new ArrayList<>();
+    private static ListManage l = new ListManage();
     
 //Load customers and Appointments
-    public static void reloadLists() throws SQLException{
-        loadCustomerList.clear();
-        loadApptList.clear();
-        ListManage l = new ListManage();
-        loadCustomerList = l.loadCustomers();
-        loadApptList = l.loadAppts();
+    public static void reloadMainCustList() throws SQLException{
+        System.out.println("Main Reload Count 1: " + mainCustomerList.size());
+        mainCustomerList.clear();
+        System.out.println("Main Reload Count 2: " + mainCustomerList.size());
+        mainCustomerList = l.loadCustomers();
+        System.out.println("Main Reload Count 3: " + mainCustomerList.size());
     }
-    public static ObservableList<Customer> getCustList(){
-        return loadCustomerList;
+    public static void reloadMainApptList() throws SQLException{
+        mainApptList.clear();
+        mainApptList = l.loadAppts();
+    }
+    public static ObservableList<Customer> getMainCustList(){
+        System.out.println("Main Count Retrieve: " + mainCustomerList.size());
+        return mainCustomerList;
     }
     public static ObservableList<Calendar> getApptList(){
-        return loadApptList;
+        return mainApptList;
     }
     
     
@@ -94,7 +100,8 @@ public class AbsoluteSchedule extends Application {
         conn.close();
         
     //Populate Customer and Calendar data
-        reloadLists();
+        reloadMainCustList();
+        reloadMainApptList();
     }
 
     /**

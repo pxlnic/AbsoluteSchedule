@@ -5,8 +5,8 @@
  */
 package absoluteschedule.View_Controller;
 
-import static absoluteschedule.AbsoluteSchedule.getCustList;
-import static absoluteschedule.AbsoluteSchedule.reloadLists;
+import static absoluteschedule.AbsoluteSchedule.getMainCustList;
+import static absoluteschedule.AbsoluteSchedule.reloadMainCustList;
 import absoluteschedule.Model.Customer;
 import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
 import java.io.IOException;
@@ -16,6 +16,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -184,7 +186,7 @@ public class CustomerViewController implements Initializable {
         }
    
     //Refresh Customer List
-        reloadLists();
+        reloadMainCustList();
     }
 //Search Button handler
     @FXML void CustomerSearchClick(ActionEvent event) {
@@ -200,35 +202,44 @@ public class CustomerViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-         reloadCustomers();
+        System.out.println("Customer View Loaded!");
+        try {
+            reloadCustomers();
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        CustomerTableView.refresh();
+        CustomerTableView.requestFocus();
+        CustomerTableView.getSelectionModel().select(0);
+        CustomerTableView.getFocusModel().focus(0);
         
     //Enable TableView Selection to populate textfields
         CustomerTableView.getSelectionModel().selectedItemProperty().addListener((Observable, oldValue, selectedCust) -> {
             if(CustomerTableView.isFocused() == true){
-            System.out.println("Customer: " + selectedCust.getCustName() + " was selected.");
-            System.out.println("City: " + selectedCust.getCustCity() + ", Phone: " + selectedCust.getCustPhone() + ", Country: " + selectedCust.getCustCountry());
-        //Set textfield values
-            String id = Integer.toString(selectedCust.getCustID());
-            CustomerIDField.setText(id);
-            CustomerNameField.setText(selectedCust.getCustName());
-            CustomerAddress1Field.setText(selectedCust.getCustAddress1());
-            CustomerAddress2Field.setText(selectedCust.getCustAddress2());
-            CustomerCityField.setText(selectedCust.getCustCity());
-            CustomerCountryField.setText(selectedCust.getCustCountry());
-            CustomerPostalCodeField.setText(selectedCust.getCustPostalCode());
-            CustomerPhoneNumberField.setText(selectedCust.getCustPhone());
-            if(selectedCust.getCustActive()==1){
-                CustomerActiveCheckbox.setSelected(true);
-            }
-            else{
-                CustomerActiveCheckbox.setSelected(false);
-            }
-            prevCustID = selectedCust.getCustID();
-            prevCustAddrID = selectedCust.getAddrID();
-            prevCustActive = selectedCust.getCustActive();
-            prevCustPhone = selectedCust.getCustPhone();
-            prevCustPostalCode = selectedCust.getCustPostalCode();
-            prevCustCity = selectedCust.getCustCity();
+                System.out.println("Customer: " + selectedCust.getCustName() + " was selected.");
+                System.out.println("City: " + selectedCust.getCustCity() + ", Phone: " + selectedCust.getCustPhone() + ", Country: " + selectedCust.getCustCountry());
+            //Set textfield values
+                String id = Integer.toString(selectedCust.getCustID());
+                CustomerIDField.setText(id);
+                CustomerNameField.setText(selectedCust.getCustName());
+                CustomerAddress1Field.setText(selectedCust.getCustAddress1());
+                CustomerAddress2Field.setText(selectedCust.getCustAddress2());
+                CustomerCityField.setText(selectedCust.getCustCity());
+                CustomerCountryField.setText(selectedCust.getCustCountry());
+                CustomerPostalCodeField.setText(selectedCust.getCustPostalCode());
+                CustomerPhoneNumberField.setText(selectedCust.getCustPhone());
+                if(selectedCust.getCustActive()==1){
+                    CustomerActiveCheckbox.setSelected(true);
+                }
+                else{
+                    CustomerActiveCheckbox.setSelected(false);
+                }
+                prevCustID = selectedCust.getCustID();
+                prevCustAddrID = selectedCust.getAddrID();
+                prevCustActive = selectedCust.getCustActive();
+                prevCustPhone = selectedCust.getCustPhone();
+                prevCustPostalCode = selectedCust.getCustPostalCode();
+                prevCustCity = selectedCust.getCustCity();
             }
         });
     }
@@ -246,13 +257,17 @@ public class CustomerViewController implements Initializable {
         CustomerActiveCheckbox.setSelected(false);
     }
 //Load/Reload customer data and tableview
-    private void reloadCustomers(){
+    private void reloadCustomers() throws SQLException{
+        System.out.println("Customer List Loading.");
+
     //Clear Fields
         clearFields();
         
     //Clear and reload customer list
         customerList.clear();
-        customerList = getCustList();
+        reloadMainCustList();
+        customerList = getMainCustList();
+        System.out.println("There are " + customerList.size() + " customers in the list.");
         
     //Populate TableView Data
         CustomerID.setCellValueFactory(cellData -> cellData.getValue().custIDProperty().asObject());
@@ -261,6 +276,7 @@ public class CustomerViewController implements Initializable {
         CustomerPostalCode.setCellValueFactory(cellData -> cellData.getValue().custPostalCodeProperty());
             
     //Load TableView
+        System.out.println("TableView being set with " + customerList.size() + " customers.");
         CustomerTableView.setItems(customerList);
     }
 }

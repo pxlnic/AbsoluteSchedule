@@ -5,7 +5,7 @@
  */
 package absoluteschedule.View_Controller;
 
-import static absoluteschedule.AbsoluteSchedule.getCustList;
+import static absoluteschedule.AbsoluteSchedule.getMainCustList;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import absoluteschedule.Model.Calendar;
 import static absoluteschedule.Model.Calendar.convertToLocal;
@@ -197,7 +197,7 @@ public class CalendarViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        calCustList = getCustList();
+        calCustList = getMainCustList();
         loadCustNames();
         try {
             loadLocList();

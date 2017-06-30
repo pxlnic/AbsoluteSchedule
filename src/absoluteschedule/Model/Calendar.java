@@ -133,7 +133,7 @@ public class Calendar {
         
     //Try clause
         try(Connection conn = getConn();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM appointment WHERE (customerID=? AND (start>=? OR end<=?)) OR (contact=? AND (start>=? OR end<=?));")){
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM appointment WHERE (customerID=? AND (start>=? AND end<=?)) OR (contact=? AND (start>=? AND end<=?));")){
             ps.setInt(1, custID);
             ps.setTimestamp(2, java.sql.Timestamp.valueOf(startTime));
             ps.setTimestamp(3, java.sql.Timestamp.valueOf(endTime));
@@ -208,7 +208,7 @@ public class Calendar {
         LocalDateTime passedTime = LocalDateTime.parse(str, formatter);
         ZonedDateTime UTCTime = ZonedDateTime.of(passedTime, ZoneId.of("UTC"));
         ZonedDateTime localTime = UTCTime.withZoneSameInstant(ZoneOffset.systemDefault());
-        String dateTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(localTime);
+        String dateTime = DateTimeFormatter.ofPattern("h:mm a").format(localTime);
 
         return dateTime;
     }

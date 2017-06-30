@@ -66,7 +66,7 @@ public class ListManage {
         catch(SQLException err){
             err.printStackTrace();
         }
-        System.out.println("# of customers: " + custList.size());
+        System.out.println("# of customers retrieved from DB: " + custList.size());
     //Return list of customers
         return custList;
     } 
