@@ -6,19 +6,26 @@
 package absoluteschedule.View_Controller;
 
 import static absoluteschedule.AbsoluteSchedule.getMainCustList;
+import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import absoluteschedule.Model.Calendar;
 import static absoluteschedule.Model.Calendar.convertToLocal;
 import static absoluteschedule.Model.Calendar.convertToUTC;
 import absoluteschedule.Model.Customer;
 import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
+import static absoluteschedule.View_Controller.MainViewController.getMonthsAppts;
+import static absoluteschedule.View_Controller.MainViewController.getWeeksAppts;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -28,6 +35,8 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -40,6 +49,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -69,12 +81,20 @@ public class CalendarViewController implements Initializable {
     @FXML private Button CalendarSaveButton;
     
     //Week Tab
+    @FXML private GridPane CalendarWeekGrid;
+    @FXML private VBox CalendarWeekSunday;
+    @FXML private VBox CalendarWeekMonday;
+    @FXML private VBox CalendarWeekTuesday;
+    @FXML private VBox CalendarWeekWednesday;
+    @FXML private VBox CalendarWeekThursday;
+    @FXML private VBox CalendarWeekFriday;
+    @FXML private VBox CalendarWeekSaturday;
     
     //Month Tab
+    @FXML private GridPane CalendarMonthGrid;
     @FXML private Button CalendarMonthBackButton;
     @FXML private Label CalendarMonthTabHeader;
     @FXML private Button CalendarMonthNextButton;
-    @FXML private GridPane CalendarMonthGrid;
     
 //Instance Variables
     private List<Customer> calCustList = new ArrayList<>();
@@ -83,11 +103,13 @@ public class CalendarViewController implements Initializable {
     private List<String> minList = new ArrayList<>();
     private List<String> locList = new ArrayList<>();
     private List<String> consultantList = new ArrayList<>();
+    private List<Calendar> thisWeeksAppts = new ArrayList<>();
+    private List<Calendar> thisMonthsAppts = new ArrayList<>();
     private String user = loggedOnUser();
     
 //SQL DB Variables
     private ResultSet rs = null;
-    private ResourceBundle localization;
+    private ResourceBundle localization = loadResourceBundle();
     
 //Footer Button handlers
     //Cancel Button handler
@@ -197,6 +219,15 @@ public class CalendarViewController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+    //Load Weekly and Monhthly Data
+        thisWeeksAppts = getWeeksAppts();
+        thisMonthsAppts = getMonthsAppts();
+        System.out.println("Week: " + thisWeeksAppts.size() + ", Month: " + thisMonthsAppts.size());
+        
+        loadWeeksAppts();
+        loadMonthsAppts();
+        
+    //Load Combo Boxes
         calCustList = getMainCustList();
         loadCustNames();
         try {
@@ -242,14 +273,13 @@ public class CalendarViewController implements Initializable {
      
 //Load hours and min into ArrayList
     private void loadHour(){
-        for(int i=0; i<24; i++){
+        for(int i=6; i<21; i++){
             if(i<10){
                 hourList.add("0"+i);
             }
             else{
             hourList.add(""+i);
             }
-            System.out.println("Hour: " + i + " was added to list.");
         }
     }
     private void loadMin(){
@@ -260,7 +290,6 @@ public class CalendarViewController implements Initializable {
             else{
                 minList.add(""+(i*5));
             }
-            System.out.println("Min : " + i*5 + " was added to list.");
         }
     }
     
@@ -282,7 +311,6 @@ public class CalendarViewController implements Initializable {
             while(rs.next()){
                 String loc = rs.getString("city");
                 locList.add(loc);
-                System.out.println("Location: " + loc + " was added to list.");
             }
         }
         catch(SQLException err){
@@ -299,12 +327,163 @@ public class CalendarViewController implements Initializable {
             while(rs.next()){
                 String user = rs.getString("userName");
                 consultantList.add(user);
-                System.out.println("Consultant: " + user + " was added to list.");
             }
         }
         catch(SQLException err){
            err.printStackTrace();
         } 
     }
+    
+//Load Weekly Appts
+    public void loadWeeksAppts(){
+        LocalDate today = LocalDate.now();
+    
+        for(int i=0; i<7; i++){
+        //Set current day
+            LocalDate dayOfWeek = today.with(DayOfWeek.MONDAY).plusDays(i-1);
+            
+        //Create nodes
+            VBox day = new VBox();                                                         //Main container for the day
+            HBox date = new HBox();                                                         //Container for Day of Month Label
+            Label dateNum = new Label(DateTimeFormatter.ofPattern("d").format(dayOfWeek));  //Label for Day Month
+            VBox apptList = new VBox();                                                     //Container for all appts for that day
+            
+            
+        //Add Appts
+            for(int a=0; a<thisWeeksAppts.size(); a++){
+            //VBox for appt
+                VBox appt = new VBox();
+            //Convert LocalDateTime to LocalDate
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+                LocalDateTime time = LocalDateTime.parse(thisWeeksAppts.get(a).getApptStartTime(), formatter);
+                LocalDate apptDate = time.toLocalDate();
+                
+            //If appt date is same as current day then appt card is created
+                if(apptDate.isEqual(dayOfWeek)){
+                //Time of meeting
+                    String localTimeStr = convertToLocal(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(time));
+                    Label tempTime = new Label(localTimeStr);
+                //Title of meeting
+                    Label tempTitle = new Label(thisWeeksAppts.get(a).getApptTitle());
+                //Consultant and customer meeting
+                    Label tempPersons = new Label("Consultant: " + thisWeeksAppts.get(a).getApptContact());
+                    
+                //Format Nodes
+                    tempTime.setFont(new Font(12));
+                    tempTitle.setFont(new Font(10));
+                    tempPersons.setFont(new Font(10));
+                    day.setMargin(appt, new Insets(5,2.5,0,2.5));
+                    appt.setPadding(new Insets(5,5,5,5));
+                    appt.setMargin(tempTime, new Insets(0,0,5,0));
+                    appt.setMargin(tempTitle, new Insets(0,0,5,5));
+                    appt.setMargin(tempPersons, new Insets(0,0,5,5));
+                    appt.setStyle("-fx-border-style: solid;" +
+                                  "-fx-border-color: C8C8C8;" +
+                                  "-fx-background-color: E6E6E6");
+
+                //Add appts to VBox
+                    appt.getChildren().addAll(tempTime, tempTitle, tempPersons);
+                    apptList.getChildren().add(appt);
+                }
+                else{
+                    System.out.println("Today: " + today);
+                    System.out.println("Appt Date: " + apptDate);
+                }
+            }
+            
+        //Format nodes
+            date.setPadding(new Insets(5,5,5,5));
+            date.setAlignment(Pos.BASELINE_RIGHT);
+            if(i==0 || i==6){
+                day.setStyle("-fx-background-color: E6E6E6");
+            }
+            
+        //Add nodes
+            System.out.println(dateNum);
+            date.getChildren().add(dateNum);
+            day.getChildren().addAll(date, apptList);
+            CalendarWeekGrid.add(day, i, 0);
+        }
+    }
+    
+//Load Monthly Appts
+    public void loadMonthsAppts(){
+        LocalDate today = LocalDate.now();
+        LocalDate firstOfMonth = today.with(TemporalAdjusters.firstDayOfMonth());
+        int firstDayIndex = Integer.parseInt(DateTimeFormatter.ofPattern("e").format(firstOfMonth))-1;
+        CalendarMonthTabHeader.setText(DateTimeFormatter.ofPattern("MMMM").format(firstOfMonth));
+        
+        System.out.println(DateTimeFormatter.ofPattern("eee").format(firstOfMonth));
+        System.out.println(firstDayIndex);
+        
+        int count = 0;
+        
+    //For loop for row
+        for(int i=0; i<5; i++){
+        //For loop for column
+            for(int j=0; j<7; j++){
+            //Set day of month
+                LocalDate dayOfMonth = firstOfMonth.plusDays(count-firstDayIndex);
+                int dayNumOfMonth = Integer.parseInt(DateTimeFormatter.ofPattern("d").format(dayOfMonth));
+                
+            //Create nodes
+                VBox day = new VBox();                   //Main container for day
+                HBox date = new HBox();                  //Container for Day of Month Label
+                Label text = new Label(dayNumOfMonth + ""); //Label for Day Month
+                VBox apptList = new VBox();              //Container for all appts for that day
+                
+            //Create Appt cards to add to appt VBox
+                for(int a=0; a<thisMonthsAppts.size(); a++){
+                //VBox for appt
+                    VBox appt = new VBox();
+                //Convert LocalDateTime to LocalDate
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+                    LocalDateTime time = LocalDateTime.parse(thisMonthsAppts.get(a).getApptStartTime(), formatter);
+                    LocalDate apptDate = time.toLocalDate();
+
+                //If appt date is same as current day then appt card is created
+                    if(apptDate.isEqual(dayOfMonth)){
+                    System.out.println("Date: " + apptDate + " was added successfully.");
+                        
+                    //Time of meeting
+                        String localTimeStr = convertToLocal(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(time)) + " - " + thisMonthsAppts.get(a).getApptContact();
+                        Label apptLabel = new Label(localTimeStr);
+
+                    //Format nodes
+                        apptLabel.setFont(new Font(8));
+                        day.setMargin(appt, new Insets(5,2.5,0,2.5));
+                        appt.setPadding(new Insets(2,2,2,2));
+                        appt.setMargin(apptLabel, new Insets(0,0,0,0));
+                        appt.setStyle("-fx-border-style: solid;" +
+                                      "-fx-border-color: C8C8C8;" +
+                                      "-fx-background-color: E6E6E6");
+
+                    //Add appts to VBox
+                        appt.getChildren().addAll(apptLabel);
+                        apptList.getChildren().add(appt);
+                    }
+                    else{
+                    }
+                }
+                
+            //Add nodes
+                date.getChildren().add(text);
+                day.getChildren().addAll(date, apptList);
+                CalendarMonthGrid.add(day, j, i);
+                count++;
+                
+            //Format nodes
+                date.setPadding(new Insets(5,5,5,5));
+                date.setAlignment(Pos.BASELINE_RIGHT);
+                if(j==0 || j==6 || (i==0 && j<firstDayIndex) || (i>3 && dayNumOfMonth<7)){
+                    day.setStyle("-fx-background-color: E6E6E6");
+                }
+            }
+        }
+        
+    }
+    
+//Convert SQL DateTime to Day of Month
+    
 }
 

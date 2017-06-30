@@ -7,6 +7,7 @@ package absoluteschedule.View_Controller;
 
 import static absoluteschedule.AbsoluteSchedule.getMainCustList;
 import static absoluteschedule.AbsoluteSchedule.reloadMainCustList;
+import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import absoluteschedule.Model.Customer;
 import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
 import java.io.IOException;
@@ -83,14 +84,11 @@ public class CustomerViewController implements Initializable {
     private String prevCustCity;
     
     //SQL DB Variables
-    private Connection conn;
-    private PreparedStatement ps = null;
     private ResultSet rs = null;
-    private ResourceBundle localization;
+    private ResourceBundle localization = loadResourceBundle();
     
-//Customer button handlers
-    
-//Cancel Button handler
+//Customer button handlers 
+    //Cancel Button handler
     @FXML void CustomerCancelClick(ActionEvent event) throws IOException {
         System.out.println("Cancel clicked. Returning to main screen.");
         
@@ -112,11 +110,11 @@ public class CustomerViewController implements Initializable {
         window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
         window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
     }
-//Clear Button handler
+    //Clear Button handler
     @FXML void CustomerClearClick(ActionEvent event) {
         clearFields();
     }
-//Save Button handler
+    //Save Button handler
     @FXML void CustomerSaveClick(ActionEvent event) throws SQLException {
     //Variables
         int countryID = -1;
@@ -188,11 +186,11 @@ public class CustomerViewController implements Initializable {
     //Refresh Customer List
         reloadMainCustList();
     }
-//Search Button handler
+    //Search Button handler
     @FXML void CustomerSearchClick(ActionEvent event) {
 
     }
-//Clear Search Button handler
+    //Clear Search Button handler
     @FXML void CustomerSearchClearClick(ActionEvent event) {
         CustomerSearchField.setText("");
     }

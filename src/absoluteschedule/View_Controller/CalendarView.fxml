@@ -6,7 +6,6 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.Tab?>
@@ -198,39 +197,37 @@
                                  <children>
                                     <HBox alignment="CENTER" prefHeight="50.0" prefWidth="850.0">
                                        <children>
-                                          <AnchorPane prefHeight="200.0" prefWidth="50.0" />
-                                          <Separator orientation="VERTICAL" prefHeight="200.0" />
-                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="90.0">
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="97.0">
                                              <children>
                                                 <Label text="Sunday" />
                                              </children>
                                           </HBox>
-                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="120.0">
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="127.0">
                                              <children>
                                                 <Label text="Monday" />
                                              </children>
                                           </HBox>
-                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="120.0">
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="127.0">
                                              <children>
                                                 <Label text="Tusday" />
                                              </children>
                                           </HBox>
-                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="120.0">
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="127.0">
                                              <children>
                                                 <Label text="Wednesday" />
                                              </children>
                                           </HBox>
-                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="120.0">
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="127.0">
                                              <children>
                                                 <Label text="Thursday" />
                                              </children>
                                           </HBox>
-                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="120.0">
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="127.0">
                                              <children>
                                                 <Label text="Friday" />
                                              </children>
                                           </HBox>
-                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="90.0">
+                                          <HBox alignment="CENTER" prefHeight="100.0" prefWidth="97.0">
                                              <children>
                                                 <Label text="Saturday" />
                                              </children>
@@ -247,14 +244,8 @@
                                              <content>
                                                 <HBox prefHeight="620.0" prefWidth="835.0">
                                                    <children>
-                                                      <AnchorPane prefHeight="200.0" prefWidth="50.0">
-                                                         <children>
-                                                            <ListView layoutX="-1.0" layoutY="7.0" prefHeight="650.0" prefWidth="48.0" />
-                                                            <Label layoutX="10.0" layoutY="15.0" text="Label" />
-                                                         </children>
-                                                      </AnchorPane>
                                                       <Separator orientation="VERTICAL" prefHeight="200.0" />
-                                                      <GridPane prefWidth="850.0">
+                                                      <GridPane fx:id="CalendarWeekGrid" prefWidth="850.0">
                                                         <columnConstraints>
                                                           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="90.0" />
                                                           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="120.0" />
@@ -267,15 +258,6 @@
                                                         <rowConstraints>
                                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                                         </rowConstraints>
-                                                         <children>
-                                                            <VBox prefHeight="200.0" prefWidth="100.0" />
-                                                            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1" />
-                                                            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="2" />
-                                                            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="3" />
-                                                            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="4" />
-                                                            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="5" />
-                                                            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="6" />
-                                                         </children>
                                                       </GridPane>
                                                    </children>
                                                 </HBox>
@@ -372,8 +354,6 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                       </rowConstraints>

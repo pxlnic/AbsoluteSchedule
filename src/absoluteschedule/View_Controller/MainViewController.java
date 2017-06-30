@@ -40,7 +40,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
@@ -78,7 +77,9 @@ public class MainViewController implements Initializable {
     private AbsoluteSchedule mainApp;
     private List<Calendar> apptList = new ArrayList<>();
     private List<Calendar> todaysAppts = new ArrayList<>();
-    private List<Customer> localCustList = new ArrayList<>();
+    private static List<Calendar> weeksAppts = new ArrayList<>();
+    private static List<Calendar> monthsAppts = new ArrayList<>();
+    private List<Customer> localMainCustList = new ArrayList<>();
     private int todaysCount = 0;
     private int thisWeeksCount = 0;
     private int thisMonthsCount = 0;
@@ -88,8 +89,7 @@ public class MainViewController implements Initializable {
     }
     
 //Button controls
-
-//Main Calendar Button handler
+    //Main Calendar Button handler
     @FXML void MainCalendarClicked(ActionEvent event) throws IOException {
         System.out.println("Calendar clicked");
         
@@ -104,7 +104,7 @@ public class MainViewController implements Initializable {
         window.setScene(scene);
         window.show();
     }
-//Main Customer Button handler
+    //Main Customer Button handler
     @FXML void MainCustomerClicked(ActionEvent event) throws IOException {
         System.out.println("Customer clicked");
         
@@ -119,7 +119,7 @@ public class MainViewController implements Initializable {
         window.setScene(scene);
         window.show();
     }
-//Main Report Button handler
+    //Main Report Button handler
     @FXML void MainReportClicked(ActionEvent event) throws IOException {
         System.out.println("Report clicked");
         
@@ -134,15 +134,15 @@ public class MainViewController implements Initializable {
         window.setScene(scene);
         window.show();
     }
-//Main Delete Button handler
+    //Main Delete Button handler
     @FXML void MainDeleteClicked(ActionEvent event) {
 
     }
-//Main Edit Button handler
+    //Main Edit Button handler
     @FXML void MainEditClicked(ActionEvent event) {
 
     }
-//Main Exit Button handler
+    //Main Exit Button handler
     @FXML void MainExitClicked (ActionEvent event) {
         System.out.println("Exit clicked!");
         System.exit(0);
@@ -187,7 +187,12 @@ public class MainViewController implements Initializable {
     
 //Get appointment counts
     public void getApptCount(){
+    //Clear weekly and monthly arraylists to be reset
+        weeksAppts.clear();
+        monthsAppts.clear();
+        
         LocalDate today = LocalDate.now();
+        
         for(int i = 0; i < apptList.size(); i++){
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
             String dateString = apptList.get(i).getApptStartTime();
@@ -203,16 +208,18 @@ public class MainViewController implements Initializable {
             else{
                 System.out.println("Date: " + date + " is not today");
             }
-            if(date.isAfter(todayFormatted.with(DayOfWeek.MONDAY)) && date.isBefore(todayFormatted.with(DayOfWeek.FRIDAY))){
+            if(date.isAfter(todayFormatted.with(DayOfWeek.MONDAY).minusDays(1)) && date.isBefore(todayFormatted.with(DayOfWeek.FRIDAY).plusDays(1))){
                 System.out.println("Date: " + date + " is within current week.");
                 thisWeeksCount = thisWeeksCount+1;
+                weeksAppts.add(apptList.get(i));
             }
             else{
                 System.out.println("Date: " + date + " is not within current week.");
             }
-            if(date.isAfter(todayFormatted.with(TemporalAdjusters.firstDayOfMonth())) && date.isBefore(todayFormatted.with(TemporalAdjusters.lastDayOfMonth()))){
+            if(date.isAfter(todayFormatted.with(TemporalAdjusters.firstDayOfMonth()).minusDays(1)) && date.isBefore(todayFormatted.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1))){
                 System.out.println("Date: " + date + " is within current month.");
                 thisMonthsCount = thisMonthsCount+1;
+                monthsAppts.add(apptList.get(i));
             }
             else{
                 System.out.println("Date: " + date + " is not within this month.");
@@ -223,7 +230,7 @@ public class MainViewController implements Initializable {
     
 //Get customer names
     public void getCustNames(){
-        localCustList = getMainCustList();
+        localMainCustList = getMainCustList();
     }
     
 //Update Time
@@ -255,7 +262,7 @@ public class MainViewController implements Initializable {
         //Title of meeting
         Label tempTitle = new Label(todaysAppts.get(j).getApptTitle());
         //Consultant and customer meeting
-        String custName = localCustList.get(todaysAppts.get(j).getCustID()-1).getCustName();
+        String custName = localMainCustList.get(todaysAppts.get(j).getCustID()-1).getCustName();
         Label tempPersons = new Label(todaysAppts.get(j).getApptContact() + " meeting with " + custName);
         
     //Format Labels
@@ -264,10 +271,20 @@ public class MainViewController implements Initializable {
         temp.setMargin(tempTime, new Insets(0,0,5,5));
         temp.setMargin(tempTitle, new Insets(0,0,5,15));
         temp.setMargin(tempPersons, new Insets(0,0,5,15));
-        temp.setStyle("-fx-border-style: solid;");
+        temp.setStyle("-fx-border-style: solid;" +
+                      "-fx-border-color: C8C8C8;" +
+                      "-fx-background-color: E6E6E6");
     
     //Add Labels
         temp.getChildren().addAll(tempTime, tempTitle, tempPersons);
 
+    }
+    
+//Return weekly and monthly appts
+    public static List<Calendar> getWeeksAppts(){
+        return weeksAppts;
+    }
+    public static List<Calendar> getMonthsAppts(){
+        return monthsAppts;
     }
 }

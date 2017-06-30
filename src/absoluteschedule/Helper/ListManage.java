@@ -74,7 +74,7 @@ public class ListManage {
 //Load all appointments
     public ObservableList<Calendar> loadAppts() throws SQLException{
         try(Connection conn = getConn();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM appointment;")){
+            PreparedStatement ps = conn.prepareStatement("SELECT * FROM appointment ORDER BY start;")){
             
         //Execute Query
             ResultSet rs = ps.executeQuery();
@@ -91,6 +91,7 @@ public class ListManage {
                 cal.setApptURL(rs.getString("url"));
                 cal.setApptStartTime(rs.getString("start"));
                 cal.setApptEndTime(rs.getString("end"));
+                System.out.println(rs.getString("start"));
                 mainApptList.add(cal);
             }
         }
