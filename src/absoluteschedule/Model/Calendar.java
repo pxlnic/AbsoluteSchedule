@@ -123,7 +123,8 @@ public class Calendar {
         return apptEndTime.get();
     }
 
-//Check if appointment is already in DB
+//Appt Handlers
+    //Check if appointment is already in DB
     public List isApptValid(int custID, String startTime, String endTime, String consultName) throws SQLException{
         System.out.println("Checking if appointment is conflicting with another.");
         
@@ -166,15 +167,13 @@ public class Calendar {
 
         return tempApptsList;
     }
-
-//Add Appt method
+    //Add Appt method
     public void addAppt(int custID, String title, String desc, String loc, String contact, String url, String start, String end, String user) throws SQLException{
         try(Connection conn = getConn();
             PreparedStatement ps = conn.prepareStatement("INSERT INTO appointment (customerId, title, description, location, contact, url, start, end, createDate, createdBy, lastUpdate, lastUpdateBy) "
                                      + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, NOW(), ?)")){
 
         //SQL Statement to insert data
-            
             ps.setInt(1, custID);
             ps.setString(2, title);
             ps.setString(3, desc);
@@ -189,7 +188,31 @@ public class Calendar {
             System.out.println("Appointment: " + title + " was submitted by User: " + user);
         }
         catch(SQLException err){
-            
+            err.printStackTrace();
+        }
+    }
+    //Update Appt method
+    public void updateAppt(int apptID, int custID, String title, String desc, String loc, String contact, String url, String start, String end, String user) throws SQLException{
+        try(Connection conn = getConn();
+            PreparedStatement ps = conn.prepareStatement("UPDATE appointment SET customerId=?, title=?, description=?, location=?, contact=?, "
+                                                       + "url=?, start=?, end=?, lastUpdate=NOW(), lastUpdateBy=? WHERE appointmentId=?")){
+
+        //SQL Statement to insert data  
+            ps.setInt(1, custID);
+            ps.setString(2, title);
+            ps.setString(3, desc);
+            ps.setString(4, loc);
+            ps.setString(5, contact);
+            ps.setString(6, url);
+            ps.setTimestamp(7, java.sql.Timestamp.valueOf(start));
+            ps.setTimestamp(8, java.sql.Timestamp.valueOf(end));
+            ps.setString(9, user);
+            ps.setInt(10, apptID);
+            ps.execute();
+            System.out.println("Appointment: " + title + " was updated by User: " + user);
+        }
+        catch(SQLException err){
+            err.printStackTrace();
         }
     }
     
@@ -208,7 +231,7 @@ public class Calendar {
         LocalDateTime passedTime = LocalDateTime.parse(str, formatter);
         ZonedDateTime UTCTime = ZonedDateTime.of(passedTime, ZoneId.of("UTC"));
         ZonedDateTime localTime = UTCTime.withZoneSameInstant(ZoneOffset.systemDefault());
-        String dateTime = DateTimeFormatter.ofPattern("h:mm a").format(localTime);
+        String dateTime = DateTimeFormatter.ofPattern("yyy-MM-dd HH:mm:ss").format(localTime);
 
         return dateTime;
     }

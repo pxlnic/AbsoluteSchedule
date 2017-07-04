@@ -6,21 +6,22 @@
 package absoluteschedule.View_Controller;
 
 import absoluteschedule.AbsoluteSchedule;
-import static absoluteschedule.AbsoluteSchedule.getApptList;
+import static absoluteschedule.AbsoluteSchedule.getMainApptList;
 import static absoluteschedule.AbsoluteSchedule.getMainCustList;
 import static absoluteschedule.AbsoluteSchedule.reloadMainApptList;
+import absoluteschedule.Helper.ListManage;
+import static absoluteschedule.Helper.ListManage.getMonthsAppts;
+import static absoluteschedule.Helper.ListManage.getTodaysAppts;
+import static absoluteschedule.Helper.ListManage.getWeeksAppts;
 import absoluteschedule.Model.Calendar;
-import static absoluteschedule.Model.Calendar.convertToLocal;
 import absoluteschedule.Model.Customer;
 import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -77,8 +78,6 @@ public class MainViewController implements Initializable {
     private AbsoluteSchedule mainApp;
     private List<Calendar> apptList = new ArrayList<>();
     private List<Calendar> todaysAppts = new ArrayList<>();
-    private static List<Calendar> weeksAppts = new ArrayList<>();
-    private static List<Calendar> monthsAppts = new ArrayList<>();
     private List<Customer> localMainCustList = new ArrayList<>();
     private int todaysCount = 0;
     private int thisWeeksCount = 0;
@@ -161,8 +160,12 @@ public class MainViewController implements Initializable {
         } catch (SQLException ex) {
             Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        apptList = getApptList();
-        getApptCount();
+        apptList = getMainApptList();
+        try {
+            getApptCount();
+        } catch (SQLException ex) {
+            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
         System.out.println("Count of appts: " + apptList.size());
         
     //Set Welcome message and appointments counts
@@ -186,46 +189,15 @@ public class MainViewController implements Initializable {
     }
     
 //Get appointment counts
-    public void getApptCount(){
+    public void getApptCount() throws SQLException{
     //Clear weekly and monthly arraylists to be reset
-        weeksAppts.clear();
-        monthsAppts.clear();
+        ListManage l = new ListManage();
+        l.seperateAppts(LocalDate.now());
         
-        LocalDate today = LocalDate.now();
-        
-        for(int i = 0; i < apptList.size(); i++){
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            String dateString = apptList.get(i).getApptStartTime();
-            String subDate = dateString.substring(0,10);
-            String subToday = formatter.format(today);
-            LocalDate date = LocalDate.parse(subDate, formatter);
-            LocalDate todayFormatted = LocalDate.parse(subToday, formatter);
-            if(date.equals(todayFormatted)){
-                System.out.println("Date :" + date + " is today.");
-                todaysCount = todaysCount+1;
-                todaysAppts.add(apptList.get(i));
-            }
-            else{
-                System.out.println("Date: " + date + " is not today");
-            }
-            if(date.isAfter(todayFormatted.with(DayOfWeek.MONDAY).minusDays(1)) && date.isBefore(todayFormatted.with(DayOfWeek.FRIDAY).plusDays(1))){
-                System.out.println("Date: " + date + " is within current week.");
-                thisWeeksCount = thisWeeksCount+1;
-                weeksAppts.add(apptList.get(i));
-            }
-            else{
-                System.out.println("Date: " + date + " is not within current week.");
-            }
-            if(date.isAfter(todayFormatted.with(TemporalAdjusters.firstDayOfMonth()).minusDays(1)) && date.isBefore(todayFormatted.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1))){
-                System.out.println("Date: " + date + " is within current month.");
-                thisMonthsCount = thisMonthsCount+1;
-                monthsAppts.add(apptList.get(i));
-            }
-            else{
-                System.out.println("Date: " + date + " is not within this month.");
-            }
-        }
-        System.out.println("Today: " + todaysCount + ", This Week: " + thisWeeksCount + ", This Month: " + thisMonthsCount);
+        todaysAppts = getTodaysAppts();
+        todaysCount = todaysAppts.size();
+        thisWeeksCount = getWeeksAppts().size();
+        thisMonthsCount = getMonthsAppts().size();
     }
     
 //Get customer names
@@ -255,9 +227,9 @@ public class MainViewController implements Initializable {
         
     //Create labels
         //Time of meeting
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime time = LocalDateTime.parse(todaysAppts.get(j).getApptStartTime(), formatter);
-        String localTimeStr = convertToLocal(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(time));     
+        String localTimeStr = DateTimeFormatter.ofPattern("hh:mm a").format(time);     
         Label tempTime = new Label(localTimeStr);
         //Title of meeting
         Label tempTitle = new Label(todaysAppts.get(j).getApptTitle());
@@ -278,13 +250,5 @@ public class MainViewController implements Initializable {
     //Add Labels
         temp.getChildren().addAll(tempTime, tempTitle, tempPersons);
 
-    }
-    
-//Return weekly and monthly appts
-    public static List<Calendar> getWeeksAppts(){
-        return weeksAppts;
-    }
-    public static List<Calendar> getMonthsAppts(){
-        return monthsAppts;
     }
 }

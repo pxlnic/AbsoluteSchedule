@@ -9,6 +9,6 @@ package absoluteschedule.Model;
  *
  * @author NicR
  */
-public class Usesr {
+public class Users {
     
 }

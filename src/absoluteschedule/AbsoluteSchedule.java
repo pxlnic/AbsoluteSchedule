@@ -6,6 +6,8 @@
 package absoluteschedule;
 
 import absoluteschedule.Helper.ListManage;
+import static absoluteschedule.Helper.ListManage.loadAppts;
+import static absoluteschedule.Helper.ListManage.loadCustomers;
 import absoluteschedule.Model.Calendar;
 import absoluteschedule.Model.Customer;
 import absoluteschedule.View_Controller.LogInController;
@@ -38,21 +40,19 @@ public class AbsoluteSchedule extends Application {
     
 //Load customers and Appointments
     public static void reloadMainCustList() throws SQLException{
-        System.out.println("Main Reload Count 1: " + mainCustomerList.size());
         mainCustomerList.clear();
-        System.out.println("Main Reload Count 2: " + mainCustomerList.size());
-        mainCustomerList = l.loadCustomers();
-        System.out.println("Main Reload Count 3: " + mainCustomerList.size());
+        mainCustomerList = loadCustomers();
     }
     public static void reloadMainApptList() throws SQLException{
         mainApptList.clear();
-        mainApptList = l.loadAppts();
+        mainApptList = loadAppts();
     }
     public static ObservableList<Customer> getMainCustList(){
-        System.out.println("Main Count Retrieve: " + mainCustomerList.size());
+        System.out.println("Main Appt Count Retrieve: " + mainCustomerList.size());
         return mainCustomerList;
     }
-    public static ObservableList<Calendar> getApptList(){
+    public static ObservableList<Calendar> getMainApptList(){
+        System.out.println("Main Appt Count Retrieve: " + mainApptList.size());
         return mainApptList;
     }
     
@@ -71,7 +71,6 @@ public class AbsoluteSchedule extends Application {
         window.setScene(scene);
         window.show();
     }
-    
     public void showLogin() throws IOException{
     // Load Login screen.
         FXMLLoader loader = new FXMLLoader();

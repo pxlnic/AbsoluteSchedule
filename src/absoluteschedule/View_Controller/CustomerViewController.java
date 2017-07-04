@@ -195,6 +195,7 @@ public class CustomerViewController implements Initializable {
         CustomerSearchField.setText("");
     }
     
+
     /**
      * Initializes the controller class.
      */

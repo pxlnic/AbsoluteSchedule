@@ -37,7 +37,7 @@
                <children>
                   <VBox prefHeight="550.0" prefWidth="350.0">
                      <children>
-                        <Label text="Label">
+                        <Label text="ID">
                            <font>
                               <Font size="16.0" />
                            </font>
@@ -186,7 +186,7 @@
       </AnchorPane>
       <AnchorPane layoutX="350.0" prefHeight="750.0" prefWidth="850.0">
          <children>
-            <TabPane prefHeight="750.0" prefWidth="850.0" tabClosingPolicy="UNAVAILABLE" tabMinHeight="75.0" tabMinWidth="100.0">
+            <TabPane prefHeight="750.0" prefWidth="850.0" tabClosingPolicy="UNAVAILABLE" tabMaxHeight="75.0" tabMaxWidth="100.0" tabMinHeight="75.0" tabMinWidth="100.0">
               <tabs>
                 <Tab closable="false" text="Week">
                   <content>
@@ -354,6 +354,7 @@
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                       </rowConstraints>

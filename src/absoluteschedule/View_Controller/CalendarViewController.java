@@ -6,6 +6,11 @@
 package absoluteschedule.View_Controller;
 
 import static absoluteschedule.AbsoluteSchedule.getMainCustList;
+import static absoluteschedule.AbsoluteSchedule.reloadMainApptList;
+import absoluteschedule.Helper.ListManage;
+import static absoluteschedule.Helper.ListManage.getMonthsAppts;
+import static absoluteschedule.Helper.ListManage.getWeeksAppts;
+import static absoluteschedule.Helper.ListManage.loadAppts;
 import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import absoluteschedule.Model.Calendar;
@@ -13,8 +18,6 @@ import static absoluteschedule.Model.Calendar.convertToLocal;
 import static absoluteschedule.Model.Calendar.convertToUTC;
 import absoluteschedule.Model.Customer;
 import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
-import static absoluteschedule.View_Controller.MainViewController.getMonthsAppts;
-import static absoluteschedule.View_Controller.MainViewController.getWeeksAppts;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Connection;
@@ -32,6 +35,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -48,6 +52,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -106,6 +111,9 @@ public class CalendarViewController implements Initializable {
     private List<Calendar> thisWeeksAppts = new ArrayList<>();
     private List<Calendar> thisMonthsAppts = new ArrayList<>();
     private String user = loggedOnUser();
+    private int apptID = -1;
+    private String errorMessage = "";
+    private LocalDate selectedMonth = LocalDate.now();
     
 //SQL DB Variables
     private ResultSet rs = null;
@@ -136,13 +144,13 @@ public class CalendarViewController implements Initializable {
     @FXML void CalendarClearClick(ActionEvent event) {
         CalendarIDField.setText("");
         CalendarDatePicker.setValue(LocalDate.now());
-        CalendarTimeHourCombo.getItems().clear();
-        CalendarTimeMinCombo.getItems().clear();
-        CalendarEndTimeHourCombo.getItems().clear();
-        CalendarEndTimeMinCombo.getItems().clear();
-        CalendarCustomerCombo.getItems().clear();
-        CalendarConsultantCombo.getItems().clear();
-        CalendarLocationCombo.getItems().clear();
+        CalendarTimeHourCombo.getSelectionModel().clearSelection();
+        CalendarTimeMinCombo.getSelectionModel().clearSelection();
+        CalendarEndTimeHourCombo.getSelectionModel().clearSelection();
+        CalendarEndTimeMinCombo.getSelectionModel().clearSelection();
+        CalendarCustomerCombo.getSelectionModel().clearSelection();
+        CalendarConsultantCombo.getSelectionModel().clearSelection();
+        CalendarLocationCombo.getSelectionModel().clearSelection();
         CalendaryAllDayCheckbox.setSelected(false);
         CalendarTitleField.setText("");
         CalendarDescriptionArea.setText("");
@@ -150,7 +158,12 @@ public class CalendarViewController implements Initializable {
     //Save Button handler
     @FXML void CalendarSaveClick(ActionEvent event) throws SQLException {
     //Variables
-        int apptID = -1;
+        if(CalendarIDField.getText().trim().isEmpty()){
+            apptID = -1;
+        }
+        else{
+            apptID = Integer.parseInt(CalendarIDField.getText().trim());
+        }
         int custID = -1;
         String customerName = CalendarCustomerCombo.getValue();
         
@@ -167,12 +180,10 @@ public class CalendarViewController implements Initializable {
         
     //Get UTC and Local Times
         String startUtc = convertToUTC(startTime);
-        String startLocal = convertToLocal(startUtc);
         String endUtc = convertToUTC(endTime);
-        String endLocal = convertToLocal(endUtc);
         
-        System.out.println("UTC Start Time: " + startUtc + ", Local Start Time: " + startLocal);
-        System.out.println("UTC End Time: " + endUtc + ", Local End Time: " + endLocal);
+        System.out.println("UTC Start Time: " + startUtc);
+        System.out.println("UTC End Time: " + endUtc);
 
     //Get Customer ID
         tempCust.setCustName(customerName);
@@ -191,73 +202,34 @@ public class CalendarViewController implements Initializable {
         tempApptList = tempAppt.isApptValid(tempAppt.getCustID(), tempAppt.getApptStartTime(), tempAppt.getApptEndTime(), tempAppt.getApptContact());
         
     //Add or update appointment
-        if(tempApptList.size()>0){
+        if(tempApptList.size()>0 || apptID>-1){
             if(CalendarIDField.getText().trim().isEmpty()){
                 //Error Message
                 System.out.println("This appointment conflicts with " + tempApptList.size() + " appointments.");
             }
             else{
                 //Update appointment
-                System.out.println("This appointment is being updated.");
+                System.out.println("Appointment updated");
+                tempAppt.updateAppt(Integer.parseInt(CalendarIDField.getText().trim()),custID, tempAppt.getApptTitle(), tempAppt.getApptDesc(), tempAppt.getApptLoc(), tempAppt.getApptContact(), "url", startUtc, endUtc, user); 
             }
         }
         else{
+            System.out.println("Appointment added.");
             tempAppt.addAppt(custID, tempAppt.getApptTitle(), tempAppt.getApptDesc(), tempAppt.getApptLoc(), tempAppt.getApptContact(), "url", startUtc, endUtc, user);
         }
+        
+    //Reload Appts
+        reloadCalAppts();
     }
     //Month Back Button handler
-    @FXML void CalendarMonthBackClick(ActionEvent event) {
-
+    @FXML void CalendarMonthBackClick(ActionEvent event) throws SQLException {
+        selectedMonth = selectedMonth.minusMonths(1);
+        reloadCalAppts();
     }
     //Month Next Button handler
-    @FXML void CalendarMonthNextClick(ActionEvent event) {
-
-    }
-    
-    /**
-     * Initializes the controller class.
-     */
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-    //Load Weekly and Monhthly Data
-        thisWeeksAppts = getWeeksAppts();
-        thisMonthsAppts = getMonthsAppts();
-        System.out.println("Week: " + thisWeeksAppts.size() + ", Month: " + thisMonthsAppts.size());
-        
-        loadWeeksAppts();
-        loadMonthsAppts();
-        
-    //Load Combo Boxes
-        calCustList = getMainCustList();
-        loadCustNames();
-        try {
-            loadLocList();
-            loadConsultList();
-        } catch (SQLException ex) {
-            Logger.getLogger(CalendarViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        loadHour();
-        loadMin();
-
-    //Populate Datepicker
-        CalendarDatePicker.setValue(LocalDate.now());
-        
-    //Populate Hour/Min Combo Boxes
-        CalendarTimeHourCombo.getItems().addAll(hourList);
-        CalendarTimeMinCombo.getItems().addAll(minList);
-        
-    //Populate Duration Combo Box
-        CalendarEndTimeHourCombo.getItems().addAll(hourList);
-        CalendarEndTimeMinCombo.getItems().addAll(minList);
-        
-    //Populate Customer Combo Box
-        CalendarCustomerCombo.getItems().addAll(custNames);
-        
-    //Populate Consultant Combo Box
-        CalendarConsultantCombo.getItems().addAll(consultantList);
-        
-    //Populate Location Combo Box
-        CalendarLocationCombo.getItems().addAll(locList);
+    @FXML void CalendarMonthNextClick(ActionEvent event) throws SQLException {
+        selectedMonth.plusMonths(1);
+        reloadCalAppts();
     }
     
 //Get customerID
@@ -270,8 +242,9 @@ public class CalendarViewController implements Initializable {
         }
         return id;
     }
-     
-//Load hours and min into ArrayList
+    
+//Load ComboBox Results
+    //Load hours and min into ArrayList
     private void loadHour(){
         for(int i=6; i<21; i++){
             if(i<10){
@@ -292,8 +265,7 @@ public class CalendarViewController implements Initializable {
             }
         }
     }
-    
-//Load customer names to arraylist
+    //Load customer names to arraylist
     private void loadCustNames(){
         String name = "";
         for(int i=0; i<calCustList.size(); i++){
@@ -301,8 +273,7 @@ public class CalendarViewController implements Initializable {
             custNames.add(name);
         }
     }
-    
-//Load locations to arraylist
+    //Load locations to arraylist
     private void loadLocList() throws SQLException{
         try(Connection conn = getConn();
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM city")){;
@@ -317,8 +288,7 @@ public class CalendarViewController implements Initializable {
             err.printStackTrace();
         } 
     }
-    
-//Load consultants to arraylist
+    //Load consultants to arraylist
     private void loadConsultList() throws SQLException{
         try(Connection conn = getConn();
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM user")){;
@@ -334,7 +304,8 @@ public class CalendarViewController implements Initializable {
         } 
     }
     
-//Load Weekly Appts
+//Load Appts to GUI
+    //Load Weekly Appts
     public void loadWeeksAppts(){
         LocalDate today = LocalDate.now();
     
@@ -343,25 +314,26 @@ public class CalendarViewController implements Initializable {
             LocalDate dayOfWeek = today.with(DayOfWeek.MONDAY).plusDays(i-1);
             
         //Create nodes
-            VBox day = new VBox();                                                         //Main container for the day
+            VBox day = new VBox();                                                          //Main container for the day
             HBox date = new HBox();                                                         //Container for Day of Month Label
             Label dateNum = new Label(DateTimeFormatter.ofPattern("d").format(dayOfWeek));  //Label for Day Month
             VBox apptList = new VBox();                                                     //Container for all appts for that day
-            
             
         //Add Appts
             for(int a=0; a<thisWeeksAppts.size(); a++){
             //VBox for appt
                 VBox appt = new VBox();
+                Calendar thisAppt = thisWeeksAppts.get(a);
+            
             //Convert LocalDateTime to LocalDate
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 LocalDateTime time = LocalDateTime.parse(thisWeeksAppts.get(a).getApptStartTime(), formatter);
                 LocalDate apptDate = time.toLocalDate();
                 
             //If appt date is same as current day then appt card is created
                 if(apptDate.isEqual(dayOfWeek)){
                 //Time of meeting
-                    String localTimeStr = convertToLocal(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(time));
+                    String localTimeStr = DateTimeFormatter.ofPattern("hh:mm a").format(time);
                     Label tempTime = new Label(localTimeStr);
                 //Title of meeting
                     Label tempTitle = new Label(thisWeeksAppts.get(a).getApptTitle());
@@ -385,10 +357,30 @@ public class CalendarViewController implements Initializable {
                     appt.getChildren().addAll(tempTime, tempTitle, tempPersons);
                     apptList.getChildren().add(appt);
                 }
-                else{
-                    System.out.println("Today: " + today);
-                    System.out.println("Appt Date: " + apptDate);
-                }
+                
+            //Add MouseEvent to Appt VBox
+                appt.setOnMouseClicked(new EventHandler<MouseEvent>(){
+                    @Override
+                    public void handle(MouseEvent event) {
+                        System.out.println("Appt: ID: " + thisAppt.getApptID() + " was selected.");
+                        //Retrieve Date, Start Time, End Time
+                        
+                        Customer thisCust = new Customer();
+
+                        for(int y=0; y<calCustList.size(); y++){
+                            if(thisAppt.getCustID()==calCustList.get(y).getCustID()){
+                                thisCust = calCustList.get(y);
+                            }
+                        }
+                        
+                        CalendarIDField.setText(Integer.toString(thisAppt.getApptID()));
+                        CalendarTitleField.setText(thisAppt.getApptTitle());
+                        CalendarDescriptionArea.setText(thisAppt.getApptDesc());
+                        CalendarCustomerCombo.setValue(thisCust.getCustName());
+                        CalendarConsultantCombo.setValue(thisAppt.getApptContact());
+                        CalendarLocationCombo.setValue(thisAppt.getApptLoc());
+                    }
+                });
             }
             
         //Format nodes
@@ -405,10 +397,10 @@ public class CalendarViewController implements Initializable {
             CalendarWeekGrid.add(day, i, 0);
         }
     }
-    
-//Load Monthly Appts
-    public void loadMonthsAppts(){
-        LocalDate today = LocalDate.now();
+    //Load Monthly Appts
+    //***Only the first 4 appts show for the day on month calendar tab***
+    public void loadMonthsAppts(LocalDate thisDate){
+        LocalDate today = thisDate;
         LocalDate firstOfMonth = today.with(TemporalAdjusters.firstDayOfMonth());
         int firstDayIndex = Integer.parseInt(DateTimeFormatter.ofPattern("e").format(firstOfMonth))-1;
         CalendarMonthTabHeader.setText(DateTimeFormatter.ofPattern("MMMM").format(firstOfMonth));
@@ -418,41 +410,45 @@ public class CalendarViewController implements Initializable {
         
         int count = 0;
         
-    //For loop for row
-        for(int i=0; i<5; i++){
-        //For loop for column
+    //For loop for row (Week)
+        for(int i=0; i<6; i++){
+        //For loop for column (Day)
             for(int j=0; j<7; j++){
+                int dailyApptCount = 1;
+                
             //Set day of month
                 LocalDate dayOfMonth = firstOfMonth.plusDays(count-firstDayIndex);
                 int dayNumOfMonth = Integer.parseInt(DateTimeFormatter.ofPattern("d").format(dayOfMonth));
                 
             //Create nodes
-                VBox day = new VBox();                   //Main container for day
-                HBox date = new HBox();                  //Container for Day of Month Label
+                VBox day = new VBox();                      //Main container for day
+                HBox date = new HBox();                     //Container for Day of Month Label
                 Label text = new Label(dayNumOfMonth + ""); //Label for Day Month
-                VBox apptList = new VBox();              //Container for all appts for that day
+                VBox apptList = new VBox();                 //Container for all appts for that day
                 
             //Create Appt cards to add to appt VBox
                 for(int a=0; a<thisMonthsAppts.size(); a++){
+                    
                 //VBox for appt
                     VBox appt = new VBox();
                 //Convert LocalDateTime to LocalDate
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
-                    LocalDateTime time = LocalDateTime.parse(thisMonthsAppts.get(a).getApptStartTime(), formatter);
+                    Calendar thisAppt = thisMonthsAppts.get(a);
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    LocalDateTime time = LocalDateTime.parse(thisAppt.getApptStartTime(), formatter);
                     LocalDate apptDate = time.toLocalDate();
 
                 //If appt date is same as current day then appt card is created
-                    if(apptDate.isEqual(dayOfMonth)){
+                    if(apptDate.isEqual(dayOfMonth) && dailyApptCount<5){
                     System.out.println("Date: " + apptDate + " was added successfully.");
                         
                     //Time of meeting
-                        String localTimeStr = convertToLocal(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(time)) + " - " + thisMonthsAppts.get(a).getApptContact();
+                        String localTimeStr = DateTimeFormatter.ofPattern("hh:mm a").format(time) + " - " + thisMonthsAppts.get(a).getApptContact();
                         Label apptLabel = new Label(localTimeStr);
 
                     //Format nodes
                         apptLabel.setFont(new Font(8));
-                        day.setMargin(appt, new Insets(5,2.5,0,2.5));
-                        appt.setPadding(new Insets(2,2,2,2));
+                        day.setMargin(appt, new Insets(2.5,2.5,0,2.5));
+                        appt.setPadding(new Insets(1,1,1,1));
                         appt.setMargin(apptLabel, new Insets(0,0,0,0));
                         appt.setStyle("-fx-border-style: solid;" +
                                       "-fx-border-color: C8C8C8;" +
@@ -461,9 +457,35 @@ public class CalendarViewController implements Initializable {
                     //Add appts to VBox
                         appt.getChildren().addAll(apptLabel);
                         apptList.getChildren().add(appt);
+                        
+                        System.out.println(dailyApptCount);
+                        dailyApptCount++;
                     }
-                    else{
-                    }
+                    
+                //Add MouseEvent to Appt VBox
+                    appt.setOnMouseClicked(new EventHandler<MouseEvent>(){
+                        @Override
+                        public void handle(MouseEvent event) {
+                            System.out.println("Appt: ID: " + thisAppt.getApptID() + " was selected.");
+                            //Retrieve Date, Start Time, End Time
+
+                            Customer thisCust = new Customer();
+
+                            for(int y=0; y<calCustList.size(); y++){
+                                if(thisAppt.getCustID()==calCustList.get(y).getCustID()){
+                                    thisCust = calCustList.get(y);
+                                }
+                            }
+
+                            CalendarIDField.setText(Integer.toString(thisAppt.getApptID()));
+                            CalendarTitleField.setText(thisAppt.getApptTitle());
+                            CalendarDescriptionArea.setText(thisAppt.getApptDesc());
+                            CalendarCustomerCombo.setValue(thisCust.getCustName());
+                            CalendarConsultantCombo.setValue(thisAppt.getApptContact());
+                            CalendarLocationCombo.setValue(thisAppt.getApptLoc());
+                        }
+                    });
+                    
                 }
                 
             //Add nodes
@@ -473,7 +495,7 @@ public class CalendarViewController implements Initializable {
                 count++;
                 
             //Format nodes
-                date.setPadding(new Insets(5,5,5,5));
+                date.setPadding(new Insets(0,0,0,0));
                 date.setAlignment(Pos.BASELINE_RIGHT);
                 if(j==0 || j==6 || (i==0 && j<firstDayIndex) || (i>3 && dayNumOfMonth<7)){
                     day.setStyle("-fx-background-color: E6E6E6");
@@ -481,9 +503,81 @@ public class CalendarViewController implements Initializable {
             }
         }
         
-    }
+    } 
     
-//Convert SQL DateTime to Day of Month
+//Load/Reload All Appts
+    public void reloadCalAppts() throws SQLException{    
+    //Clear GridPane children so can be reloaded
+        CalendarMonthGrid.getChildren().clear();
+        CalendarWeekGrid.getChildren().clear();
+        
+    //Clear Appt ArrayLists
+        thisWeeksAppts.clear();
+        thisMonthsAppts.clear();
+        
+    //Load Weekly and Monhthly Data
+        ListManage l = new ListManage();
+        l.seperateAppts(LocalDate.now());
+        
+        thisWeeksAppts = getWeeksAppts();
+        thisMonthsAppts = getMonthsAppts();
+        System.out.println("Week: " + thisWeeksAppts.size() + ", Month: " + thisMonthsAppts.size());
+        
+        loadWeeksAppts();
+        loadMonthsAppts(selectedMonth);
+    }
+
+
+    /**
+     * Initializes the controller class.
+     */
+    @Override
+    public void initialize(URL url, ResourceBundle rb) {
+        selectedMonth = LocalDate.now();
+        
+    //Reset Error Message
+        errorMessage = "";
+        
+    //Load Combo Boxes
+        calCustList = getMainCustList();
+        loadCustNames();
+        try {
+            loadLocList();
+            loadConsultList();
+        } catch (SQLException ex) {
+            Logger.getLogger(CalendarViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        loadHour();
+        loadMin();
+        
+    //Load appointments
+        try {
+            //Load Weekly and Monhthly Data
+            reloadCalAppts();
+        } catch (SQLException ex) {
+            Logger.getLogger(CalendarViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    //Populate Datepicker
+        CalendarDatePicker.setValue(LocalDate.now());
+        
+    //Populate Hour/Min Combo Boxes
+        CalendarTimeHourCombo.getItems().addAll(hourList);
+        CalendarTimeMinCombo.getItems().addAll(minList);
+        
+    //Populate Duration Combo Box
+        CalendarEndTimeHourCombo.getItems().addAll(hourList);
+        CalendarEndTimeMinCombo.getItems().addAll(minList);
+        
+    //Populate Customer Combo Box
+        CalendarCustomerCombo.getItems().addAll(custNames);
+        
+    //Populate Consultant Combo Box
+        CalendarConsultantCombo.getItems().addAll(consultantList);
+        
+    //Populate Location Combo Box
+        CalendarLocationCombo.getItems().addAll(locList);
+    }
     
 }
 

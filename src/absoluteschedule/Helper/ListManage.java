@@ -8,11 +8,18 @@ package absoluteschedule.Helper;
 import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import absoluteschedule.Model.Calendar;
+import static absoluteschedule.Model.Calendar.convertToLocal;
 import absoluteschedule.Model.Customer;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -25,6 +32,7 @@ public class ListManage {
 //Observable Lists
     private static ObservableList<Customer> custList = FXCollections.observableArrayList();
     private static ObservableList<Calendar> mainApptList = FXCollections.observableArrayList();
+    private static ObservableList<Calendar> calTodayList = FXCollections.observableArrayList();
     private static ObservableList<Calendar> calWeekList = FXCollections.observableArrayList();
     private static ObservableList<Calendar> calMonthList = FXCollections.observableArrayList();
     
@@ -32,9 +40,8 @@ public class ListManage {
     private ResourceBundle localization = loadResourceBundle();
     
 //Customer DB/List Handling
-    
-//Load all customers
-    public ObservableList<Customer> loadCustomers() throws SQLException{
+    //Load all customers
+    public static ObservableList<Customer> loadCustomers() throws SQLException{
         try(Connection conn = getConn();
             PreparedStatement ps = conn.prepareStatement("SELECT customer.customerId, customer.customerName, customer.addressId, customer.active, address.addressId, address.address, address.address2, address.cityId, address.postalCode, address.phone, city.cityId, city.city, city.countryId, country.countryId, country.country\n" +
                                                          "FROM customer\n" +
@@ -71,8 +78,9 @@ public class ListManage {
         return custList;
     } 
 
-//Load all appointments
-    public ObservableList<Calendar> loadAppts() throws SQLException{
+//Appt List handling
+    //Load/Get all appointments
+    public static ObservableList<Calendar> loadAppts() throws SQLException{
         try(Connection conn = getConn();
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM appointment ORDER BY start;")){
             
@@ -81,6 +89,18 @@ public class ListManage {
             
         //Load customers
             while(rs.next()){
+            //Convert Start/End dates to local time
+                String startString = rs.getString("start");
+                String endString = rs.getString("end");
+                
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.S");
+                LocalDateTime localStartTime = LocalDateTime.parse(startString, formatter);
+                LocalDateTime localEndTime = LocalDateTime.parse(endString, formatter);
+                
+                String finalStart = convertToLocal(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(localStartTime));
+                String finalEnd = convertToLocal(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(localEndTime));
+
+                
                 Calendar cal = new Calendar();
                 cal.setApptID(rs.getInt("appointmentId"));
                 cal.setCustID(rs.getInt("customerId"));
@@ -89,9 +109,8 @@ public class ListManage {
                 cal.setApptLoc(rs.getString("location"));
                 cal.setApptContact(rs.getString("contact"));
                 cal.setApptURL(rs.getString("url"));
-                cal.setApptStartTime(rs.getString("start"));
-                cal.setApptEndTime(rs.getString("end"));
-                System.out.println(rs.getString("start"));
+                cal.setApptStartTime(finalStart);
+                cal.setApptEndTime(finalEnd);
                 mainApptList.add(cal);
             }
         }
@@ -100,6 +119,49 @@ public class ListManage {
         }
         System.out.println("# of appointments: " + mainApptList.size());
         return mainApptList;
+    }
+    //Load Today's, Week's, and Month's Appointments
+    public void seperateAppts(LocalDate inputDate) throws SQLException{
+    //Clear Appt Lists
+        mainApptList.clear();
+        calTodayList.clear();
+        calWeekList.clear();
+        calMonthList.clear();
+    
+    //Load/Reload Main Appts List    
+        loadAppts();
+        
+    //Seperate Appts
+        LocalDate dateRef = inputDate;
+        
+        for(int i = 0; i < mainApptList.size(); i++){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String dateString = mainApptList.get(i).getApptStartTime();
+            String subDate = dateString.substring(0,10);
+            String subToday = formatter.format(dateRef);
+            LocalDate date = LocalDate.parse(subDate, formatter);
+            LocalDate todayFormatted = LocalDate.parse(subToday, formatter);
+            if(date.equals(todayFormatted)){
+                calTodayList.add(mainApptList.get(i));
+            }
+            if(date.isAfter(todayFormatted.with(DayOfWeek.MONDAY).minusDays(1)) && date.isBefore(todayFormatted.with(DayOfWeek.FRIDAY).plusDays(1))){
+                calWeekList.add(mainApptList.get(i));
+            }
+            if(date.isAfter(todayFormatted.with(TemporalAdjusters.firstDayOfMonth()).minusDays(1)) && date.isBefore(todayFormatted.with(TemporalAdjusters.lastDayOfMonth()).plusDays(1))){
+                calMonthList.add(mainApptList.get(i));
+            }
+        }
+        System.out.println("Today: " + calTodayList.size() + ", This Week: " + calWeekList.size() + ", This Month: " + calMonthList.size());
+    }
+    //Return Today's, Week's, and Month's Appointments
+    public static List<Calendar> getTodaysAppts(){
+        return calTodayList;
+    }
+    public static List<Calendar> getWeeksAppts(){
+        return calWeekList;
+    }
+    public static List<Calendar> getMonthsAppts(){
+        return calMonthList;
     }
     
 }
