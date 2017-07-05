@@ -6,15 +6,23 @@
 package absoluteschedule.View_Controller;
 
 import absoluteschedule.Helper.ListManage;
+import static absoluteschedule.Helper.ListManage.loadConsultList;
 import absoluteschedule.Model.Calendar;
-import absoluteschedule.Model.Users;
+import absoluteschedule.Model.Report;
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -26,6 +34,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -51,13 +60,15 @@ public class ReportViewController implements Initializable {
     @FXML private Label ReportNameLabel;
     @FXML private Button ReportSaveButton;
     @FXML private Label ReportDateLabel;
-    @FXML private TableView<?> ReportTableView;
+    @FXML private TableView<Report> ReportTableView;
     
 //Intance Variables
     private List<Calendar> apptList = new ArrayList<>();
-    private List<Users> consultantList = new ArrayList<>();
-    private List<Integer> consultantApptCount = new ArrayList<>();
     private List<String> reportTypeList = new ArrayList<>();
+    private List<String> reportConsultantList = new ArrayList<>();
+    private List<String> reportDayList = new ArrayList<>();
+    private ObservableList<Report> reportList = FXCollections.observableArrayList();
+    private String reportMonth = "";
 
 //FXML Button Handlers  
     //Cancel Button handler
@@ -92,10 +103,14 @@ public class ReportViewController implements Initializable {
     }
     //View/Generate Report Button handler
     @FXML void ReportViewClick(ActionEvent event) throws SQLException {
+        System.out.println("List size: " + reportList.size());
+        reportList.clear();
+        System.out.println("List size: " + reportList.size());
         
     //Set Header Labels
+        reportMonth = ReportYearCombo.getValue() + "-" + ReportMonthCombo.getValue();
         ReportNameLabel.setText(ReportTypeCombo.getValue());
-        ReportDateLabel.setText(ReportMonthCombo.getValue() + " - " + ReportYearCombo.getValue());
+        ReportDateLabel.setText(reportMonth);
         
     //Load appointment data for selected month
         String dateText = ReportYearCombo.getValue() + "-" + ReportMonthCombo.getValue() + "-01";
@@ -108,11 +123,11 @@ public class ReportViewController implements Initializable {
         
     //Determin which report to run
         switch(ReportTypeCombo.getValue()){
-            case "Monthly Appointment Count":
-                runMonthlyApptCount();
+            case "Appointment Type":
+                runApptTypeCount();
                 break;
             case "Consultant Schedule":
-                runConsultantApptCount();
+                runConsultantAppt();
                 break;
             case "Appointments By Day":
                 runDayCount();
@@ -121,6 +136,8 @@ public class ReportViewController implements Initializable {
                 System.out.println("No Selection Made");
         }
         
+    //Add tabe columns and load date from reportlist
+        loadTable();
     }
 //Save Button handler
     @FXML void ReportSaveClick(ActionEvent event) {
@@ -129,28 +146,174 @@ public class ReportViewController implements Initializable {
     
     
 //Report Generation Methods
-    //Monthly Appt Count Method
-    public void runMonthlyApptCount() throws SQLException{
-    //
+    //Type of Appt Count Method
+    public void runApptTypeCount() throws SQLException{
         System.out.println("Monthly Count of appointments by type run");
+        
+    //Set Appt Headers as first item in reportList
+        Report header = new Report();
+        header.setReportName("Report Type");
+        header.setReportTimePeriod("Month/Year");
+        header.setReportType("Appt Type");
+        header.setReportItem("Appt Count");
+        reportList.add(header);
+        
+    //Run through appt list and match types and count        
+        for(int i=0; i<reportTypeList.size(); i++){
+        //Create new report object
+            Report report = new Report();
+            
+        //Set initial report parameters
+            report.setReportName("Appointment Type");
+            report.setReportTimePeriod(reportMonth);
+            report.setReportType(reportTypeList.get(i));
+            
+            int count = 0;
+            for(int j=0; j<apptList.size();j++){
+                if(apptList.get(j).getApptDesc().equals(reportTypeList.get(i))){
+                    count++;
+                }
+            }
+        //Set Report count
+            report.setReportItem(count + "");
+            
+        //Add Report item to report list
+            reportList.add(report);
+        }
+        System.out.println("Report List Size: " + reportList.size());
     }
     //Appointments Counts by Consultant  for specified month
-    public void runConsultantApptCount(){
+    public void runConsultantAppt(){
         System.out.println("Monthly Count of appointments by consultnat run");
+        
+    //Set Appt Headers as first item in reportList
+        Report header = new Report();
+        header.setReportName("Report Type");
+        header.setReportTimePeriod("Month/Year");
+        header.setReportConsultant("Consultant");
+        header.setReportItem("Schedule");
+        reportList.add(header);
+    
+    //Run through appt list and match consultants and count        
+        for(int i=0; i<reportConsultantList.size(); i++){  
+        //Loop through ists
+            for(int j=0; j<apptList.size();j++){
+                Calendar appt = apptList.get(j);
+                if(reportConsultantList.get(i).equals(apptList.get(j).getApptContact())){
+                //Create new report object
+                    Report report = new Report();
+                     
+                //Set initial report parameters
+                    report.setReportName("Consultant Schedule");
+                    report.setReportTimePeriod(reportMonth);
+                    report.setReportConsultant(reportConsultantList.get(i));
+
+                //Set Report item
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    LocalDateTime start = LocalDateTime.parse(appt.getApptStartTime(), formatter);
+                    LocalDateTime end = LocalDateTime.parse(appt.getApptEndTime(), formatter);
+                    String item = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm a").format(start) + " - " + DateTimeFormatter.ofPattern("HH:mm a").format(end) + " - " + appt.getApptTitle();
+                    report.setReportItem(item);
+
+                //Add Report item to report list
+                    reportList.add(report);
+                }
+            }
+        }
+        System.out.println("Report List Size: " + reportList.size());
+        System.out.println("First Item: " + reportList.get(0).getReportConsultant() + " - " + reportList.get(0).getReportItem());
     }
     //Appt count by Day for specified month
     public void runDayCount(){
         System.out.println("Monthly Count of appointments by day run");
+        
+        //Set Appt Headers as first item in reportList
+        Report header = new Report();
+        header.setReportName("Report Type");
+        header.setReportTimePeriod("Month/Year");
+        header.setReportConsultant("Day of Week");
+        header.setReportItem("Count");
+        reportList.add(header);
+        
+    //Run through appt list and match days of week and count        
+        for(int i=0; i<reportDayList.size(); i++){
+        //Create new report object
+            Report report = new Report();
+            
+        //Set initial report parameters
+            report.setReportName("Appointments By Day");
+            report.setReportTimePeriod(reportMonth);
+            report.setReportDay(reportDayList.get(i));
+        
+        //Initiate Count
+            int count = 0;
+            
+        //Loop through ists
+            for(int j=0; j<apptList.size();j++){
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                String str = apptList.get(j).getApptStartTime();
+                LocalDateTime formattedDate = LocalDateTime.parse(str,formatter);
+                String day = DateTimeFormatter.ofPattern("EEEE").format(formattedDate);
+                if(day.equals(reportDayList.get(i))){
+                    count++;
+                }
+            }
+            
+        //Set Report count
+            report.setReportItem(count + "");
+            
+        //Add Report item to report list
+            reportList.add(report);
+        }
+        System.out.println("Report List Size: " + reportList.size());
+        System.out.println("First Report Item: " + reportList.get(0).getReportDay() + " - " + reportList.get(0).getReportItem());
     }
     
+//Add and populate table columns
+    private void loadTable(){
+        for (int i = 0; i < reportList.size(); i++) {
+            ReportTableView.getItems().add(reportList);
+        }
+    }
     
+//Load Appt Types
+    public List<String> getApptType(){
+        for(int i=0; i<apptList.size(); i++){
+            String type = apptList.get(i).getApptDesc();
+            if(reportTypeList.contains(type)){
+            }
+            else{
+                reportTypeList.add(type);
+            }
+        }
+        return reportTypeList;
+    }
+    public void loadDays(){
+        reportDayList.add("Monday");
+        reportDayList.add("Tuesday");
+        reportDayList.add("Wednesday");
+        reportDayList.add("Thursday");
+        reportDayList.add("Firday");
+    }
+
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+    //Load report parameter lists
+        try {
+            //Load Consultants
+            reportConsultantList = loadConsultList();
+        } catch (SQLException ex) {
+            Logger.getLogger(ReportViewController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        //Load Type List
+        getApptType();
+        loadDays();
+        
     //Load Report Types
-        reportTypeList.add("Monthly Appointment Count");
+        reportTypeList.add("Appointment Type");
         reportTypeList.add("Consultant Schedule");
         reportTypeList.add("Appointments By Day");
         

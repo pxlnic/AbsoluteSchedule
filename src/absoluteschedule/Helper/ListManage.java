@@ -10,6 +10,7 @@ import static absoluteschedule.Helper.SQLManage.getConn;
 import absoluteschedule.Model.Calendar;
 import static absoluteschedule.Model.Calendar.convertToLocal;
 import absoluteschedule.Model.Customer;
+import absoluteschedule.Model.Report;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.ArrayList;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -35,6 +37,8 @@ public class ListManage {
     private static ObservableList<Calendar> calTodayList = FXCollections.observableArrayList();
     private static ObservableList<Calendar> calWeekList = FXCollections.observableArrayList();
     private static ObservableList<Calendar> calMonthList = FXCollections.observableArrayList();
+    private static List<Report> mainReportList = new ArrayList<>();
+    private static List<String> mainConsultantList = new ArrayList<>();
     
 //Instance Variables
     private ResourceBundle localization = loadResourceBundle();
@@ -77,6 +81,21 @@ public class ListManage {
     //Return list of customers
         return custList;
     } 
+    //Load all consultants
+    public static List<String> loadConsultList() throws SQLException {
+        try (Connection conn = getConn();
+                PreparedStatement ps = conn.prepareStatement("SELECT * FROM user")) {;
+                ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String user = rs.getString("userName");
+                mainConsultantList.add(user);
+            }
+        } catch (SQLException err) {
+            err.printStackTrace();
+        }
+        return mainConsultantList;
+    }
 
 //Appt List handling
     //Load/Get all appointments
@@ -162,6 +181,12 @@ public class ListManage {
     }
     public static List<Calendar> getMonthsAppts(){
         return calMonthList;
+    }
+    
+//Report List handling
+    //Get Report List
+    public static List<Report> getReportList(){
+        return mainReportList;
     }
     
 }

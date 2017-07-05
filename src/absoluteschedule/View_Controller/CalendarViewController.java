@@ -11,6 +11,7 @@ import absoluteschedule.Helper.ListManage;
 import static absoluteschedule.Helper.ListManage.getMonthsAppts;
 import static absoluteschedule.Helper.ListManage.getWeeksAppts;
 import static absoluteschedule.Helper.ListManage.loadAppts;
+import static absoluteschedule.Helper.ListManage.loadConsultList;
 import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import absoluteschedule.Model.Calendar;
@@ -228,7 +229,7 @@ public class CalendarViewController implements Initializable {
     }
     //Month Next Button handler
     @FXML void CalendarMonthNextClick(ActionEvent event) throws SQLException {
-        selectedMonth.plusMonths(1);
+        selectedMonth = selectedMonth.plusMonths(1);
         reloadCalAppts();
     }
     
@@ -286,21 +287,6 @@ public class CalendarViewController implements Initializable {
         }
         catch(SQLException err){
             err.printStackTrace();
-        } 
-    }
-    //Load consultants to arraylist
-    private void loadConsultList() throws SQLException{
-        try(Connection conn = getConn();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM user")){;
-            rs = ps.executeQuery();
-            
-            while(rs.next()){
-                String user = rs.getString("userName");
-                consultantList.add(user);
-            }
-        }
-        catch(SQLException err){
-           err.printStackTrace();
         } 
     }
     
@@ -497,7 +483,7 @@ public class CalendarViewController implements Initializable {
             //Format nodes
                 date.setPadding(new Insets(0,0,0,0));
                 date.setAlignment(Pos.BASELINE_RIGHT);
-                if(j==0 || j==6 || (i==0 && j<firstDayIndex) || (i>3 && dayNumOfMonth<7)){
+                if(j==0 || j==6 || (i==0 && j<firstDayIndex) || (i>3 && dayNumOfMonth<14)){
                     day.setStyle("-fx-background-color: E6E6E6");
                 }
             }
@@ -517,7 +503,7 @@ public class CalendarViewController implements Initializable {
         
     //Load Weekly and Monhthly Data
         ListManage l = new ListManage();
-        l.seperateAppts(LocalDate.now());
+        l.seperateAppts(selectedMonth);
         
         thisWeeksAppts = getWeeksAppts();
         thisMonthsAppts = getMonthsAppts();
@@ -526,7 +512,6 @@ public class CalendarViewController implements Initializable {
         loadWeeksAppts();
         loadMonthsAppts(selectedMonth);
     }
-
 
     /**
      * Initializes the controller class.
