@@ -5,7 +5,9 @@
  */
 package absoluteschedule.Model;
 
+import absoluteschedule.Helper.SQLManage;
 import static absoluteschedule.Helper.SQLManage.getConn;
+import static absoluteschedule.Helper.SQLManage.prepare;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -132,16 +134,17 @@ public class Calendar {
     //If eitheher customer or consultant are matched at the same date/time then those appts are returned
         List<Calendar> tempApptsList = new ArrayList<>();
         
+        String sql = "SELECT * FROM appointment WHERE (customerID=? AND (start>=? AND end<=?)) OR (contact=? AND (start>=? AND end<=?));";
+
     //Try clause
         try(Connection conn = getConn();
-            PreparedStatement ps = conn.prepareStatement("SELECT * FROM appointment WHERE (customerID=? AND (start>=? AND end<=?)) OR (contact=? AND (start>=? AND end<=?));")){
-            ps.setInt(1, custID);
+            PreparedStatement statement = prepare(conn, sql, ps ->{ps.setInt(1, custID);
             ps.setTimestamp(2, java.sql.Timestamp.valueOf(startTime));
             ps.setTimestamp(3, java.sql.Timestamp.valueOf(endTime));
             ps.setString(4, consultName);
             ps.setTimestamp(5, java.sql.Timestamp.valueOf(startTime));
-            ps.setTimestamp(6, java.sql.Timestamp.valueOf(endTime));
-            rs = ps.executeQuery();
+            ps.setTimestamp(6, java.sql.Timestamp.valueOf(endTime));})){
+            rs = statement.executeQuery();
 
         //Set variables with data from DB
             while(rs.next()){

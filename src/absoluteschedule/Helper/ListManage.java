@@ -23,8 +23,14 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.util.Duration;
 
 /**
  *
@@ -89,17 +95,39 @@ public class ListManage {
 
             while (rs.next()) {
                 String user = rs.getString("userName");
-                mainConsultantList.add(user);
+                if(mainConsultantList.contains(user)){
+                }
+                else{
+                    mainConsultantList.add(user);
+                }
             }
         } catch (SQLException err) {
             err.printStackTrace();
         }
+        System.out.println("Consultant Count: " + mainConsultantList.size());
         return mainConsultantList;
+    }
+    //Customer lookup
+    public static ObservableList lookupCust(String name, ObservableList<Customer> custList ){
+        ObservableList<Customer> tempList = FXCollections.observableArrayList();
+        
+        for(int i=0; i<custList.size(); i++){
+            List<String> validName = new ArrayList<>();
+            validName.add(custList.get(i).getCustName());
+            if(validName.get(0).contains(name)){
+                tempList.add(custList.get(i));
+            }
+        }
+        System.out.println("Count of partial/match: " + tempList.size());
+        return tempList;
     }
 
 //Appt List handling
     //Load/Get all appointments
     public static ObservableList<Calendar> loadAppts() throws SQLException{
+        
+        mainApptList.clear();
+        
         try(Connection conn = getConn();
             PreparedStatement ps = conn.prepareStatement("SELECT * FROM appointment ORDER BY start;")){
             
@@ -189,4 +217,45 @@ public class ListManage {
         return mainReportList;
     }
     
+//Reminders
+    public static void checkReminder(){
+        Timeline timeline = new Timeline(new KeyFrame(Duration.minutes(1), ev -> {
+            try {
+                loadAppts();
+            } catch (SQLException ex) {
+                Logger.getLogger(ListManage.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
+        //Temp List
+            List<Calendar> tempList = new ArrayList<>();
+            
+        //Loop through appt list to see if any are within the next 15 minutes
+            for(int i=0; i<mainApptList.size(); i++){
+                Calendar item = mainApptList.get(i);
+                String reminder = DateTimeFormatter.ofPattern("yyy-MM-dd HH:mm:ss").format(LocalDateTime.now());
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime time = LocalDateTime.parse(item.getApptStartTime(), formatter);
+                LocalDateTime now = LocalDateTime.parse(reminder, formatter);;
+                if(time.isAfter(now) && time.isBefore(now.plusMinutes(15))){
+                    tempList.add(item);
+                }
+            }
+            
+        //Print appointments if there are any
+            if(tempList.isEmpty()){
+                System.out.println("No Upcoming Appointments!");
+            }
+            else if(tempList.size()==1){
+                System.out.println("Upcoming Appointments: ");
+                System.out.println(tempList.get(0).getApptStartTime() + " - " + tempList.get(0).getApptContact());
+            }
+            else{
+                System.out.println("Upcoming Events: ");
+                System.out.println("Count: " + tempList.size());
+            }
+            
+        }));
+        timeline.setCycleCount(Animation.INDEFINITE);
+        timeline.play(); 
+    }
 }

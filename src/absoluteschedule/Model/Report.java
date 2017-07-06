@@ -18,7 +18,6 @@ public class Report {
     private String reportConsultant;
     private String reportType;
     private String reportItem;
-    private String reportConsultandSchedule;
     
 //Constructor
     public Report(){

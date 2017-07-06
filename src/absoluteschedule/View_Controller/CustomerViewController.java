@@ -7,6 +7,7 @@ package absoluteschedule.View_Controller;
 
 import static absoluteschedule.AbsoluteSchedule.getMainCustList;
 import static absoluteschedule.AbsoluteSchedule.reloadMainCustList;
+import static absoluteschedule.Helper.ListManage.lookupCust;
 import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import absoluteschedule.Model.Customer;
 import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
@@ -186,14 +187,58 @@ public class CustomerViewController implements Initializable {
     }
     //Search Button handler
     @FXML void CustomerSearchClick(ActionEvent event) {
-
+    //Get customer text & create index variable
+        String searchCust = CustomerSearchField.getText().trim();
+        
+    //Lookup Customer for partial/match
+        ObservableList<Customer> tempList = lookupCust(searchCust, customerList);
+        
+    //Set table data
+        CustomerTableView.setItems(tempList);  
     }
     //Clear Search Button handler
     @FXML void CustomerSearchClearClick(ActionEvent event) {
         CustomerSearchField.setText("");
+        CustomerTableView.setItems(customerList);
+    }   
+
+//Clear Fields
+    private void clearFields(){
+        CustomerIDField.setText("");
+        CustomerNameField.setText("");
+        CustomerAddress1Field.setText("");
+        CustomerAddress2Field.setText("");
+        CustomerCityField.setText("");
+        CustomerCountryField.setText("");
+        CustomerPostalCodeField.setText("");
+        CustomerPhoneNumberField.setText("");
+        CustomerActiveCheckbox.setSelected(false);
+    }
+//Load/Reload customer data and tableview
+    private void reloadCustomers() throws SQLException{
+        System.out.println("Customer List Loading.");
+
+    //Clear Fields
+        clearFields();
+        
+    //Clear and reload customer list
+        customerList.clear();
+        reloadMainCustList();
+        customerList = getMainCustList();
+        System.out.println("There are " + customerList.size() + " customers in the list.");
+        
+    //Populate TableView Data
+        CustomerID.setCellValueFactory(cellData -> cellData.getValue().custIDProperty().asObject());
+        CustomerName.setCellValueFactory(cellData -> cellData.getValue().custNameProperty());
+        CustomerAddress.setCellValueFactory(cellData -> Bindings.concat(cellData.getValue().custAddress1Property()," ",cellData.getValue().custAddress2Property()));
+        CustomerPostalCode.setCellValueFactory(cellData -> cellData.getValue().custPostalCodeProperty());
+            
+    //Load TableView
+        System.out.println("TableView being set with " + customerList.size() + " customers.");
+        CustomerTableView.setItems(customerList);
     }
     
-
+    
     /**
      * Initializes the controller class.
      */
@@ -241,39 +286,4 @@ public class CustomerViewController implements Initializable {
         });
     }
 
-//Clear Fields
-    private void clearFields(){
-        CustomerIDField.setText("");
-        CustomerNameField.setText("");
-        CustomerAddress1Field.setText("");
-        CustomerAddress2Field.setText("");
-        CustomerCityField.setText("");
-        CustomerCountryField.setText("");
-        CustomerPostalCodeField.setText("");
-        CustomerPhoneNumberField.setText("");
-        CustomerActiveCheckbox.setSelected(false);
-    }
-//Load/Reload customer data and tableview
-    private void reloadCustomers() throws SQLException{
-        System.out.println("Customer List Loading.");
-
-    //Clear Fields
-        clearFields();
-        
-    //Clear and reload customer list
-        customerList.clear();
-        reloadMainCustList();
-        customerList = getMainCustList();
-        System.out.println("There are " + customerList.size() + " customers in the list.");
-        
-    //Populate TableView Data
-        CustomerID.setCellValueFactory(cellData -> cellData.getValue().custIDProperty().asObject());
-        CustomerName.setCellValueFactory(cellData -> cellData.getValue().custNameProperty());
-        CustomerAddress.setCellValueFactory(cellData -> Bindings.concat(cellData.getValue().custAddress1Property()," ",cellData.getValue().custAddress2Property()));
-        CustomerPostalCode.setCellValueFactory(cellData -> cellData.getValue().custPostalCodeProperty());
-            
-    //Load TableView
-        System.out.println("TableView being set with " + customerList.size() + " customers.");
-        CustomerTableView.setItems(customerList);
-    }
 }

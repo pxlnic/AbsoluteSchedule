@@ -528,7 +528,7 @@ public class CalendarViewController implements Initializable {
         loadCustNames();
         try {
             loadLocList();
-            loadConsultList();
+            consultantList = loadConsultList();
         } catch (SQLException ex) {
             Logger.getLogger(CalendarViewController.class.getName()).log(Level.SEVERE, null, ex);
         }

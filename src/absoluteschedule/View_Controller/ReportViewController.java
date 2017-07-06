@@ -38,6 +38,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
@@ -65,6 +66,7 @@ public class ReportViewController implements Initializable {
 //Intance Variables
     private List<Calendar> apptList = new ArrayList<>();
     private List<String> reportTypeList = new ArrayList<>();
+    private List<String> reportApptTypeList = new ArrayList<>();
     private List<String> reportConsultantList = new ArrayList<>();
     private List<String> reportDayList = new ArrayList<>();
     private ObservableList<Report> reportList = FXCollections.observableArrayList();
@@ -105,6 +107,7 @@ public class ReportViewController implements Initializable {
     @FXML void ReportViewClick(ActionEvent event) throws SQLException {
         System.out.println("List size: " + reportList.size());
         reportList.clear();
+        ReportTableView.getColumns().clear();
         System.out.println("List size: " + reportList.size());
         
     //Set Header Labels
@@ -125,19 +128,19 @@ public class ReportViewController implements Initializable {
         switch(ReportTypeCombo.getValue()){
             case "Appointment Type":
                 runApptTypeCount();
+                loadTable("Appt Type", "Appt Count", "reportType");
                 break;
             case "Consultant Schedule":
                 runConsultantAppt();
+                loadTable("Consultant Schedule", "Consultant", "reportConsultant");
                 break;
             case "Appointments By Day":
                 runDayCount();
+                loadTable("Appointments By Day", "Day of Week", "reportDay");
                 break;
             default:
                 System.out.println("No Selection Made");
         }
-        
-    //Add tabe columns and load date from reportlist
-        loadTable();
     }
 //Save Button handler
     @FXML void ReportSaveClick(ActionEvent event) {
@@ -150,27 +153,29 @@ public class ReportViewController implements Initializable {
     public void runApptTypeCount() throws SQLException{
         System.out.println("Monthly Count of appointments by type run");
         
+        getApptType();
+        
     //Set Appt Headers as first item in reportList
-        Report header = new Report();
+        /*Report header = new Report();
         header.setReportName("Report Type");
         header.setReportTimePeriod("Month/Year");
         header.setReportType("Appt Type");
         header.setReportItem("Appt Count");
-        reportList.add(header);
+        reportList.add(header);*/
         
-    //Run through appt list and match types and count        
-        for(int i=0; i<reportTypeList.size(); i++){
+    //Run through appt type list and match types and count        
+        for(int i=0; i<reportApptTypeList.size(); i++){
         //Create new report object
             Report report = new Report();
             
         //Set initial report parameters
             report.setReportName("Appointment Type");
             report.setReportTimePeriod(reportMonth);
-            report.setReportType(reportTypeList.get(i));
+            report.setReportType(reportApptTypeList.get(i));
             
             int count = 0;
             for(int j=0; j<apptList.size();j++){
-                if(apptList.get(j).getApptDesc().equals(reportTypeList.get(i))){
+                if(apptList.get(j).getApptDesc().equals(reportApptTypeList.get(i))){
                     count++;
                 }
             }
@@ -179,20 +184,23 @@ public class ReportViewController implements Initializable {
             
         //Add Report item to report list
             reportList.add(report);
+            System.out.println("Count: " + count);
         }
         System.out.println("Report List Size: " + reportList.size());
+        //System.out.println("Appt Count: " + reportList.get(0).getReportItem());
+
     }
     //Appointments Counts by Consultant  for specified month
     public void runConsultantAppt(){
         System.out.println("Monthly Count of appointments by consultnat run");
         
     //Set Appt Headers as first item in reportList
-        Report header = new Report();
+        /*Report header = new Report();
         header.setReportName("Report Type");
         header.setReportTimePeriod("Month/Year");
         header.setReportConsultant("Consultant");
         header.setReportItem("Schedule");
-        reportList.add(header);
+        reportList.add(header);*/
     
     //Run through appt list and match consultants and count        
         for(int i=0; i<reportConsultantList.size(); i++){  
@@ -228,12 +236,12 @@ public class ReportViewController implements Initializable {
         System.out.println("Monthly Count of appointments by day run");
         
         //Set Appt Headers as first item in reportList
-        Report header = new Report();
+        /*Report header = new Report();
         header.setReportName("Report Type");
         header.setReportTimePeriod("Month/Year");
         header.setReportConsultant("Day of Week");
         header.setReportItem("Count");
-        reportList.add(header);
+        reportList.add(header);*/
         
     //Run through appt list and match days of week and count        
         for(int i=0; i<reportDayList.size(); i++){
@@ -270,23 +278,37 @@ public class ReportViewController implements Initializable {
     }
     
 //Add and populate table columns
-    private void loadTable(){
-        for (int i = 0; i < reportList.size(); i++) {
-            ReportTableView.getItems().add(reportList);
-        }
+    private void loadTable(String colParameter, String colItem, String parameter){
+    //Create Columns
+        TableColumn nameCol = new TableColumn("Report Type");
+        TableColumn periodCol = new TableColumn("Month/Year");
+        TableColumn parameterCol = new TableColumn(colParameter);
+        TableColumn itemCol = new TableColumn(colItem);
+        
+    //Attach Class parameters to Columns
+        nameCol.setCellValueFactory(new PropertyValueFactory<Report, String>("reportName"));
+        periodCol.setCellValueFactory(new PropertyValueFactory<Report, String>("reportTimePeriod"));
+        parameterCol.setCellValueFactory(new PropertyValueFactory<Report, String>(parameter));
+        itemCol.setCellValueFactory(new PropertyValueFactory<Report, String>("reportItem"));
+        
+    //Load Data and Columns
+        ReportTableView.setItems(reportList);
+        ReportTableView.getColumns().addAll(nameCol, periodCol, parameterCol, itemCol);
     }
     
 //Load Appt Types
     public List<String> getApptType(){
+        reportTypeList.clear();
+        
         for(int i=0; i<apptList.size(); i++){
             String type = apptList.get(i).getApptDesc();
-            if(reportTypeList.contains(type)){
+            if(reportApptTypeList.contains(type)){
             }
             else{
-                reportTypeList.add(type);
+                reportApptTypeList.add(type);
             }
         }
-        return reportTypeList;
+        return reportApptTypeList;
     }
     public void loadDays(){
         reportDayList.add("Monday");
@@ -308,8 +330,7 @@ public class ReportViewController implements Initializable {
         } catch (SQLException ex) {
             Logger.getLogger(ReportViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //Load Type List
-        getApptType();
+        //Load Days List
         loadDays();
         
     //Load Report Types

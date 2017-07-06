@@ -10,6 +10,7 @@ import static absoluteschedule.AbsoluteSchedule.getMainApptList;
 import static absoluteschedule.AbsoluteSchedule.getMainCustList;
 import static absoluteschedule.AbsoluteSchedule.reloadMainApptList;
 import absoluteschedule.Helper.ListManage;
+import static absoluteschedule.Helper.ListManage.checkReminder;
 import static absoluteschedule.Helper.ListManage.getMonthsAppts;
 import static absoluteschedule.Helper.ListManage.getTodaysAppts;
 import static absoluteschedule.Helper.ListManage.getWeeksAppts;
@@ -176,6 +177,9 @@ public class MainViewController implements Initializable {
         
     //Update Time
         updateClock();
+        
+    //Check for reminders
+        checkReminder();
         
     //Load Agenda Items
         for(int i=0; i<todaysAppts.size(); i++){

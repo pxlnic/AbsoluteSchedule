@@ -7,6 +7,7 @@ package absoluteschedule.Helper;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -23,14 +24,14 @@ public class SQLManage {
     private static String userName = "U04H1H";
     private static String password = "53688238168";
     
-//Statment - Update
+//Open Connection to DB
     public static Connection getConn() throws SQLException{
         System.out.println("Connections to SQL DB Opened");
         Connection conn = DriverManager.getConnection("jdbc:mysql://52.206.157.109/U04H1H", "U04H1H","53688238168");
         return conn;
     }
     
-//Statement - Query 
+//Close connection 
     public void stopConn(Connection conn) throws SQLException{
         try{
             conn.close();
@@ -38,6 +39,18 @@ public class SQLManage {
         }
         catch(SQLException err){
         }
+    }
+    
+//Select Statement method for managing calendar
+    public static PreparedStatement prepare(Connection conn, String sql, PreparedStatementSetter setter) throws SQLException{
+        PreparedStatement ps = conn.prepareStatement(sql);
+        setter.setValues(ps);
+        return ps;
+    }
+
+    @FunctionalInterface
+    public interface PreparedStatementSetter {
+        void setValues(PreparedStatement ps) throws SQLException;
     }
     //"jdbc:mysql://52.206.157.109/U04H1H", "U04H1H","53688238168"
 }
