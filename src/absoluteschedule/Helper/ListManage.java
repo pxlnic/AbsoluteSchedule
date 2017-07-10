@@ -5,6 +5,7 @@
  */
 package absoluteschedule.Helper;
 
+import static absoluteschedule.AbsoluteSchedule.createStandardAlert;
 import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import absoluteschedule.Model.Calendar;
@@ -43,8 +44,13 @@ public class ListManage {
     private static ObservableList<Calendar> calTodayList = FXCollections.observableArrayList();
     private static ObservableList<Calendar> calWeekList = FXCollections.observableArrayList();
     private static ObservableList<Calendar> calMonthList = FXCollections.observableArrayList();
+    
+//Array Lists
     private static List<Report> mainReportList = new ArrayList<>();
     private static List<String> mainConsultantList = new ArrayList<>();
+    private static List<String> reminderAppts = new ArrayList<>();
+    private static List<String> mainMonthList = new ArrayList<>();
+    private static List<String> mainYearList = new ArrayList<>();
     
 //Instance Variables
     private ResourceBundle localization = loadResourceBundle();
@@ -225,6 +231,50 @@ public class ListManage {
     public static List<Calendar> getMonthsAppts(){
         return calMonthList;
     }
+    //Load Month/Year List for reports
+    public static List<String> loadMonthList() throws SQLException{
+        mainMonthList.clear();
+        
+        loadAppts();
+        
+        for(int i=0; i<mainApptList.size(); i++){
+            Calendar item = mainApptList.get(i);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime time = LocalDateTime.parse(item.getApptStartTime(), formatter);
+            String month = DateTimeFormatter.ofPattern("MM").format(time);
+            
+            if(mainMonthList.contains(month)){
+            }
+            else{
+                mainMonthList.add(month);
+                System.out.println("Added Month: " + month);
+            }
+        }
+        
+        System.out.println("Main month list: " + mainMonthList.size());
+        return mainMonthList;
+    }
+    public static List<String> loadYearList() throws SQLException{
+        mainYearList.clear();
+        
+        loadAppts();
+        
+        for(int i=0; i<mainApptList.size(); i++){
+            Calendar item = mainApptList.get(i);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            LocalDateTime time = LocalDateTime.parse(item.getApptStartTime(), formatter);
+            String year = DateTimeFormatter.ofPattern("YYYY").format(time);
+            
+            if(mainYearList.contains(year)){
+            }
+            else{
+                mainYearList.add(year);
+                System.out.println("Added Year: " + year);
+            }
+        }
+        
+        return mainYearList;
+    }
     
 //Report List handling
     //Get Report List
@@ -250,7 +300,7 @@ public class ListManage {
                 String reminder = DateTimeFormatter.ofPattern("yyy-MM-dd HH:mm:ss").format(LocalDateTime.now());
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 LocalDateTime time = LocalDateTime.parse(item.getApptStartTime(), formatter);
-                LocalDateTime now = LocalDateTime.parse(reminder, formatter);;
+                LocalDateTime now = LocalDateTime.parse(reminder, formatter);
                 if(time.isAfter(now) && time.isBefore(now.plusMinutes(15))){
                     tempList.add(item);
                 }
@@ -261,14 +311,17 @@ public class ListManage {
                 System.out.println("No Upcoming Appointments!");
             }
             else if(tempList.size()==1){
-                System.out.println("Upcoming Appointments: ");
-                System.out.println(tempList.get(0).getApptStartTime() + " - " + tempList.get(0).getApptContact());
+                String reminder = tempList.get(0).getApptStartTime() + " - " + tempList.get(0).getApptContact();
+                createStandardAlert(reminder, "Upcoming Appointment: 1", "Reminder");
             }
             else{
-                System.out.println("Upcoming Events: ");
-                System.out.println("Count: " + tempList.size());
+                String reminder = "";
+                for(int i=0; i<tempList.size(); i++){
+                    String item = tempList.get(i).getApptStartTime() + " - " + tempList.get(i).getApptContact() + "\n";
+                    reminder = reminder + item;
+                }
+            createStandardAlert(reminder, "Upcoming Appointmens: " + tempList.size(), "Reminder");
             }
-            
         }));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play(); 

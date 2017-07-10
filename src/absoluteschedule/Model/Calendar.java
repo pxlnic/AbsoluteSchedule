@@ -6,6 +6,7 @@
 package absoluteschedule.Model;
 
 import static absoluteschedule.Helper.ListManage.isInteger;
+import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import absoluteschedule.Helper.SQLManage;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import static absoluteschedule.Helper.SQLManage.prepare;
@@ -46,7 +47,7 @@ public class Calendar {
     
 //SQL Variables
     private ResultSet rs = null;
-    private ResourceBundle localization;
+    private static ResourceBundle localization = loadResourceBundle();
     
 //Constructor
     public Calendar(){
@@ -244,7 +245,7 @@ public class Calendar {
     public static String isEntryValid(String message, String testDate, String testStartHour, String testStartMin, String testEndHour, String testEndMin, boolean testAllDay, String testCustName, String testConsultName, String testLoc, String testTitle, String testDesc){
     //Test Date
         if(testDate.equals("")){
-            message = message + "-An appointment date must be selected.\n";
+            message = message + localization.getString("cal_valid_date");
         }
     //Times
     //Check if All Day
@@ -252,62 +253,84 @@ public class Calendar {
         }
         else{
         //Test Start & End Times
+            //Start Time
+            String tempStart = "0";
+            String tempEnd = "0";
+            
             try{
                 if(testStartHour.equals("") || testStartMin.equals("")){
-                    message = message + "-A start hour and minute must be selected - If successful.\n";
+                    message = message + localization.getString("cal_valid_start");
+                }
+                else{
+                    tempStart = testStartHour+testStartMin;
+                    if(Integer.parseInt(tempStart)<600 || Integer.parseInt(tempStart)>2000){
+                        message = message + localization.getString("cal_valid_bus_hours_start");
+                    }
                 }
             }
             catch(NullPointerException e){
-                message = message + "-A start hour and minute must be selected.\n";
+                message = message + localization.getString("cal_valid_start");
             }
+            
+            //End Time
             try{
                 if(testEndHour.equals("") || testEndMin.equals("")){
-                    message = message + "-An end hour and minute must be selected.\n";
+                    message = message + localization.getString("cal_valid_end");
+                }
+                else{
+                    tempEnd = testEndHour+testEndMin;
+                    if(Integer.parseInt(tempEnd)<600 || Integer.parseInt(tempEnd)>2000){
+                    message = message + localization.getString("cal_valid_bus_hours_end");
+                    }
+                //Business Hours and Start Time after End time validation
+                    if(Integer.parseInt(tempStart)>=Integer.parseInt(tempEnd)){
+                    message = message + localization.getString("cal_valid_start_end");
+                    }
                 }
             }
             catch(NullPointerException e){
-                message = message + "-An end hour and minute must be selected.\n";
+                message = message + localization.getString("cal_valid_end");
             }
         }
 
     //Test Customer Name
         try{
             if(testCustName.equals("")){
-                message = message + "-A Customer must be selected from drop down.\n";
+                message = message + localization.getString("cal_valid_cust");
             }
         }
         catch(NullPointerException e){
-            message = message + "-A Customer must be selected from drop down.\n";
+            message = message + localization.getString("cal_valid_cust");
         }
 
     //Test Consultant Name
         try{
             if(testConsultName.equals("")){
-                message = message + "-A Consultant must be selected from drop down.\n";
+                message = message + localization.getString("cal_valid_consult");
             }
         }
         catch(NullPointerException e){
-            message = message + "-A Consultant must be selected from drop down.\n";
+            message = message + localization.getString("cal_valid_consult");
         }
         
     //Test Location
         try{
             if(testLoc.equals("")){
-                message = message + "-A Location must be selected from drop down.\n";
+                message = message + localization.getString("cal_valid_loc");
             }
         }
         catch(NullPointerException e){
-            message = message + "-A Location must be selected from drop down.\n";
+            message = message + localization.getString("cal_valid_loc");
         }
         
     //Test Title
         if(testTitle.equals("")){
-            message = message + "-A Title must be entered.\n";
+            message = message + localization.getString("cal_valid_title");
         }
         
     //Test Description
         if(testDesc.equals("")){
-            message = message + "-A Description must be entered.\n";
+            message = message + localization.getString("cal_valid_desc");
         }
         
     //Return Error message

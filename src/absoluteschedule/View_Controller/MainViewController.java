@@ -6,6 +6,7 @@
 package absoluteschedule.View_Controller;
 
 import absoluteschedule.AbsoluteSchedule;
+import static absoluteschedule.AbsoluteSchedule.createConfirmAlert;
 import static absoluteschedule.AbsoluteSchedule.getMainApptList;
 import static absoluteschedule.AbsoluteSchedule.getMainCustList;
 import static absoluteschedule.AbsoluteSchedule.reloadMainApptList;
@@ -14,6 +15,7 @@ import static absoluteschedule.Helper.ListManage.checkReminder;
 import static absoluteschedule.Helper.ListManage.getMonthsAppts;
 import static absoluteschedule.Helper.ListManage.getTodaysAppts;
 import static absoluteschedule.Helper.ListManage.getWeeksAppts;
+import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import absoluteschedule.Model.Calendar;
 import absoluteschedule.Model.Customer;
 import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
@@ -25,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -40,6 +43,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -83,6 +87,8 @@ public class MainViewController implements Initializable {
     private int todaysCount = 0;
     private int thisWeeksCount = 0;
     private int thisMonthsCount = 0;
+    private ResourceBundle localization = loadResourceBundle();
+    
         
 //Constructor
     public MainViewController(){
@@ -134,18 +140,17 @@ public class MainViewController implements Initializable {
         window.setScene(scene);
         window.show();
     }
-    //Main Delete Button handler
-    @FXML void MainDeleteClicked(ActionEvent event) {
-
-    }
-    //Main Edit Button handler
-    @FXML void MainEditClicked(ActionEvent event) {
-
-    }
     //Main Exit Button handler
     @FXML void MainExitClicked (ActionEvent event) {
-        System.out.println("Exit clicked!");
-        System.exit(0);
+        Optional<ButtonType> confirm = createConfirmAlert(localization.getString("exit_confirm"), "Exit Confirmation!", "Confirm!");
+        
+        if(confirm.get() == ButtonType.OK){
+            System.out.println("Exit clicked!");
+            System.exit(0);
+        }
+        else{
+            System.out.println("You clicked cancel. Please continue.");
+        }
     }
     
     /**

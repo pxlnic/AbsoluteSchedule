@@ -140,22 +140,6 @@
             <Separator layoutY="100.0" prefWidth="650.0" />
             <HBox alignment="CENTER_RIGHT" layoutY="675.0" prefHeight="75.0" prefWidth="650.0">
                <children>
-                  <Button fx:id="MainDeleteApptButton" mnemonicParsing="false" onAction="#MainDeleteClicked" text="Delete">
-                     <HBox.margin>
-                        <Insets right="20.0" />
-                     </HBox.margin>
-                     <font>
-                        <Font size="20.0" />
-                     </font>
-                  </Button>
-                  <Button fx:id="MainEditApptButton" mnemonicParsing="false" onAction="#MainEditClicked" text="Edit">
-                     <font>
-                        <Font size="20.0" />
-                     </font>
-                     <HBox.margin>
-                        <Insets right="20.0" />
-                     </HBox.margin>
-                  </Button>
                   <Button fx:id="MainExitButton" mnemonicParsing="false" onAction="#MainExitClicked" text="Exit">
                      <HBox.margin>
                         <Insets right="20.0" />

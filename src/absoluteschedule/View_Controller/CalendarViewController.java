@@ -5,17 +5,17 @@
  */
 package absoluteschedule.View_Controller;
 
+import static absoluteschedule.AbsoluteSchedule.createConfirmAlert;
+import static absoluteschedule.AbsoluteSchedule.createStandardAlert;
 import static absoluteschedule.AbsoluteSchedule.getMainCustList;
-import static absoluteschedule.AbsoluteSchedule.reloadMainApptList;
 import absoluteschedule.Helper.ListManage;
+import static absoluteschedule.Helper.ListManage.checkReminder;
 import static absoluteschedule.Helper.ListManage.getMonthsAppts;
 import static absoluteschedule.Helper.ListManage.getWeeksAppts;
-import static absoluteschedule.Helper.ListManage.loadAppts;
 import static absoluteschedule.Helper.ListManage.loadConsultList;
 import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import absoluteschedule.Model.Calendar;
-import static absoluteschedule.Model.Calendar.convertToLocal;
 import static absoluteschedule.Model.Calendar.convertToUTC;
 import static absoluteschedule.Model.Calendar.isEntryValid;
 import absoluteschedule.Model.Customer;
@@ -33,6 +33,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,6 +49,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
@@ -124,38 +126,41 @@ public class CalendarViewController implements Initializable {
 //Footer Button handlers
     //Cancel Button handler
     @FXML void CalendarCancelClick(ActionEvent event) throws IOException {
-        System.out.println("Cancel clicked. Returning to main screen.");
+        Optional<ButtonType> confirm = createConfirmAlert(localization.getString("cancel_confirm"), "Cancel Confirmation!", "Confirm!");
         
-    //Load MainView scene
-        Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));
-        Scene scene = new Scene(mainView);
+        if(confirm.get() == ButtonType.OK){
+            System.out.println("Cancel clicked. Returning to main screen.");
         
-    //Loads stage information from main file
-        Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        
-    //Load scene onto stage
-        window.setScene(scene);
-        window.show();
-        
-    //Center Stage on middle of screen
-        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
-        window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
+        //Load MainView scene
+            Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));
+            Scene scene = new Scene(mainView);
+
+        //Loads stage information from main file
+            Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
+
+        //Load scene onto stage
+            window.setScene(scene);
+            window.show();
+
+        //Center Stage on middle of screen
+            Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+            window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
+            window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
+        }
+        else{
+            System.out.println("You clicked cancel. Please continue.");
+        }
     }
     //Clear Button handler
     @FXML void CalendarClearClick(ActionEvent event) {
-        CalendarIDField.setText("");
-        CalendarDatePicker.setValue(LocalDate.now());
-        CalendarTimeHourCombo.getSelectionModel().clearSelection();
-        CalendarTimeMinCombo.getSelectionModel().clearSelection();
-        CalendarEndTimeHourCombo.getSelectionModel().clearSelection();
-        CalendarEndTimeMinCombo.getSelectionModel().clearSelection();
-        CalendarCustomerCombo.getSelectionModel().clearSelection();
-        CalendarConsultantCombo.getSelectionModel().clearSelection();
-        CalendarLocationCombo.getSelectionModel().clearSelection();
-        CalendaryAllDayCheckbox.setSelected(false);
-        CalendarTitleField.setText("");
-        CalendarDescriptionArea.setText("");
+        Optional<ButtonType> confirm = createConfirmAlert(localization.getString("clear_confirm"), "Clear Fields?", "Confirm!");
+        
+        if(confirm.get() == ButtonType.OK){
+            clearFields();
+        }
+        else{
+            System.out.println("You clicked cancel. Please continue.");
+        }
     }
     //Save Button handler
     @FXML void CalendarSaveClick(ActionEvent event) throws SQLException {
@@ -189,7 +194,7 @@ public class CalendarViewController implements Initializable {
             exceptionMessage = isEntryValid(exceptionMessage, date, startHour, startMin, endHour, endMin, allDay, customerName, consultantName, location, title, desc);
         
             if(exceptionMessage.length()>0){
-                System.out.println(exceptionMessage);
+                createStandardAlert(exceptionMessage, "Not all fields complete!", "Empty Fields!");
             }
             else{
             //Temp appointment/customer constructors
@@ -246,6 +251,9 @@ public class CalendarViewController implements Initializable {
 
             //Reload Appts
                 reloadCalAppts();
+                
+            //Clear fields
+                clearFields();
             }
         }
         catch(NumberFormatException e){
@@ -542,6 +550,22 @@ public class CalendarViewController implements Initializable {
         loadWeeksAppts();
         loadMonthsAppts(selectedMonth);
     }
+    
+//Clear Fields
+    public void clearFields(){
+        CalendarIDField.setText("");
+        CalendarDatePicker.setValue(LocalDate.now());
+        CalendarTimeHourCombo.getSelectionModel().clearSelection();
+        CalendarTimeMinCombo.getSelectionModel().clearSelection();
+        CalendarEndTimeHourCombo.getSelectionModel().clearSelection();
+        CalendarEndTimeMinCombo.getSelectionModel().clearSelection();
+        CalendarCustomerCombo.getSelectionModel().clearSelection();
+        CalendarConsultantCombo.getSelectionModel().clearSelection();
+        CalendarLocationCombo.getSelectionModel().clearSelection();
+        CalendaryAllDayCheckbox.setSelected(false);
+        CalendarTitleField.setText("");
+        CalendarDescriptionArea.setText("");
+    }
 
     /**
      * Initializes the controller class.
@@ -592,6 +616,9 @@ public class CalendarViewController implements Initializable {
         
     //Populate Location Combo Box
         CalendarLocationCombo.getItems().addAll(locList);
+        
+    //Check for reminders
+        checkReminder();
     }
     
 }

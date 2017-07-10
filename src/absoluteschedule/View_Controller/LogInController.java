@@ -6,6 +6,7 @@
 package absoluteschedule.View_Controller;
 
 import absoluteschedule.AbsoluteSchedule;
+import static absoluteschedule.AbsoluteSchedule.createConfirmAlert;
 import static absoluteschedule.AbsoluteSchedule.createStandardAlert;
 import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import static absoluteschedule.Helper.SQLManage.*;
@@ -21,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -31,6 +33,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -55,7 +58,7 @@ public class LogInController implements Initializable {
     private AbsoluteSchedule mainApp;
     private Connection conn;
     private ResultSet rs = null;
-    private ResourceBundle localization = loadResourceBundle();;
+    private ResourceBundle localization = loadResourceBundle();
     private static String user;
     private String exceptionMessage = new String();
     
@@ -63,12 +66,20 @@ public class LogInController implements Initializable {
 
 //Login Exit Button handler
     @FXML void LoginExitClicked(ActionEvent event) {
-        System.out.println("Exit clicked!");
-        System.exit(0);
+        Optional<ButtonType> confirm = createConfirmAlert(localization.getString("exit_confirm"), "Exit Confirmation!", "Confirm!");
+        
+        if(confirm.get() == ButtonType.OK){
+            System.out.println("Exit clicked!");
+            System.exit(0);
+        }
+        else{
+            System.out.println("You clicked cancel. Please continue.");
+        }
     }
 //Login Login Button Clicked
     @FXML void LoginSubmitClicked(ActionEvent event) throws IOException, SQLException {
         System.out.println("Login clicked");
+        exceptionMessage = "";
         
     //Capture textfield info
         String userName = LoginUserNameField.getText().trim();
@@ -110,7 +121,7 @@ public class LogInController implements Initializable {
                     }
 
                     if(userName.equals(dbUserName) && password.equals(dbPassword)){
-                        createStandardAlert(localization.getString("login_successful"), "Login Error!", "Error!");
+                        createStandardAlert(localization.getString("login_successful"), "Login Successful!", "Success!");
 
                     //Log File Message updated
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MMM-dd HH:mm:ssZ");
@@ -160,7 +171,7 @@ public class LogInController implements Initializable {
                 //Use try-with-resource to get auto-closeable writer instance
                     try (BufferedWriter writer = new BufferedWriter(fileWriter)) 
                     {
-                        writer.write(logMessage + " appended");
+                        writer.write(logMessage);
                         writer.newLine();
                     }
                 }
@@ -171,10 +182,12 @@ public class LogInController implements Initializable {
                 //Use try-with-resource to get auto-closeable writer instance
                     try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(file))) 
                     {
-                        writer.write("Login Log data for the month of: " + "June, 2017");
+                        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM, YYYY");
+                        String date = ZonedDateTime.now().format(formatter);
+                        writer.write("Login Log data for the month of: " + date);
                         writer.newLine();
                         writer.newLine();
-                        writer.write(logMessage + " created");
+                        writer.write(logMessage);
                         writer.newLine();
                     }
                 }

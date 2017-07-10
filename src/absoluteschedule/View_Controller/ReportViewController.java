@@ -5,8 +5,14 @@
  */
 package absoluteschedule.View_Controller;
 
+import static absoluteschedule.AbsoluteSchedule.createConfirmAlert;
+import static absoluteschedule.AbsoluteSchedule.createStandardAlert;
 import absoluteschedule.Helper.ListManage;
+import static absoluteschedule.Helper.ListManage.checkReminder;
 import static absoluteschedule.Helper.ListManage.loadConsultList;
+import static absoluteschedule.Helper.ListManage.loadMonthList;
+import static absoluteschedule.Helper.ListManage.loadYearList;
+import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import absoluteschedule.Model.Calendar;
 import absoluteschedule.Model.Report;
 import java.io.IOException;
@@ -17,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -32,6 +39,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
@@ -52,7 +60,7 @@ public class ReportViewController implements Initializable {
 //FXML Declarations
     @FXML private ComboBox<String> ReportTypeCombo;
     @FXML private ComboBox<String> ReportMonthCombo;
-    @FXML private ComboBox<Integer> ReportYearCombo;
+    @FXML private ComboBox<String> ReportYearCombo;
     @FXML private TextField ReportExportTitleField;
     @FXML private TextArea ReportExportNotesField;
     @FXML private Button ReportCancelButton;
@@ -69,40 +77,51 @@ public class ReportViewController implements Initializable {
     private List<String> reportApptTypeList = new ArrayList<>();
     private List<String> reportConsultantList = new ArrayList<>();
     private List<String> reportDayList = new ArrayList<>();
+    private static List<String> reportMonthList = new ArrayList<>();
+    private static List<String> reportYearList = new ArrayList<>();
     private ObservableList<Report> reportList = FXCollections.observableArrayList();
     private String reportMonth = "";
     private String exceptionMessage = new String();
+    private ResourceBundle localization = loadResourceBundle();
 
 //FXML Button Handlers  
     //Cancel Button handler
     @FXML void ReportCancelClick(ActionEvent event) throws IOException {
-        System.out.println("Cancel clicked. Returning to main screen.");
+        Optional<ButtonType> confirm = createConfirmAlert(localization.getString("cancel_confirm"), "Cancel Confirmation!", "Confirm!");
         
-    //Load MainView scene
-        Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));
-        Scene scene = new Scene(mainView);
+        if(confirm.get() == ButtonType.OK){
+            System.out.println("Cancel clicked. Returning to main screen.");
         
-    //Loads stage information from main file
-        Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        
-    //Load scene onto stage
-        window.setScene(scene);
-        window.show();
-        
-    //Center Stage on middle of screen
-        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
-        window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
+        //Load MainView scene
+            Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));
+            Scene scene = new Scene(mainView);
+
+        //Loads stage information from main file
+            Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
+
+        //Load scene onto stage
+            window.setScene(scene);
+            window.show();
+
+        //Center Stage on middle of screen
+            Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+            window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
+            window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
+        }
+        else{
+            System.out.println("You clicked cancel. Please continue.");
+        }
     }
     //Clear Button handler
     @FXML void ReportClearClick(ActionEvent event) {
-        ReportTypeCombo.getSelectionModel().clearSelection();
-        ReportMonthCombo.getSelectionModel().clearSelection();
-        ReportYearCombo.getSelectionModel().clearSelection();
-        ReportExportTitleField.setText("");
-        ReportExportNotesField.setText("");
-        ReportNameLabel.setText("Report Name");
-        ReportDateLabel.setText("Month - Year");
+        Optional<ButtonType> confirm = createConfirmAlert(localization.getString("clear_confirm"), "Clear Fields?", "Confirm!");
+        
+        if(confirm.get() == ButtonType.OK){
+            clearFields();
+        }
+        else{
+            System.out.println("You clicked cancel. Please continue.");
+        }
     }
     //View/Generate Report Button handler
     @FXML void ReportViewClick(ActionEvent event) throws SQLException {
@@ -117,14 +136,14 @@ public class ReportViewController implements Initializable {
     //Get Text field entries
         String type = ReportTypeCombo.getValue();
         String month = ReportMonthCombo.getValue();
-        String year = ReportYearCombo.getValue() + "";
+        String year = ReportYearCombo.getValue();
         
         try{
         //Test Entry Fields
             exceptionMessage = Report.isEntryValidView(exceptionMessage, type, year, month);
         
             if(exceptionMessage.length()>0){
-                System.out.println(exceptionMessage);
+                createStandardAlert(exceptionMessage, "Not all fields complete!", "Empty Fields!");
             }
             else{
             //Set Header Labels
@@ -174,7 +193,7 @@ public class ReportViewController implements Initializable {
     //Get Text field entries
         String type = ReportTypeCombo.getValue();
         String month = ReportMonthCombo.getValue();
-        String year = ReportYearCombo.getValue() + "";
+        String year = ReportYearCombo.getValue();
         String title = ReportExportTitleField.getText().trim();
         String notes = ReportExportNotesField.getText().trim();
         
@@ -183,7 +202,7 @@ public class ReportViewController implements Initializable {
             exceptionMessage = Report.isEntryValidSave(exceptionMessage, type, year, month, title, notes);
             
             if(exceptionMessage.length()>0){
-                System.out.println(exceptionMessage);
+                createStandardAlert(exceptionMessage, "Not all fields complete!", "Empty Fields!");
             }
             else{
                 
@@ -342,7 +361,7 @@ public class ReportViewController implements Initializable {
         ReportTableView.getColumns().addAll(nameCol, periodCol, parameterCol, itemCol);
     }
     
-//Load Appt Types
+//Load Appt Types & Days
     public List<String> getApptType(){
         reportTypeList.clear();
         
@@ -363,21 +382,45 @@ public class ReportViewController implements Initializable {
         reportDayList.add("Thursday");
         reportDayList.add("Firday");
     }
+    
+//Clear Fields
+    public void clearFields(){
+        ReportTypeCombo.getSelectionModel().clearSelection();
+        ReportMonthCombo.getSelectionModel().clearSelection();
+        ReportYearCombo.getSelectionModel().clearSelection();
+        ReportExportTitleField.setText("");
+        ReportExportNotesField.setText("");
+        ReportNameLabel.setText("Report Name");
+        ReportDateLabel.setText("Month - Year");
+    }
 
     /**
      * Initializes the controller class.
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
+    //Clear Lists
+        reportConsultantList.clear();
+        reportMonthList.clear();
+        reportYearList.clear();
+        reportDayList.clear();
+        reportApptTypeList.clear();
+        
     //Load report parameter lists
         try {
             //Load Consultants
             reportConsultantList = loadConsultList();
+            //Load Month List
+            reportMonthList = loadMonthList();
+            //Load Year List
+            reportYearList = loadYearList();
+            System.out.println("Consultant: " + reportConsultantList.size() + ", Month: " + reportMonthList.size() + ", Year: " + reportYearList.size());
         } catch (SQLException ex) {
             Logger.getLogger(ReportViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        //Load Days List
+        //Load Day List
         loadDays();
+
         
     //Load Report Types
         reportTypeList.add("Appointment Type");
@@ -388,7 +431,10 @@ public class ReportViewController implements Initializable {
         ReportTypeCombo.getItems().addAll(reportTypeList);
         
     //Month/Year Combo Options
-        ReportMonthCombo.getItems().addAll("01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12");
-        ReportYearCombo.getItems().addAll(2015, 2016, 2017, 2018, 2019, 2020);
+        ReportMonthCombo.getItems().addAll(reportMonthList);
+        ReportYearCombo.getItems().addAll(reportYearList);
+        
+    //Check for reminders
+        checkReminder();
     }
 }

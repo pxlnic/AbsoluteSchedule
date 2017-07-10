@@ -6,6 +6,7 @@
 package absoluteschedule.Model;
 
 import static absoluteschedule.Helper.ListManage.isInteger;
+import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -39,7 +40,7 @@ public class Customer {
     
     //SQL Variables
     private ResultSet rs = null;
-    private ResourceBundle localization;
+    private static ResourceBundle localization = loadResourceBundle();
     
 //Contructor
     public Customer(){
@@ -404,62 +405,65 @@ public class Customer {
     public static String isEntryValid(String message, String testName, String testPhone, String testAddress1, String testCity, String testPostal, String testCountry){
     //Test Customer Name
         if(testName.equals("")){
-            message = message + "-Customer Name field cannot be blank.\n";
+            message = message + localization.getString("cust_name");
         }
         else{
             if(isInteger(testName)){
-                message = message + "-Customer Name must be letters.\n";
+                message = message + localization.getString("cust_name_int");
             }
         }
     //Test Customer Phone
         if(testPhone.equals("")){
-            message = message + "-Customer Phone Number field cannot be blank.\n";
+            message = message + localization.getString("cust_phone");
         }
         else{
             if(isInteger(testPhone) && testPhone.length()==10){
             }
             else{
-                message = message + "-Customer Phone Number field must be numbers and must be 10 digits.\n";
+                message = message + localization.getString("cust_phone_length");
             }
         }
 
     //Test Address
         String streetNum = new String();
         if(testAddress1.equals("")){
-            message = message + "-Customer Address Line 1 field cannot be blank.\n";
+            message = message + localization.getString("cust_addr");
         }
         else{
-            streetNum = testAddress1.substring(0, testAddress1.indexOf(" "));
-            if(isInteger(streetNum)){
+            try{
+                streetNum = testAddress1.substring(0, testAddress1.indexOf(" "));
+                if(isInteger(streetNum)){
+                }
+                else{
+                    message = message + localization.getString("cust_addr_st_num");
+                }
             }
-            else{
-                message = message + "-Customer Street Number on Address line 1 must be numbers.\n";
+            catch(StringIndexOutOfBoundsException e){
+                message = message + localization.getString("cust_addr_format");
             }
         }
 
     //Test City
         if(testCity.equals("")){
-            message = message + "-Customer City field cannot be blank.\n";
+            message = message + localization.getString("cust_city");
         }
         else{
             if(isInteger(testCity)){
-                message = message + "-Customer City field must be letters.\n";
+                message = message + localization.getString("cust_city_int");
             }
         }
 
     //Test Postal
         if(testPostal.equals("")){
-            message = message + "-Customer Postal Code field cannot be blank.\n";
+            message = message + localization.getString("cust_postal");
         }
     //Test Country
         if(testCountry.equals("")){
-            message = message + "-Customer Country field cannot be blank.\n";
+            message = message + localization.getString("cust_country");
         }
         else{
             if(isInteger(testCountry)){
-            }
-            else{
-                message = message + "-Customer Country field must be letters.\n";
+                message = message + localization.getString("cust_country_int");
             }
         }
         

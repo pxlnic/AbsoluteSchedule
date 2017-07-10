@@ -133,5 +133,4 @@ public class AbsoluteSchedule extends Application {
         
         return result;
     }
-
 }

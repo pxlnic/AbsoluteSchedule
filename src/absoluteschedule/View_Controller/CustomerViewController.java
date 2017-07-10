@@ -5,8 +5,11 @@
  */
 package absoluteschedule.View_Controller;
 
+import static absoluteschedule.AbsoluteSchedule.createConfirmAlert;
+import static absoluteschedule.AbsoluteSchedule.createStandardAlert;
 import static absoluteschedule.AbsoluteSchedule.getMainCustList;
 import static absoluteschedule.AbsoluteSchedule.reloadMainCustList;
+import static absoluteschedule.Helper.ListManage.checkReminder;
 import static absoluteschedule.Helper.ListManage.lookupCust;
 import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import absoluteschedule.Model.Customer;
@@ -15,6 +18,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -30,6 +34,7 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -90,29 +95,41 @@ public class CustomerViewController implements Initializable {
 //Customer button handlers 
     //Cancel Button handler
     @FXML void CustomerCancelClick(ActionEvent event) throws IOException {
-        System.out.println("Cancel clicked. Returning to main screen.");
+        Optional<ButtonType> confirm = createConfirmAlert(localization.getString("cancel_confirm"), "Cancel Confirmation!", "Confirm!");
         
-    //Popup to confirm cancel
+        if(confirm.get() == ButtonType.OK){
+            System.out.println("Cancel clicked. Returning to main screen.");
         
-    //Load MainView scene
-        Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));
-        Scene scene = new Scene(mainView);
-        
-    //Loads stage information from main file
-        Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
-        
-    //Load scene onto stage
-        window.setScene(scene);
-        window.show();
-        
-    //Center Stage on middle of screen
-        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-        window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
-        window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
+        //Load MainView scene
+            Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));
+            Scene scene = new Scene(mainView);
+
+        //Loads stage information from main file
+            Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
+
+        //Load scene onto stage
+            window.setScene(scene);
+            window.show();
+
+        //Center Stage on middle of screen
+            Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+            window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
+            window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
+        }
+        else{
+            System.out.println("You clicked cancel. Please continue.");
+        }
     }
     //Clear Button handler
     @FXML void CustomerClearClick(ActionEvent event) {
-        clearFields();
+        Optional<ButtonType> confirm = createConfirmAlert(localization.getString("clear_confirm"), "Clear Fields?", "Confirm!");
+        
+        if(confirm.get() == ButtonType.OK){
+            clearFields();
+        }
+        else{
+            System.out.println("You clicked cancel. Please continue.");
+        }
     }
     //Save Button handler
     @FXML void CustomerSaveClick(ActionEvent event) throws SQLException {
@@ -142,7 +159,7 @@ public class CustomerViewController implements Initializable {
             exceptionMessage = Customer.isEntryValid(exceptionMessage, name, phone, address1, city, postal, country);
 
             if(exceptionMessage.length()>0){
-                System.out.println(exceptionMessage);
+                createStandardAlert(exceptionMessage, "Not all fields complete!", "Empty Fields!");
             }
             else{
             //Getting TextField entries for customer
@@ -206,6 +223,9 @@ public class CustomerViewController implements Initializable {
 
             //Refresh Customer List
                 reloadMainCustList();
+                
+            //Clear fields
+                clearFields();
             }
         }
         catch(NumberFormatException e){
@@ -321,6 +341,9 @@ public class CustomerViewController implements Initializable {
                 prevCustCity = selectedCust.getCustCity();
             }
         });
+        
+    //Check for reminders
+        checkReminder();
     }
 
 }

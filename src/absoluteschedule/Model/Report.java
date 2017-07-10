@@ -5,6 +5,9 @@
  */
 package absoluteschedule.Model;
 
+import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
+import java.util.ResourceBundle;
+
 /**
  *
  * @author NicR
@@ -18,6 +21,7 @@ public class Report {
     private String reportConsultant;
     private String reportType;
     private String reportItem;
+    private static ResourceBundle localization = loadResourceBundle();
     
 //Constructor
     public Report(){
@@ -75,24 +79,34 @@ public class Report {
     
 //Check if entry is valid - date, startHour, startMin, endHour, endMin, allDay, customerName, consultantName, location, title, desc
     public static String isEntryValidView(String message, String testType, String testYear, String testMonth){
-    //Test Month and Year
+   //Test Month
         try{
-            if(testYear.equals("") || testMonth.equals("")){
-                message = message + "-A Month and Year must be selected from drop down.\n";
+            if(testMonth.equals("")){
+                message = message + localization.getString("report_month");
             }
         }
         catch(NullPointerException e){
-            message = message + "-A Month and Year must be selected from drop down.\n";
+            message = message + localization.getString("report_month");
+        }
+        
+    //Test Year
+        try{
+            if(testYear.equals("")){
+                message = message + localization.getString("report_year"); 
+            }
+        }
+        catch(NullPointerException e){
+            message = message + localization.getString("report_year");
         }
 
     //Test Report Type
         try{
             if(testType.equals("")){
-                message = message + "-A Report Type must be selected from drop down.\n";
+                message = message + localization.getString("report_type");
             }
         }
         catch(NullPointerException e){
-            message = message + "-A Report Type must be selected from drop down.\n";
+            message = message + localization.getString("report_type");
         }
         
     //Return Error message
@@ -101,33 +115,43 @@ public class Report {
     
 //Check if entry is valid - date, startHour, startMin, endHour, endMin, allDay, customerName, consultantName, location, title, desc
     public static String isEntryValidSave(String message, String testType, String testYear, String testMonth, String testTitle, String testNotes){
-   //Test Month and Year
+   //Test Month
         try{
-            if(testYear.equals("") || testMonth.equals("")){
-                message = message + "-A Month and Year must be selected from drop down.\n";
+            if(testMonth.equals("")){
+                message = message + localization.getString("report_month");
             }
         }
         catch(NullPointerException e){
-            message = message + "-A Month and Year must be selected from drop down.\n";
+            message = message + localization.getString("report_month");
+        }
+        
+    //Test Year
+        try{
+            if(testYear.equals("")){
+                message = message + localization.getString("report_year"); 
+            }
+        }
+        catch(NullPointerException e){
+            message = message + localization.getString("report_year");
         }
 
     //Test Report Type
         try{
             if(testType.equals("")){
-                message = message + "-A Report Type must be selected from drop down.\n";
+                message = message + localization.getString("report_type");
             }
         }
         catch(NullPointerException e){
-            message = message + "-A Report Type must be selected from drop down.\n";
+            message = message + localization.getString("report_type");
         }
         
     //Test Title
         if(testTitle.equals("")){
-            message = message + "-A Title must be entered to save file.\n";
+            message = message + localization.getString("report_title");
         }
     //Test Notes
         if(testNotes.equals("")){
-            message = message + "-Notes must be entered to save file.\n";
+            message = message + localization.getString("report_notes");
         }
     
     //Return Error message
