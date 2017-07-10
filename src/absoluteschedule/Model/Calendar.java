@@ -5,6 +5,7 @@
  */
 package absoluteschedule.Model;
 
+import static absoluteschedule.Helper.ListManage.isInteger;
 import absoluteschedule.Helper.SQLManage;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import static absoluteschedule.Helper.SQLManage.prepare;
@@ -237,6 +238,80 @@ public class Calendar {
         String dateTime = DateTimeFormatter.ofPattern("yyy-MM-dd HH:mm:ss").format(localTime);
 
         return dateTime;
+    }
+    
+//Check if entry is valid - date, startHour, startMin, endHour, endMin, allDay, customerName, consultantName, location, title, desc
+    public static String isEntryValid(String message, String testDate, String testStartHour, String testStartMin, String testEndHour, String testEndMin, boolean testAllDay, String testCustName, String testConsultName, String testLoc, String testTitle, String testDesc){
+    //Test Date
+        if(testDate.equals("")){
+            message = message + "-An appointment date must be selected.\n";
+        }
+    //Times
+    //Check if All Day
+        if(testAllDay){
+        }
+        else{
+        //Test Start & End Times
+            try{
+                if(testStartHour.equals("") || testStartMin.equals("")){
+                    message = message + "-A start hour and minute must be selected - If successful.\n";
+                }
+            }
+            catch(NullPointerException e){
+                message = message + "-A start hour and minute must be selected.\n";
+            }
+            try{
+                if(testEndHour.equals("") || testEndMin.equals("")){
+                    message = message + "-An end hour and minute must be selected.\n";
+                }
+            }
+            catch(NullPointerException e){
+                message = message + "-An end hour and minute must be selected.\n";
+            }
+        }
+
+    //Test Customer Name
+        try{
+            if(testCustName.equals("")){
+                message = message + "-A Customer must be selected from drop down.\n";
+            }
+        }
+        catch(NullPointerException e){
+            message = message + "-A Customer must be selected from drop down.\n";
+        }
+
+    //Test Consultant Name
+        try{
+            if(testConsultName.equals("")){
+                message = message + "-A Consultant must be selected from drop down.\n";
+            }
+        }
+        catch(NullPointerException e){
+            message = message + "-A Consultant must be selected from drop down.\n";
+        }
+        
+    //Test Location
+        try{
+            if(testLoc.equals("")){
+                message = message + "-A Location must be selected from drop down.\n";
+            }
+        }
+        catch(NullPointerException e){
+            message = message + "-A Location must be selected from drop down.\n";
+        }
+        
+    //Test Title
+        if(testTitle.equals("")){
+            message = message + "-A Title must be entered.\n";
+        }
+        
+    //Test Description
+        if(testDesc.equals("")){
+            message = message + "-A Description must be entered.\n";
+        }
+        
+    //Return Error message
+        return message;
     }
 }
 

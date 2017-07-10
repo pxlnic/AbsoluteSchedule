@@ -73,6 +73,7 @@ public class CustomerViewController implements Initializable {
 //Instance Variables
     //ObservableList to hold customer data for TableView
     private static ObservableList<Customer> customerList = FXCollections.observableArrayList();
+    String exceptionMessage = new String();
     
     //Variables to hold onto selected customer for editing
     private int prevCustID;
@@ -123,78 +124,114 @@ public class CustomerViewController implements Initializable {
         Customer tempCust = new Customer();
         String user = loggedOnUser();
         
-    //Getting TextField entries for customer
-        tempCust.setCountry(CustomerCountryField.getText().trim());
-        tempCust.setCity(CustomerCityField.getText().trim());
-        tempCust.setAddress(CustomerAddress1Field.getText().trim(), CustomerAddress2Field.getText().trim());
-        tempCust.setCustName(CustomerNameField.getText().trim());
-        tempCust.setPhone(CustomerPhoneNumberField.getText().trim());
-        tempCust.setPostalCode(CustomerPostalCodeField.getText().trim());
-        if(CustomerActiveCheckbox.isSelected()){
-           tempCust.setCustActive(1); 
-        }
-        else{
-            tempCust.setCustActive(0);
-        }
+    //Reset Exception Message
+        exceptionMessage = "";
         
-    //Validate Customer info - Table, Name Column, ID Column, Item Name
-        //Validate Country ID
-        countryID = tempCust.isIDValid("Country", "country", "countryId", tempCust.getCustCountry());
-        //Validate City ID
-        cityID = tempCust.isIDValid("City", "city", "cityId", tempCust.getCustCity());
-        //Validate Address ID - Because of the two address fields this is a sepearte method
-        addressID = tempCust.isAddressValid(tempCust.getCustAddress1(), tempCust.getCustAddress2());
-        //Validate Customer ID
-        customerID = tempCust.isIDValid("Customer", "customerName", "customerId", tempCust.getCustName());
+    //Get Customer Data
+        String name = CustomerNameField.getText().trim();
+        String phone = CustomerPhoneNumberField.getText().trim();
+        String address1 = CustomerAddress1Field.getText().trim();
+        String address2 = CustomerAddress2Field.getText().trim();
+        String city = CustomerCityField.getText().trim();
+        String postal = CustomerPostalCodeField.getText().trim();
+        String country = CustomerCountryField.getText().trim();
+        Boolean active = CustomerActiveCheckbox.isSelected();
         
-        System.out.println("CountryID: " + countryID + ", CityID: " + cityID + ", AddressID: " + addressID + ", CustomerID: " + customerID);
-        System.out.println("Submission was made by: " + user);
+        try{
+            //Test entry fields
+            exceptionMessage = Customer.isEntryValid(exceptionMessage, name, phone, address1, city, postal, country);
 
-    //Run add/update customer methods for respective tables
-        //Add country
-        if(countryID == -1){
-            tempCust.addCountry(tempCust.getCustCountry(), user);
+            if(exceptionMessage.length()>0){
+                System.out.println(exceptionMessage);
+            }
+            else{
+            //Getting TextField entries for customer
+                tempCust.setCountry(country);
+                tempCust.setCity(city);
+                tempCust.setAddress(address1, address2);
+                tempCust.setCustName(name);
+                tempCust.setPhone(phone);
+                tempCust.setPostalCode(postal);
+                if(active){
+                   tempCust.setCustActive(1); 
+                }
+                else{
+                    tempCust.setCustActive(0);
+                }
+
+            //Validate Customer info - Table, Name Column, ID Column, Item Name
+                //Validate Country ID
+                countryID = tempCust.isIDValid("Country", "country", "countryId", tempCust.getCustCountry());
+                //Validate City ID
+                cityID = tempCust.isIDValid("City", "city", "cityId", tempCust.getCustCity());
+                //Validate Address ID - Because of the two address fields this is a sepearte method
+                addressID = tempCust.isAddressValid(tempCust.getCustAddress1(), tempCust.getCustAddress2());
+                //Validate Customer ID
+                customerID = tempCust.isIDValid("Customer", "customerName", "customerId", tempCust.getCustName());
+
+                System.out.println("CountryID: " + countryID + ", CityID: " + cityID + ", AddressID: " + addressID + ", CustomerID: " + customerID);
+                System.out.println("Submission was made by: " + user);
+
+            //Run add/update customer methods for respective tables
+                //Add country
+                if(countryID == -1){
+                    tempCust.addCountry(tempCust.getCustCountry(), user);
+                }
+                else{
+                    System.out.println("Country already exists in DB.");
+                }
+                //Add city
+                if(cityID == -1){
+                    tempCust.addCity(tempCust.getCustCity(), tempCust.getCustCountry(), user);
+                }
+                else{
+                    System.out.println("City already exists in DB.");
+                }
+                //Add/Update address
+                if(addressID == -1 && CustomerIDField.getText().trim().isEmpty()){
+                    tempCust.addAddress(tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustCity(), tempCust.getCustPostalCode(), tempCust.getCustPhone(), user);
+                }
+                else{
+                    System.out.println("Address info updated for this customer.");
+                    tempCust.updateAddress(prevCustAddrID, tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustCity(), tempCust.getCustPostalCode(), tempCust.getCustPhone(), user);
+                }
+                //Add/Update customer
+                if(customerID == -1 && (CustomerIDField.getText().trim().isEmpty())){
+                    tempCust.addCustomer(tempCust.getCustName(), tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustActive(), user);
+                }
+                else{
+                    System.out.println("Customer info updated for this customer.");
+                    tempCust.updateCust(prevCustID, tempCust.getCustName(), tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustActive(), user);
+                }
+
+            //Refresh Customer List
+                reloadMainCustList();
+            }
         }
-        else{
-            System.out.println("Country already exists in DB.");
+        catch(NumberFormatException e){
+            
         }
-        //Add city
-        if(cityID == -1){
-            tempCust.addCity(tempCust.getCustCity(), tempCust.getCustCountry(), user);
-        }
-        else{
-            System.out.println("City already exists in DB.");
-        }
-        //Add/Update address
-        if(addressID == -1 && CustomerIDField.getText().trim().isEmpty()){
-            tempCust.addAddress(tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustCity(), tempCust.getCustPostalCode(), tempCust.getCustPhone(), user);
-        }
-        else{
-            System.out.println("Address info updated for this customer.");
-            tempCust.updateAddress(prevCustAddrID, tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustCity(), tempCust.getCustPostalCode(), tempCust.getCustPhone(), user);
-        }
-        //Add/Update customer
-        if(customerID == -1 && (CustomerIDField.getText().trim().isEmpty())){
-            tempCust.addCustomer(tempCust.getCustName(), tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustActive(), user);
-        }
-        else{
-            System.out.println("Customer info updated for this customer.");
-            tempCust.updateCust(prevCustID, tempCust.getCustName(), tempCust.getCustAddress1(), tempCust.getCustAddress2(), tempCust.getCustActive(), user);
-        }
-   
-    //Refresh Customer List
-        reloadMainCustList();
     }
     //Search Button handler
     @FXML void CustomerSearchClick(ActionEvent event) {
+    //Clear Exception Message
+        exceptionMessage = "";
+        
     //Get customer text & create index variable
         String searchCust = CustomerSearchField.getText().trim();
         
     //Lookup Customer for partial/match
         ObservableList<Customer> tempList = lookupCust(searchCust, customerList);
         
-    //Set table data
-        CustomerTableView.setItems(tempList);  
+    //If list is empty then throw error
+        if(tempList.size()==0){
+            exceptionMessage = exceptionMessage + "-Could not find customer based on search input.";
+            System.out.println(exceptionMessage);
+        }
+        else{   
+        //Set table data
+            CustomerTableView.setItems(tempList);  
+        }
     }
     //Clear Search Button handler
     @FXML void CustomerSearchClearClick(ActionEvent event) {

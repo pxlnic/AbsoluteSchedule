@@ -108,17 +108,32 @@ public class ListManage {
         return mainConsultantList;
     }
     //Customer lookup
-    public static ObservableList lookupCust(String name, ObservableList<Customer> custList ){
+    public static ObservableList lookupCust(String input, ObservableList<Customer> custList ){
         ObservableList<Customer> tempList = FXCollections.observableArrayList();
         
-        for(int i=0; i<custList.size(); i++){
-            List<String> validName = new ArrayList<>();
-            validName.add(custList.get(i).getCustName());
-            if(validName.get(0).contains(name)){
-                tempList.add(custList.get(i));
+    //Test if input is number or letter
+        if(isInteger(input)){
+        //If number
+            int id = Integer.parseInt(input);
+            for(int i=0; i<custList.size(); i++){
+                List<Integer> validId = new ArrayList<>();
+                validId.add(custList.get(i).getCustID());
+                if(validId.get(0)==id){
+                    tempList.add(custList.get(i));
+                }
             }
         }
-        System.out.println("Count of partial/match: " + tempList.size());
+        else{
+        //If letter
+            for(int i=0; i<custList.size(); i++){
+                List<String> validName = new ArrayList<>();
+                validName.add(custList.get(i).getCustName());
+                if(validName.get(0).contains(input)){
+                    tempList.add(custList.get(i));
+                }
+            }
+            System.out.println("Count of partial/match: " + tempList.size());
+        }
         return tempList;
     }
 
@@ -257,5 +272,16 @@ public class ListManage {
         }));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play(); 
+    }
+    
+//Test if entry is number or not
+    public static boolean isInteger(String input) {
+        try { //Try to make the input into an integer
+            Integer.parseInt( input );
+            return true; //Return true if it works
+        }
+        catch( Exception e ) { 
+            return false; //If it doesn't work return false
+        }
     }
 }

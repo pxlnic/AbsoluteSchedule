@@ -17,12 +17,16 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javafx.application.Application;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
@@ -111,4 +115,23 @@ public class AbsoluteSchedule extends Application {
         launch(args);
     }
     
+//Create Popups
+    public static void createStandardAlert(String alertMessage, String alertHeader, String alertTitle){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(alertTitle);
+        alert.setHeaderText(alertHeader);
+        alert.setContentText(alertMessage);
+        alert.showAndWait();
+    }
+    public static Optional<ButtonType> createConfirmAlert(String alertMessage, String alertHeader, String alertTitle){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.initModality(Modality.NONE);
+        alert.setTitle(alertTitle);
+        alert.setHeaderText(alertHeader);
+        alert.setContentText(alertMessage);
+        Optional<ButtonType> result = alert.showAndWait();
+        
+        return result;
+    }
+
 }

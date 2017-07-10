@@ -72,4 +72,65 @@ public class Report {
     public String getReportItem(){
         return reportItem;
     }
+    
+//Check if entry is valid - date, startHour, startMin, endHour, endMin, allDay, customerName, consultantName, location, title, desc
+    public static String isEntryValidView(String message, String testType, String testYear, String testMonth){
+    //Test Month and Year
+        try{
+            if(testYear.equals("") || testMonth.equals("")){
+                message = message + "-A Month and Year must be selected from drop down.\n";
+            }
+        }
+        catch(NullPointerException e){
+            message = message + "-A Month and Year must be selected from drop down.\n";
+        }
+
+    //Test Report Type
+        try{
+            if(testType.equals("")){
+                message = message + "-A Report Type must be selected from drop down.\n";
+            }
+        }
+        catch(NullPointerException e){
+            message = message + "-A Report Type must be selected from drop down.\n";
+        }
+        
+    //Return Error message
+        return message;
+    }
+    
+//Check if entry is valid - date, startHour, startMin, endHour, endMin, allDay, customerName, consultantName, location, title, desc
+    public static String isEntryValidSave(String message, String testType, String testYear, String testMonth, String testTitle, String testNotes){
+   //Test Month and Year
+        try{
+            if(testYear.equals("") || testMonth.equals("")){
+                message = message + "-A Month and Year must be selected from drop down.\n";
+            }
+        }
+        catch(NullPointerException e){
+            message = message + "-A Month and Year must be selected from drop down.\n";
+        }
+
+    //Test Report Type
+        try{
+            if(testType.equals("")){
+                message = message + "-A Report Type must be selected from drop down.\n";
+            }
+        }
+        catch(NullPointerException e){
+            message = message + "-A Report Type must be selected from drop down.\n";
+        }
+        
+    //Test Title
+        if(testTitle.equals("")){
+            message = message + "-A Title must be entered to save file.\n";
+        }
+    //Test Notes
+        if(testNotes.equals("")){
+            message = message + "-Notes must be entered to save file.\n";
+        }
+    
+    //Return Error message
+        return message;
+    }
 }

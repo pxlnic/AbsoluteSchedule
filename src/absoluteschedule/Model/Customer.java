@@ -5,6 +5,7 @@
  */
 package absoluteschedule.Model;
 
+import static absoluteschedule.Helper.ListManage.isInteger;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -397,5 +398,72 @@ public class Customer {
     //Return ID. If no match then returns -1
         System.out.println("Passed ID: " + passedID);
         return passedID;
+    }
+    
+//Customer Error Handling - exceptionMessage, name, phone, address1, address2, city, postal, country
+    public static String isEntryValid(String message, String testName, String testPhone, String testAddress1, String testCity, String testPostal, String testCountry){
+    //Test Customer Name
+        if(testName.equals("")){
+            message = message + "-Customer Name field cannot be blank.\n";
+        }
+        else{
+            if(isInteger(testName)){
+                message = message + "-Customer Name must be letters.\n";
+            }
+        }
+    //Test Customer Phone
+        if(testPhone.equals("")){
+            message = message + "-Customer Phone Number field cannot be blank.\n";
+        }
+        else{
+            if(isInteger(testPhone) && testPhone.length()==10){
+            }
+            else{
+                message = message + "-Customer Phone Number field must be numbers and must be 10 digits.\n";
+            }
+        }
+
+    //Test Address
+        String streetNum = new String();
+        if(testAddress1.equals("")){
+            message = message + "-Customer Address Line 1 field cannot be blank.\n";
+        }
+        else{
+            streetNum = testAddress1.substring(0, testAddress1.indexOf(" "));
+            if(isInteger(streetNum)){
+            }
+            else{
+                message = message + "-Customer Street Number on Address line 1 must be numbers.\n";
+            }
+        }
+
+    //Test City
+        if(testCity.equals("")){
+            message = message + "-Customer City field cannot be blank.\n";
+        }
+        else{
+            if(isInteger(testCity)){
+                message = message + "-Customer City field must be letters.\n";
+            }
+        }
+
+    //Test Postal
+        if(testPostal.equals("")){
+            message = message + "-Customer Postal Code field cannot be blank.\n";
+        }
+    //Test Country
+        if(testCountry.equals("")){
+            message = message + "-Customer Country field cannot be blank.\n";
+        }
+        else{
+            if(isInteger(testCountry)){
+            }
+            else{
+                message = message + "-Customer Country field must be letters.\n";
+            }
+        }
+        
+    //Return Error message
+        return message;
     }
 }

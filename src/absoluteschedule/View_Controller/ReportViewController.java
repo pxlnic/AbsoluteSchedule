@@ -71,6 +71,7 @@ public class ReportViewController implements Initializable {
     private List<String> reportDayList = new ArrayList<>();
     private ObservableList<Report> reportList = FXCollections.observableArrayList();
     private String reportMonth = "";
+    private String exceptionMessage = new String();
 
 //FXML Button Handlers  
     //Cancel Button handler
@@ -105,48 +106,93 @@ public class ReportViewController implements Initializable {
     }
     //View/Generate Report Button handler
     @FXML void ReportViewClick(ActionEvent event) throws SQLException {
+    //Reset Exception Message
+        exceptionMessage = "";
+        
         System.out.println("List size: " + reportList.size());
         reportList.clear();
         ReportTableView.getColumns().clear();
         System.out.println("List size: " + reportList.size());
         
-    //Set Header Labels
-        reportMonth = ReportYearCombo.getValue() + "-" + ReportMonthCombo.getValue();
-        ReportNameLabel.setText(ReportTypeCombo.getValue());
-        ReportDateLabel.setText(reportMonth);
+    //Get Text field entries
+        String type = ReportTypeCombo.getValue();
+        String month = ReportMonthCombo.getValue();
+        String year = ReportYearCombo.getValue() + "";
         
-    //Load appointment data for selected month
-        String dateText = ReportYearCombo.getValue() + "-" + ReportMonthCombo.getValue() + "-01";
-        LocalDate selectedMonth = LocalDate.parse(dateText);
-        System.out.println(selectedMonth);
-        ListManage l = new ListManage();
-        l.seperateAppts(selectedMonth);
+        try{
+        //Test Entry Fields
+            exceptionMessage = Report.isEntryValidView(exceptionMessage, type, year, month);
         
-        apptList = l.getMonthsAppts();
-        
-    //Determin which report to run
-        switch(ReportTypeCombo.getValue()){
-            case "Appointment Type":
-                runApptTypeCount();
-                loadTable("Appt Type", "Appt Count", "reportType");
-                break;
-            case "Consultant Schedule":
-                runConsultantAppt();
-                loadTable("Consultant Schedule", "Consultant", "reportConsultant");
-                break;
-            case "Appointments By Day":
-                runDayCount();
-                loadTable("Appointments By Day", "Day of Week", "reportDay");
-                break;
-            default:
-                System.out.println("No Selection Made");
+            if(exceptionMessage.length()>0){
+                System.out.println(exceptionMessage);
+            }
+            else{
+            //Set Header Labels
+                reportMonth = year + "-" + month;
+                ReportNameLabel.setText(type);
+                ReportDateLabel.setText(reportMonth);
+
+            //Load appointment data for selected month
+                String dateText = year + "-" + month + "-01";
+                LocalDate selectedMonth = LocalDate.parse(dateText);
+                System.out.println(selectedMonth);
+                ListManage l = new ListManage();
+                l.seperateAppts(selectedMonth);
+
+                apptList = l.getMonthsAppts();
+
+            //Determine which report to run
+                switch(ReportTypeCombo.getValue()){
+                    case "Appointment Type":
+                        runApptTypeCount();
+                        loadTable("Appt Type", "Appt Count", "reportType");
+                        break;
+                    case "Consultant Schedule":
+                        runConsultantAppt();
+                        loadTable("Consultant Schedule", "Consultant", "reportConsultant");
+                        break;
+                    case "Appointments By Day":
+                        runDayCount();
+                        loadTable("Appointments By Day", "Day of Week", "reportDay");
+                        break;
+                    default:
+                        System.out.println("No Selection Made");
+                }
+            }
+        }
+        catch(NumberFormatException e){
+            
         }
     }
 //Save Button handler
     @FXML void ReportSaveClick(ActionEvent event) {
-        //Export data to csv/text file
-    }
+    //Export data to csv/text file
+
+    //Reset Exception message
+        exceptionMessage = "";
     
+    //Get Text field entries
+        String type = ReportTypeCombo.getValue();
+        String month = ReportMonthCombo.getValue();
+        String year = ReportYearCombo.getValue() + "";
+        String title = ReportExportTitleField.getText().trim();
+        String notes = ReportExportNotesField.getText().trim();
+        
+        try{
+        //Test Entry Fields
+            exceptionMessage = Report.isEntryValidSave(exceptionMessage, type, year, month, title, notes);
+            
+            if(exceptionMessage.length()>0){
+                System.out.println(exceptionMessage);
+            }
+            else{
+                
+            }
+        }
+        catch(NumberFormatException e){
+            
+        }
+    }
     
 //Report Generation Methods
     //Type of Appt Count Method

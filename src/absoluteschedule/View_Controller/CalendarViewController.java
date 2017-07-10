@@ -17,6 +17,7 @@ import static absoluteschedule.Helper.SQLManage.getConn;
 import absoluteschedule.Model.Calendar;
 import static absoluteschedule.Model.Calendar.convertToLocal;
 import static absoluteschedule.Model.Calendar.convertToUTC;
+import static absoluteschedule.Model.Calendar.isEntryValid;
 import absoluteschedule.Model.Customer;
 import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
 import java.io.IOException;
@@ -113,7 +114,7 @@ public class CalendarViewController implements Initializable {
     private List<Calendar> thisMonthsAppts = new ArrayList<>();
     private String user = loggedOnUser();
     private int apptID = -1;
-    private String errorMessage = "";
+    private String exceptionMessage = "";
     private LocalDate selectedMonth = LocalDate.now();
     
 //SQL DB Variables
@@ -158,6 +159,9 @@ public class CalendarViewController implements Initializable {
     }
     //Save Button handler
     @FXML void CalendarSaveClick(ActionEvent event) throws SQLException {
+    //Clear Exception Message
+        exceptionMessage = "";
+        
     //Variables
         if(CalendarIDField.getText().trim().isEmpty()){
             apptID = -1;
@@ -166,61 +170,87 @@ public class CalendarViewController implements Initializable {
             apptID = Integer.parseInt(CalendarIDField.getText().trim());
         }
         int custID = -1;
-        String customerName = CalendarCustomerCombo.getValue();
-        
-    //Temp appointment/customer constructors
-        Calendar tempAppt = new Calendar();
-        Customer tempCust = new Customer();
-        List<Calendar> tempApptList = new ArrayList<>();
-        
-    //Testing setting date/time
+        //Entry field data
         String date = CalendarDatePicker.getValue() + " ";
-        String startTime = date + CalendarTimeHourCombo.getValue() + ":" + CalendarTimeMinCombo.getValue();
-        String endTime = date + CalendarEndTimeHourCombo.getValue() + ":" + CalendarEndTimeMinCombo.getValue();
-        
-        
-    //Get UTC and Local Times
-        String startUtc = convertToUTC(startTime);
-        String endUtc = convertToUTC(endTime);
-        
-        System.out.println("UTC Start Time: " + startUtc);
-        System.out.println("UTC End Time: " + endUtc);
+        String startHour = CalendarTimeHourCombo.getValue();
+        String startMin = CalendarTimeMinCombo.getValue();
+        String endHour = CalendarEndTimeHourCombo.getValue();
+        String endMin = CalendarEndTimeHourCombo.getValue();
+        boolean allDay = CalendaryAllDayCheckbox.isSelected();
+        String customerName = CalendarCustomerCombo.getValue();
+        String consultantName = CalendarConsultantCombo.getValue();
+        String location = CalendarLocationCombo.getValue();
+        String title = CalendarTitleField.getText().trim();
+        String desc = CalendarDescriptionArea.getText().trim();
 
-    //Get Customer ID
-        tempCust.setCustName(customerName);
-        custID = getCustID(CalendarCustomerCombo.getValue());
         
-    //Getting textfield entries for appt
-        tempAppt.setCustID(custID);
-        tempAppt.setApptTitle(CalendarTitleField.getText().trim());
-        tempAppt.setApptDesc(CalendarDescriptionArea.getText().trim());
-        tempAppt.setApptStartTime(startUtc);
-        tempAppt.setApptEndTime(endUtc);
-        tempAppt.setApptLoc(CalendarLocationCombo.getValue());
-        tempAppt.setApptContact(CalendarConsultantCombo.getValue());
+        try{
+        //Test Entry Fields
+            exceptionMessage = isEntryValid(exceptionMessage, date, startHour, startMin, endHour, endMin, allDay, customerName, consultantName, location, title, desc);
         
-    //Validate if appointment is already in system
-        tempApptList = tempAppt.isApptValid(tempAppt.getCustID(), tempAppt.getApptStartTime(), tempAppt.getApptEndTime(), tempAppt.getApptContact());
-        
-    //Add or update appointment
-        if(tempApptList.size()>0 || apptID>-1){
-            if(CalendarIDField.getText().trim().isEmpty()){
-                //Error Message
-                System.out.println("This appointment conflicts with " + tempApptList.size() + " appointments.");
+            if(exceptionMessage.length()>0){
+                System.out.println(exceptionMessage);
             }
             else{
-                //Update appointment
-                System.out.println("Appointment updated");
-                tempAppt.updateAppt(Integer.parseInt(CalendarIDField.getText().trim()),custID, tempAppt.getApptTitle(), tempAppt.getApptDesc(), tempAppt.getApptLoc(), tempAppt.getApptContact(), "url", startUtc, endUtc, user); 
+            //Temp appointment/customer constructors
+                Calendar tempAppt = new Calendar();
+                Customer tempCust = new Customer();
+                List<Calendar> tempApptList = new ArrayList<>();
+
+
+            //Testing setting date/time
+                String startTime = date + startHour + ":" + startMin;
+                String endTime = date + endHour + ":" + endMin;
+
+
+            //Get UTC and Local Times
+                String startUtc = convertToUTC(startTime);
+                String endUtc = convertToUTC(endTime);
+
+                System.out.println("UTC Start Time: " + startUtc);
+                System.out.println("UTC End Time: " + endUtc);
+
+            //Get Customer ID
+                tempCust.setCustName(customerName);
+                custID = getCustID(customerName);
+
+            //Getting textfield entries for appt
+                tempAppt.setCustID(custID);
+                tempAppt.setApptTitle(title);
+                tempAppt.setApptDesc(desc);
+                tempAppt.setApptStartTime(startUtc);
+                tempAppt.setApptEndTime(endUtc);
+                tempAppt.setApptLoc(location);
+                tempAppt.setApptContact(consultantName);
+
+            //Validate if appointment is already in system
+                tempApptList = tempAppt.isApptValid(tempAppt.getCustID(), tempAppt.getApptStartTime(), tempAppt.getApptEndTime(), tempAppt.getApptContact());
+
+            //Add or update appointment
+                if(tempApptList.size()>0 || apptID>-1){
+                    if(CalendarIDField.getText().trim().isEmpty()){
+                        //Error Message
+                        exceptionMessage = exceptionMessage + "-This appointment conflicts with " + tempApptList.size() + " appointments." ;
+                        System.out.println(exceptionMessage);
+                    }
+                    else{
+                        //Update appointment
+                        System.out.println("Appointment updated");
+                        tempAppt.updateAppt(Integer.parseInt(CalendarIDField.getText().trim()),custID, tempAppt.getApptTitle(), tempAppt.getApptDesc(), tempAppt.getApptLoc(), tempAppt.getApptContact(), "url", startUtc, endUtc, user); 
+                    }
+                }
+                else{
+                    System.out.println("Appointment added.");
+                    tempAppt.addAppt(custID, tempAppt.getApptTitle(), tempAppt.getApptDesc(), tempAppt.getApptLoc(), tempAppt.getApptContact(), "url", startUtc, endUtc, user);
+                }
+
+            //Reload Appts
+                reloadCalAppts();
             }
         }
-        else{
-            System.out.println("Appointment added.");
-            tempAppt.addAppt(custID, tempAppt.getApptTitle(), tempAppt.getApptDesc(), tempAppt.getApptLoc(), tempAppt.getApptContact(), "url", startUtc, endUtc, user);
+        catch(NumberFormatException e){
+            
         }
-        
-    //Reload Appts
-        reloadCalAppts();
     }
     //Month Back Button handler
     @FXML void CalendarMonthBackClick(ActionEvent event) throws SQLException {
@@ -521,7 +551,7 @@ public class CalendarViewController implements Initializable {
         selectedMonth = LocalDate.now();
         
     //Reset Error Message
-        errorMessage = "";
+        exceptionMessage = "";
         
     //Load Combo Boxes
         calCustList = getMainCustList();
