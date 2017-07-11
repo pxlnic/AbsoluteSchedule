@@ -51,6 +51,9 @@ public class ListManage {
     private static List<String> reminderAppts = new ArrayList<>();
     private static List<String> mainMonthList = new ArrayList<>();
     private static List<String> mainYearList = new ArrayList<>();
+    //Lists for Reminders
+    private static List<Calendar> mainReminderList = new ArrayList<>();
+    private static List<Integer> priorReminderIDList = new ArrayList<>();
     
 //Instance Variables
     private ResourceBundle localization = loadResourceBundle();
@@ -58,6 +61,8 @@ public class ListManage {
 //Customer DB/List Handling
     //Load all customers
     public static ObservableList<Customer> loadCustomers() throws SQLException{
+        custList.clear();
+        
         try(Connection conn = getConn();
             PreparedStatement ps = conn.prepareStatement("SELECT customer.customerId, customer.customerName, customer.addressId, customer.active, address.addressId, address.address, address.address2, address.cityId, address.postalCode, address.phone, city.cityId, city.city, city.countryId, country.countryId, country.country\n" +
                                                          "FROM customer\n" +
@@ -93,6 +98,9 @@ public class ListManage {
     //Return list of customers
         return custList;
     } 
+    public static ObservableList<Customer> getCustomerList(){
+        return custList;
+    }
     //Load all consultants
     public static List<String> loadConsultList() throws SQLException {
         try (Connection conn = getConn();
@@ -113,8 +121,11 @@ public class ListManage {
         System.out.println("Consultant Count: " + mainConsultantList.size());
         return mainConsultantList;
     }
+    public static List<String> getConsultList(){
+        return mainConsultantList;
+    }
     //Customer lookup
-    public static ObservableList lookupCust(String input, ObservableList<Customer> custList ){
+    public static ObservableList<Customer> lookupCust(String input, ObservableList<Customer> custList ){
         ObservableList<Customer> tempList = FXCollections.observableArrayList();
         
     //Test if input is number or letter
@@ -247,7 +258,7 @@ public class ListManage {
             }
             else{
                 mainMonthList.add(month);
-                System.out.println("Added Month: " + month);
+                //System.out.println("Added Month: " + month);
             }
         }
         
@@ -269,7 +280,7 @@ public class ListManage {
             }
             else{
                 mainYearList.add(year);
-                System.out.println("Added Year: " + year);
+                //System.out.println("Added Year: " + year);
             }
         }
         
@@ -284,49 +295,76 @@ public class ListManage {
     
 //Reminders
     public static void checkReminder(){
-        Timeline timeline = new Timeline(new KeyFrame(Duration.minutes(1), ev -> {
-            try {
-                loadAppts();
+        Timeline timeline = new Timeline(new KeyFrame(Duration.minutes(1), ev -> { 
+        try {
+                ListManage l = new ListManage();
+                l.seperateAppts(LocalDate.now());
             } catch (SQLException ex) {
                 Logger.getLogger(ListManage.class.getName()).log(Level.SEVERE, null, ex);
             }
-            
-        //Temp List
-            List<Calendar> tempList = new ArrayList<>();
-            
+
+            //Reset main reminder list and make prior reminder list have a single item
+            //System.out.println("Reminder List: " + mainReminderList.size());
+            mainReminderList.clear();
+            //System.out.println("Reminder List: " + mainReminderList.size());
+            if(priorReminderIDList.size()<1){
+                Calendar nullCal = new Calendar();
+                priorReminderIDList.add(-1);
+            }
+
         //Loop through appt list to see if any are within the next 15 minutes
-            for(int i=0; i<mainApptList.size(); i++){
-                Calendar item = mainApptList.get(i);
-                String reminder = DateTimeFormatter.ofPattern("yyy-MM-dd HH:mm:ss").format(LocalDateTime.now());
+            for(int i=0; i<calTodayList.size(); i++){
+                Calendar item = calTodayList.get(i);
+                int itemID = item.getApptID();
+                String tempTime = DateTimeFormatter.ofPattern("yyy-MM-dd HH:mm:ss").format(LocalDateTime.now());
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
                 LocalDateTime time = LocalDateTime.parse(item.getApptStartTime(), formatter);
-                LocalDateTime now = LocalDateTime.parse(reminder, formatter);
+                LocalDateTime now = LocalDateTime.parse(tempTime, formatter);
                 if(time.isAfter(now) && time.isBefore(now.plusMinutes(15))){
-                    tempList.add(item);
+                        if(priorReminderIDList.contains(itemID)){
+                            //System.out.println("This agenda item has already been added");
+                        }
+                        else{
+                            //System.out.println("Adding Reminder");
+                            mainReminderList.add(item);
+                            priorReminderIDList.add(item.getApptID()); 
+                        }
                 }
+
             }
-            
+        
+            //System.out.println("Reminder List: " + mainReminderList.size());
+            //System.out.println("Prior Reminder List: " + priorReminderIDList.size());
+                
         //Print appointments if there are any
-            if(tempList.isEmpty()){
+            if(mainReminderList.isEmpty()){
                 System.out.println("No Upcoming Appointments!");
             }
-            else if(tempList.size()==1){
-                String reminder = tempList.get(0).getApptStartTime() + " - " + tempList.get(0).getApptContact();
+            else if(mainReminderList.size()==1){
+                String reminderTimeStr = mainReminderList.get(0).getApptStartTime();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                LocalDateTime time = LocalDateTime.parse(reminderTimeStr, formatter);
+                String reminderTime = DateTimeFormatter.ofPattern("h:mm a").format(time);
+                String reminder = reminderTime + " - " + mainReminderList.get(0).getApptContact();
                 createStandardAlert(reminder, "Upcoming Appointment: 1", "Reminder");
             }
             else{
                 String reminder = "";
-                for(int i=0; i<tempList.size(); i++){
-                    String item = tempList.get(i).getApptStartTime() + " - " + tempList.get(i).getApptContact() + "\n";
+                for(int i=0; i<mainReminderList.size(); i++){
+                    String reminderTimeStr = mainReminderList.get(i).getApptStartTime();
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    LocalDateTime time = LocalDateTime.parse(reminderTimeStr, formatter);
+                    String reminderTime = DateTimeFormatter.ofPattern("h:mm a").format(time);
+                    String item = reminderTime + " - " + mainReminderList.get(i).getApptContact() + "\n";
                     reminder = reminder + item;
                 }
-            createStandardAlert(reminder, "Upcoming Appointmens: " + tempList.size(), "Reminder");
+                createStandardAlert(reminder, "Upcoming Appointments: " + mainReminderList.size(), "Reminder");
             }
         }));
         timeline.setCycleCount(Animation.INDEFINITE);
         timeline.play(); 
     }
-    
+  
 //Test if entry is number or not
     public static boolean isInteger(String input) {
         try { //Try to make the input into an integer

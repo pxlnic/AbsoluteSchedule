@@ -7,9 +7,7 @@ package absoluteschedule.View_Controller;
 
 import static absoluteschedule.AbsoluteSchedule.createConfirmAlert;
 import static absoluteschedule.AbsoluteSchedule.createStandardAlert;
-import static absoluteschedule.AbsoluteSchedule.getMainCustList;
-import static absoluteschedule.AbsoluteSchedule.reloadMainCustList;
-import static absoluteschedule.Helper.ListManage.checkReminder;
+import static absoluteschedule.Helper.ListManage.loadCustomers;
 import static absoluteschedule.Helper.ListManage.lookupCust;
 import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import absoluteschedule.Model.Customer;
@@ -222,7 +220,7 @@ public class CustomerViewController implements Initializable {
                 }
 
             //Refresh Customer List
-                reloadMainCustList();
+                reloadCustomers();
                 
             //Clear fields
                 clearFields();
@@ -246,7 +244,6 @@ public class CustomerViewController implements Initializable {
     //If list is empty then throw error
         if(tempList.size()==0){
             exceptionMessage = exceptionMessage + "-Could not find customer based on search input.";
-            System.out.println(exceptionMessage);
         }
         else{   
         //Set table data
@@ -280,9 +277,8 @@ public class CustomerViewController implements Initializable {
         
     //Clear and reload customer list
         customerList.clear();
-        reloadMainCustList();
-        customerList = getMainCustList();
-        System.out.println("There are " + customerList.size() + " customers in the list.");
+        customerList = loadCustomers();
+        //System.out.println("There are " + customerList.size() + " customers in the list.");
         
     //Populate TableView Data
         CustomerID.setCellValueFactory(cellData -> cellData.getValue().custIDProperty().asObject());
@@ -341,9 +337,6 @@ public class CustomerViewController implements Initializable {
                 prevCustCity = selectedCust.getCustCity();
             }
         });
-        
-    //Check for reminders
-        checkReminder();
     }
 
 }

@@ -337,12 +337,12 @@ public class Customer {
 
         //Set variables with data from DB
             if(rs.next()){
-                System.out.println("Setting variables from SQL Query");
+                //System.out.println("Setting variables from SQL Query");
                 dbItemName = rs.getString(itemCol);
                 dbItemID = rs.getInt(itemIDCol);
             }
             else{
-                System.out.println("Setting variables to test logic");
+                //System.out.println("Setting variables to test logic");
                 dbItemName = "No " + itemTable;
                 dbItemID = -1;
             }
@@ -355,7 +355,7 @@ public class Customer {
         }
               
     //Return ID. If no match then returns -1
-        System.out.println("Passed ID: " + passedID);
+        //System.out.println("Passed ID: " + passedID);
         return passedID;
     }
 
@@ -379,12 +379,12 @@ public class Customer {
 
         //Set variables with data from DB
             if(rs.next()){
-                System.out.println("Setting variables from SQL Query");
+                //System.out.println("Setting variables from SQL Query");
                 dbAddr = rs.getString(addrText) + " " + rs.getString("address2");
                 dbAddrID = rs.getInt("addressId");
             }
             else{
-                System.out.println("Setting variables to test logic");
+                //System.out.println("Setting variables to test logic");
                 dbAddr = "No Address";
                 dbAddrID = -1;
             }
@@ -397,7 +397,7 @@ public class Customer {
         }
               
     //Return ID. If no match then returns -1
-        System.out.println("Passed ID: " + passedID);
+        //System.out.println("Passed ID: " + passedID);
         return passedID;
     }
     

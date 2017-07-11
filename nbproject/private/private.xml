@@ -5,13 +5,11 @@
         <group>
             <file>file:/C:/Users/NicR/Documents/NetBeansProjects/AbsoluteSchedule/src/absoluteschedule/View_Controller/ReportViewController.java</file>
             <file>file:/C:/Users/NicR/Documents/NetBeansProjects/AbsoluteSchedule/src/absoluteschedule/Helper/ListManage.java</file>
-            <file>file:/C:/Users/NicR/Documents/NetBeansProjects/AbsoluteSchedule/src/absoluteschedule/View_Controller/MainViewController.java</file>
-            <file>file:/C:/Users/NicR/Documents/NetBeansProjects/AbsoluteSchedule/src/absoluteschedule/View_Controller/CalendarViewController.java</file>
-            <file>file:/C:/Users/NicR/Documents/NetBeansProjects/AbsoluteSchedule/src/absoluteschedule/View_Controller/CustomerViewController.java</file>
-            <file>file:/C:/Users/NicR/Documents/NetBeansProjects/AbsoluteSchedule/src/absoluteschedule/Model/Customer.java</file>
-            <file>file:/C:/Users/NicR/Documents/NetBeansProjects/AbsoluteSchedule/src/absoluteschedule/Model/Report.java</file>
-            <file>file:/C:/Users/NicR/Documents/NetBeansProjects/AbsoluteSchedule/src/absoluteschedule/Helper/SQLManage.java</file>
+            <file>file:/C:/Users/NicR/Documents/NetBeansProjects/AbsoluteSchedule/src/absoluteschedule/AbsoluteSchedule.java</file>
+            <file>file:/C:/Users/NicR/Documents/NetBeansProjects/AbsoluteSchedule/src/absoluteschedule/Helper/ResourcesHelper.java</file>
             <file>file:/C:/Users/NicR/Documents/NetBeansProjects/AbsoluteSchedule/src/absoluteschedule/Model/Calendar.java</file>
+            <file>file:/C:/Users/NicR/Documents/NetBeansProjects/AbsoluteSchedule/src/resources_en_US.properties</file>
+            <file>file:/C:/Users/NicR/Documents/NetBeansProjects/AbsoluteSchedule/src/resources_es_US.properties</file>
         </group>
     </open-files>
 </project-private>

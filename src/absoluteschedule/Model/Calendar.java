@@ -5,9 +5,7 @@
  */
 package absoluteschedule.Model;
 
-import static absoluteschedule.Helper.ListManage.isInteger;
 import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
-import absoluteschedule.Helper.SQLManage;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import static absoluteschedule.Helper.SQLManage.prepare;
 import java.sql.Connection;
@@ -150,7 +148,7 @@ public class Calendar {
 
         //Set variables with data from DB
             while(rs.next()){
-                System.out.println("An appointment exists for either customer or consultant");
+                //System.out.println("An appointment exists for either customer or consultant");
                 Calendar tempAppt = new Calendar();
              
             //Create appointment and add to ArrayList
@@ -163,7 +161,7 @@ public class Calendar {
             }
             
             int count = tempApptsList.size();
-            System.out.println("Count of Appts: " + count);
+            //System.out.println("Count of Appts: " + count);
 
         }
         catch(SQLException err){

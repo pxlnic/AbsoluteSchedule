@@ -7,14 +7,13 @@ package absoluteschedule.View_Controller;
 
 import absoluteschedule.AbsoluteSchedule;
 import static absoluteschedule.AbsoluteSchedule.createConfirmAlert;
-import static absoluteschedule.AbsoluteSchedule.getMainApptList;
-import static absoluteschedule.AbsoluteSchedule.getMainCustList;
-import static absoluteschedule.AbsoluteSchedule.reloadMainApptList;
 import absoluteschedule.Helper.ListManage;
 import static absoluteschedule.Helper.ListManage.checkReminder;
+import static absoluteschedule.Helper.ListManage.getCustomerList;
 import static absoluteschedule.Helper.ListManage.getMonthsAppts;
 import static absoluteschedule.Helper.ListManage.getTodaysAppts;
 import static absoluteschedule.Helper.ListManage.getWeeksAppts;
+import static absoluteschedule.Helper.ListManage.loadCustomers;
 import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import absoluteschedule.Model.Calendar;
 import absoluteschedule.Model.Customer;
@@ -161,18 +160,11 @@ public class MainViewController implements Initializable {
         
     //Load appointment data
         try {
-            // TODO
-            reloadMainApptList();
-        } catch (SQLException ex) {
-            Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        apptList = getMainApptList();
-        try {
             getApptCount();
+            loadCustomers();
         } catch (SQLException ex) {
             Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("Count of appts: " + apptList.size());
         
     //Set Welcome message and appointments counts
         MainWelcomeLabel.setText("Welcome, " + loggedOnUser());
@@ -188,7 +180,11 @@ public class MainViewController implements Initializable {
         
     //Load Agenda Items
         for(int i=0; i<todaysAppts.size(); i++){
-            newAgendaItem(i);
+            try {
+                newAgendaItem(i);
+            } catch (SQLException ex) {
+                Logger.getLogger(MainViewController.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }    
     
@@ -210,8 +206,8 @@ public class MainViewController implements Initializable {
     }
     
 //Get customer names
-    public void getCustNames(){
-        localMainCustList = getMainCustList();
+    public void getCustNames() throws SQLException{
+        localMainCustList = getCustomerList();
     }
     
 //Update Time
@@ -226,7 +222,7 @@ public class MainViewController implements Initializable {
     }
     
 //Create new HBox for agenda and format
-    public void newAgendaItem(int j){
+    public void newAgendaItem(int j) throws SQLException{
     //ArrayList for customers
         getCustNames();
         

@@ -27,7 +27,6 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -128,10 +127,10 @@ public class ReportViewController implements Initializable {
     //Reset Exception Message
         exceptionMessage = "";
         
-        System.out.println("List size: " + reportList.size());
+        //System.out.println("List size: " + reportList.size());
         reportList.clear();
         ReportTableView.getColumns().clear();
-        System.out.println("List size: " + reportList.size());
+        //System.out.println("List size: " + reportList.size());
         
     //Get Text field entries
         String type = ReportTypeCombo.getValue();
@@ -154,7 +153,7 @@ public class ReportViewController implements Initializable {
             //Load appointment data for selected month
                 String dateText = year + "-" + month + "-01";
                 LocalDate selectedMonth = LocalDate.parse(dateText);
-                System.out.println(selectedMonth);
+                //System.out.println(selectedMonth);
                 ListManage l = new ListManage();
                 l.seperateAppts(selectedMonth);
 
@@ -249,7 +248,7 @@ public class ReportViewController implements Initializable {
             
         //Add Report item to report list
             reportList.add(report);
-            System.out.println("Count: " + count);
+            //System.out.println("Count: " + count);
         }
         System.out.println("Report List Size: " + reportList.size());
         //System.out.println("Appt Count: " + reportList.get(0).getReportItem());
@@ -294,7 +293,7 @@ public class ReportViewController implements Initializable {
             }
         }
         System.out.println("Report List Size: " + reportList.size());
-        System.out.println("First Item: " + reportList.get(0).getReportConsultant() + " - " + reportList.get(0).getReportItem());
+        //System.out.println("First Item: " + reportList.get(0).getReportConsultant() + " - " + reportList.get(0).getReportItem());
     }
     //Appt count by Day for specified month
     public void runDayCount(){
@@ -339,7 +338,7 @@ public class ReportViewController implements Initializable {
             reportList.add(report);
         }
         System.out.println("Report List Size: " + reportList.size());
-        System.out.println("First Report Item: " + reportList.get(0).getReportDay() + " - " + reportList.get(0).getReportItem());
+        //System.out.println("First Report Item: " + reportList.get(0).getReportDay() + " - " + reportList.get(0).getReportItem());
     }
     
 //Add and populate table columns
@@ -433,8 +432,5 @@ public class ReportViewController implements Initializable {
     //Month/Year Combo Options
         ReportMonthCombo.getItems().addAll(reportMonthList);
         ReportYearCombo.getItems().addAll(reportYearList);
-        
-    //Check for reminders
-        checkReminder();
     }
 }

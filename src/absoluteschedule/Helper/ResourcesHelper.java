@@ -22,7 +22,6 @@ public class ResourcesHelper {
         //Locale.setDefault(new Locale("es", "US"));
         currentLocale = getDefault();
         ResourceBundle localization = ResourceBundle.getBundle("resources", currentLocale);
-        System.out.println(localization);
         return localization;
     }
     

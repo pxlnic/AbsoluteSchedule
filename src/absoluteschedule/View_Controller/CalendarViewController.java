@@ -7,12 +7,13 @@ package absoluteschedule.View_Controller;
 
 import static absoluteschedule.AbsoluteSchedule.createConfirmAlert;
 import static absoluteschedule.AbsoluteSchedule.createStandardAlert;
-import static absoluteschedule.AbsoluteSchedule.getMainCustList;
 import absoluteschedule.Helper.ListManage;
 import static absoluteschedule.Helper.ListManage.checkReminder;
 import static absoluteschedule.Helper.ListManage.getMonthsAppts;
 import static absoluteschedule.Helper.ListManage.getWeeksAppts;
+import static absoluteschedule.Helper.ListManage.loadAppts;
 import static absoluteschedule.Helper.ListManage.loadConsultList;
+import static absoluteschedule.Helper.ListManage.loadCustomers;
 import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import absoluteschedule.Model.Calendar;
@@ -236,7 +237,6 @@ public class CalendarViewController implements Initializable {
                     if(CalendarIDField.getText().trim().isEmpty()){
                         //Error Message
                         exceptionMessage = exceptionMessage + "-This appointment conflicts with " + tempApptList.size() + " appointments." ;
-                        System.out.println(exceptionMessage);
                     }
                     else{
                         //Update appointment
@@ -415,7 +415,6 @@ public class CalendarViewController implements Initializable {
             }
             
         //Add nodes
-            System.out.println(dateNum);
             date.getChildren().add(dateNum);
             day.getChildren().addAll(date, apptList);
             CalendarWeekGrid.add(day, i, 0);
@@ -429,8 +428,8 @@ public class CalendarViewController implements Initializable {
         int firstDayIndex = Integer.parseInt(DateTimeFormatter.ofPattern("e").format(firstOfMonth))-1;
         CalendarMonthTabHeader.setText(DateTimeFormatter.ofPattern("MMMM").format(firstOfMonth));
         
-        System.out.println(DateTimeFormatter.ofPattern("eee").format(firstOfMonth));
-        System.out.println(firstDayIndex);
+        //System.out.println(DateTimeFormatter.ofPattern("eee").format(firstOfMonth));
+        //System.out.println(firstDayIndex);
         
         int count = 0;
         
@@ -463,7 +462,7 @@ public class CalendarViewController implements Initializable {
 
                 //If appt date is same as current day then appt card is created
                     if(apptDate.isEqual(dayOfMonth) && dailyApptCount<5){
-                    System.out.println("Date: " + apptDate + " was added successfully.");
+                    //System.out.println("Date: " + apptDate + " was added successfully.");
                         
                     //Time of meeting
                         String localTimeStr = DateTimeFormatter.ofPattern("hh:mm a").format(time) + " - " + thisMonthsAppts.get(a).getApptContact();
@@ -482,7 +481,7 @@ public class CalendarViewController implements Initializable {
                         appt.getChildren().addAll(apptLabel);
                         apptList.getChildren().add(appt);
                         
-                        System.out.println(dailyApptCount);
+                        //System.out.println(dailyApptCount);
                         dailyApptCount++;
                     }
                     
@@ -577,12 +576,12 @@ public class CalendarViewController implements Initializable {
     //Reset Error Message
         exceptionMessage = "";
         
-    //Load Combo Boxes
-        calCustList = getMainCustList();
         loadCustNames();
         try {
+            loadAppts();
             loadLocList();
             consultantList = loadConsultList();
+            calCustList = loadCustomers();
         } catch (SQLException ex) {
             Logger.getLogger(CalendarViewController.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -616,9 +615,6 @@ public class CalendarViewController implements Initializable {
         
     //Populate Location Combo Box
         CalendarLocationCombo.getItems().addAll(locList);
-        
-    //Check for reminders
-        checkReminder();
     }
     
 }
