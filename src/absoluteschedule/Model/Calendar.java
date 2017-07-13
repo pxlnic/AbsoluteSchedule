@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -248,7 +249,14 @@ public class Calendar {
         }
     
     //Check if date is M-F
-        LocalDate date = LocalDate.parse(testDate);
+        String dateSub = testDate.substring(0,10);
+        LocalDate date = LocalDate.parse(dateSub);
+        if(date.getDayOfWeek().equals(DayOfWeek.SATURDAY) || date.getDayOfWeek().equals(DayOfWeek.SUNDAY)){
+            message = message + localization.getString("cal_valid_bus_days");
+        }
+        else{
+            System.out.println("Day of week: " + date.getDayOfWeek());
+        }
         
     //Times
     //Check if All Day

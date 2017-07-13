@@ -63,3 +63,10 @@ Login Log data for the month of: July, 2017
 2017-Jul-13 12:24:34-0700 - Successful login attempt by User: NicReichelt.
 2017-Jul-13 12:26:09-0700 - Successful login attempt by User: NicReichelt.
 2017-Jul-13 12:32:30-0700 - Successful login attempt by User: NicReichelt.
+2017-Jul-13 15:27:34-0700 - Successful login attempt by User: NicReichelt.
+2017-Jul-13 15:31:23-0700 - Successful login attempt by User: NicReichelt.
+2017-Jul-13 15:33:33-0700 - Successful login attempt by User: NicReichelt.
+2017-Jul-13 15:34:33-0700 - Failed login attempt by User: NicReichelt.
+2017-Jul-13 15:34:58-0700 - Successful login attempt by User: NicReichelt.
+2017-Jul-13 15:36:14-0700 - Successful login attempt by User: NicReichelt.
+2017-Jul-13 15:43:04-0700 - Successful login attempt by User: NicReichelt.

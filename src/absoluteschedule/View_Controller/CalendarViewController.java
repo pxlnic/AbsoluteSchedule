@@ -198,7 +198,7 @@ public class CalendarViewController implements Initializable {
             exceptionMessage = isEntryValid(exceptionMessage, date, startHour, startMin, endHour, endMin, allDay, customerName, consultantName, location, title, desc);
         
             if(exceptionMessage.length()>0){
-                createStandardAlert(exceptionMessage, "Not all fields complete!", "Empty Fields!");
+                createStandardAlert(exceptionMessage, "Errors with items entered or fields are empty!", "Entry Error!");
             }
             else{
             //Temp appointment/customer constructors
