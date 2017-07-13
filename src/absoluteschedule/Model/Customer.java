@@ -5,7 +5,7 @@
  */
 package absoluteschedule.Model;
 
-import static absoluteschedule.Helper.ListManage.isInteger;
+import static absoluteschedule.Helper.ListManage.isNumeric;
 import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import static absoluteschedule.Helper.SQLManage.getConn;
 import java.sql.Connection;
@@ -408,7 +408,7 @@ public class Customer {
             message = message + localization.getString("cust_name");
         }
         else{
-            if(isInteger(testName)){
+            if(isNumeric(testName)){
                 message = message + localization.getString("cust_name_int");
             }
         }
@@ -417,9 +417,10 @@ public class Customer {
             message = message + localization.getString("cust_phone");
         }
         else{
-            if(isInteger(testPhone) && testPhone.length()==10){
+            if(isNumeric(testPhone) && testPhone.length()==10){
             }
             else{
+                System.out.println("Phone # Length: " + testPhone.length() + " Phone # isInteger: " + isNumeric(testPhone));
                 message = message + localization.getString("cust_phone_length");
             }
         }
@@ -432,7 +433,7 @@ public class Customer {
         else{
             try{
                 streetNum = testAddress1.substring(0, testAddress1.indexOf(" "));
-                if(isInteger(streetNum)){
+                if(isNumeric(streetNum)){
                 }
                 else{
                     message = message + localization.getString("cust_addr_st_num");
@@ -448,7 +449,7 @@ public class Customer {
             message = message + localization.getString("cust_city");
         }
         else{
-            if(isInteger(testCity)){
+            if(isNumeric(testCity)){
                 message = message + localization.getString("cust_city_int");
             }
         }
@@ -462,7 +463,7 @@ public class Customer {
             message = message + localization.getString("cust_country");
         }
         else{
-            if(isInteger(testCountry)){
+            if(isNumeric(testCountry)){
                 message = message + localization.getString("cust_country_int");
             }
         }

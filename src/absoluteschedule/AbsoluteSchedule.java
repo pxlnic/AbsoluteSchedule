@@ -5,26 +5,28 @@
  */
 package absoluteschedule;
 
-import absoluteschedule.Helper.ListManage;
-import absoluteschedule.Model.Calendar;
-import absoluteschedule.Model.Customer;
+import static absoluteschedule.Helper.ResourcesHelper.loadResourceBundle;
 import absoluteschedule.View_Controller.LogInController;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.application.Application;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Rectangle2D;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 /**
@@ -35,6 +37,7 @@ public class AbsoluteSchedule extends Application {
     
 //Instance Variables
     Stage window;
+    private final ResourceBundle localization = loadResourceBundle();
     
 //RootLayout
     public void initLogin() throws IOException{
@@ -92,7 +95,7 @@ public class AbsoluteSchedule extends Application {
         alert.setTitle(alertTitle);
         alert.setHeaderText(alertHeader);
         alert.setContentText(alertMessage);
-        alert.show();
+        alert.showAndWait();
     }
     public static Optional<ButtonType> createConfirmAlert(String alertMessage, String alertHeader, String alertTitle){
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -103,5 +106,44 @@ public class AbsoluteSchedule extends Application {
         Optional<ButtonType> result = alert.showAndWait();
         
         return result;
+    }
+    
+//Cancellation and Exit Alerts
+    public void setMain(ActionEvent event) throws IOException{
+        System.out.println("Cancel clicked. Returning to main screen.");
+        
+    //Load MainView scene
+        Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));
+        Scene scene = new Scene(mainView);
+
+    //Loads stage information from main file
+        Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
+
+    //Load scene onto stage
+        window.setScene(scene);
+        window.show();
+
+    //Center Stage on middle of screen
+        Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+        window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
+        window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
+    }
+    public void cancelHandler(ActionEvent event){
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.initModality(Modality.NONE);
+        alert.setTitle("Confirm!");
+        alert.setHeaderText("Cancel Confirmation!");
+        alert.setContentText(localization.getString("cancel_confirm"));
+        Optional<ButtonType> confirm = alert.showAndWait();
+        
+        confirm.ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    setMain(event);
+                } catch (IOException ex) {
+                    Logger.getLogger(AbsoluteSchedule.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
     }
 }

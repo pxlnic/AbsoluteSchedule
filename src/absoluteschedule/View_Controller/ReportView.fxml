@@ -137,7 +137,7 @@
                         <Font size="18.0" />
                      </font>
                   </Label>
-                  <Button fx:id="ReportSaveButton" layoutX="580.0" layoutY="38.0" mnemonicParsing="false" onAction="#ReportSaveClick" prefWidth="50.0" text="Save" />
+                  <Button fx:id="ReportSaveButton" disable="true" layoutX="580.0" layoutY="38.0" mnemonicParsing="false" onAction="#ReportSaveClick" prefWidth="50.0" text="Save" />
                </children>
             </AnchorPane>
             <AnchorPane layoutY="100.0" prefHeight="650.0" prefWidth="650.0">

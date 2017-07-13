@@ -12,6 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -245,6 +246,10 @@ public class Calendar {
         if(testDate.equals("")){
             message = message + localization.getString("cal_valid_date");
         }
+    
+    //Check if date is M-F
+        LocalDate date = LocalDate.parse(testDate);
+        
     //Times
     //Check if All Day
         if(testAllDay){

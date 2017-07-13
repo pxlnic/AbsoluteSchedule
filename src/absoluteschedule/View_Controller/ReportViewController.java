@@ -88,28 +88,31 @@ public class ReportViewController implements Initializable {
     @FXML void ReportCancelClick(ActionEvent event) throws IOException {
         Optional<ButtonType> confirm = createConfirmAlert(localization.getString("cancel_confirm"), "Cancel Confirmation!", "Confirm!");
         
-        if(confirm.get() == ButtonType.OK){
-            System.out.println("Cancel clicked. Returning to main screen.");
-        
-        //Load MainView scene
-            Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));
-            Scene scene = new Scene(mainView);
+        confirm.ifPresent(response -> {
+            if(response == ButtonType.OK){
+                try {
+                    System.out.println("Cancel clicked. Returning to main screen.");
 
-        //Loads stage information from main file
-            Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
+                //Load MainView scene
+                    Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));
+                    Scene scene = new Scene(mainView);
 
-        //Load scene onto stage
-            window.setScene(scene);
-            window.show();
+                //Loads stage information from main file
+                    Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
 
-        //Center Stage on middle of screen
-            Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-            window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
-            window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
-        }
-        else{
-            System.out.println("You clicked cancel. Please continue.");
-        }
+                //Load scene onto stage
+                    window.setScene(scene);
+                    window.show();
+
+                //Center Stage on middle of screen
+                    Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+                    window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
+                    window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
+                } catch (IOException ex) {
+                    Logger.getLogger(CustomerViewController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
     }
     //Clear Button handler
     @FXML void ReportClearClick(ActionEvent event) {

@@ -129,28 +129,31 @@ public class CalendarViewController implements Initializable {
     @FXML void CalendarCancelClick(ActionEvent event) throws IOException {
         Optional<ButtonType> confirm = createConfirmAlert(localization.getString("cancel_confirm"), "Cancel Confirmation!", "Confirm!");
         
-        if(confirm.get() == ButtonType.OK){
-            System.out.println("Cancel clicked. Returning to main screen.");
-        
-        //Load MainView scene
-            Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));
-            Scene scene = new Scene(mainView);
+        confirm.ifPresent(response -> {
+            if(response == ButtonType.OK){
+                try {
+                    System.out.println("Cancel clicked. Returning to main screen.");
 
-        //Loads stage information from main file
-            Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
+                //Load MainView scene
+                    Parent mainView = FXMLLoader.load(getClass().getResource("MainView.fxml"));
+                    Scene scene = new Scene(mainView);
 
-        //Load scene onto stage
-            window.setScene(scene);
-            window.show();
+                //Loads stage information from main file
+                    Stage window = (Stage) ((Node)event.getSource()).getScene().getWindow();
 
-        //Center Stage on middle of screen
-            Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
-            window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
-            window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
-        }
-        else{
-            System.out.println("You clicked cancel. Please continue.");
-        }
+                //Load scene onto stage
+                    window.setScene(scene);
+                    window.show();
+
+                //Center Stage on middle of screen
+                    Rectangle2D primScreenBounds = Screen.getPrimary().getVisualBounds();
+                    window.setX((primScreenBounds.getWidth() - window.getWidth()) / 2);
+                    window.setY((primScreenBounds.getHeight() - window.getHeight()) / 2);
+                } catch (IOException ex) {
+                    Logger.getLogger(CustomerViewController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        });
     }
     //Clear Button handler
     @FXML void CalendarClearClick(ActionEvent event) {
@@ -205,8 +208,17 @@ public class CalendarViewController implements Initializable {
 
 
             //Testing setting date/time
-                String startTime = date + startHour + ":" + startMin;
-                String endTime = date + endHour + ":" + endMin;
+                String startTime;
+                String endTime;
+                
+                if(CalendaryAllDayCheckbox.isSelected()){
+                    startTime = date + "06:00";
+                    endTime = date + "20:00";
+                }
+                else{
+                    startTime = date + startHour + ":" + startMin;
+                    endTime = date + endHour + ":" + endMin;
+                }
 
 
             //Get UTC and Local Times
@@ -269,6 +281,22 @@ public class CalendarViewController implements Initializable {
     @FXML void CalendarMonthNextClick(ActionEvent event) throws SQLException {
         selectedMonth = selectedMonth.plusMonths(1);
         reloadCalAppts();
+    }
+    //All Day CheckBox Selected
+    @FXML private void allDaySelected() {
+        if(CalendaryAllDayCheckbox.isSelected()){
+            System.out.println("Checked!");
+            CalendarTimeHourCombo.setDisable(true);
+            CalendarTimeMinCombo.setDisable(true);
+            CalendarEndTimeHourCombo.setDisable(true);      
+            CalendarEndTimeMinCombo.setDisable(true);
+        }
+        else{
+            CalendarTimeHourCombo.setDisable(false);
+            CalendarTimeMinCombo.setDisable(false);
+            CalendarEndTimeHourCombo.setDisable(false);      
+            CalendarEndTimeMinCombo.setDisable(false);
+        }
     }
     
 //Get customerID
@@ -576,7 +604,7 @@ public class CalendarViewController implements Initializable {
     //Reset Error Message
         exceptionMessage = "";
         
-        loadCustNames();
+
         try {
             loadAppts();
             loadLocList();
@@ -587,6 +615,7 @@ public class CalendarViewController implements Initializable {
         }
         loadHour();
         loadMin();
+        loadCustNames();
         
     //Load appointments
         try {

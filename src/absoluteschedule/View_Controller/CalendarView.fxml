@@ -83,7 +83,7 @@
                                     <Insets right="10.0" />
                                  </HBox.margin>
                               </ComboBox>
-                              <CheckBox fx:id="CalendaryAllDayCheckbox" mnemonicParsing="false" text="All Day" />
+                              <CheckBox fx:id="CalendaryAllDayCheckbox" mnemonicParsing="false" onAction="#allDaySelected" text="All Day" />
                            </children>
                            <VBox.margin>
                               <Insets bottom="10.0" />

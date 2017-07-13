@@ -12,6 +12,7 @@ import absoluteschedule.Model.Calendar;
 import static absoluteschedule.Model.Calendar.convertToLocal;
 import absoluteschedule.Model.Customer;
 import absoluteschedule.Model.Report;
+import static absoluteschedule.View_Controller.LogInController.loggedOnUser;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -31,6 +32,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Alert;
 import javafx.util.Duration;
 
 /**
@@ -129,7 +131,7 @@ public class ListManage {
         ObservableList<Customer> tempList = FXCollections.observableArrayList();
         
     //Test if input is number or letter
-        if(isInteger(input)){
+        if(isNumeric(input)){
         //If number
             int id = Integer.parseInt(input);
             for(int i=0; i<custList.size(); i++){
@@ -321,16 +323,12 @@ public class ListManage {
                 LocalDateTime time = LocalDateTime.parse(item.getApptStartTime(), formatter);
                 LocalDateTime now = LocalDateTime.parse(tempTime, formatter);
                 if(time.isAfter(now) && time.isBefore(now.plusMinutes(15))){
-                        if(priorReminderIDList.contains(itemID)){
-                            //System.out.println("This agenda item has already been added");
-                        }
-                        else{
-                            //System.out.println("Adding Reminder");
-                            mainReminderList.add(item);
-                            priorReminderIDList.add(item.getApptID()); 
-                        }
+                    if(!priorReminderIDList.contains(itemID) && item.getApptContact().equals(loggedOnUser())){
+                        //System.out.println("This agenda item has already been added");
+                        mainReminderList.add(item);
+                        priorReminderIDList.add(item.getApptID()); 
+                    }
                 }
-
             }
         
             //System.out.println("Reminder List: " + mainReminderList.size());
@@ -346,7 +344,13 @@ public class ListManage {
                 LocalDateTime time = LocalDateTime.parse(reminderTimeStr, formatter);
                 String reminderTime = DateTimeFormatter.ofPattern("h:mm a").format(time);
                 String reminder = reminderTime + " - " + mainReminderList.get(0).getApptContact();
-                createStandardAlert(reminder, "Upcoming Appointment: 1", "Reminder");
+                
+                //Create Alert
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Reminder");
+                alert.setHeaderText("Upcoming Appointment: 1");
+                alert.setContentText(reminder);
+                alert.show();
             }
             else{
                 String reminder = "";
@@ -358,7 +362,13 @@ public class ListManage {
                     String item = reminderTime + " - " + mainReminderList.get(i).getApptContact() + "\n";
                     reminder = reminder + item;
                 }
-                createStandardAlert(reminder, "Upcoming Appointments: " + mainReminderList.size(), "Reminder");
+                
+                //Create Alert
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Reminder");
+                alert.setHeaderText("Upcoming Appointments: " + mainReminderList.size());
+                alert.setContentText(reminder);
+                alert.show();
             }
         }));
         timeline.setCycleCount(Animation.INDEFINITE);
@@ -366,9 +376,9 @@ public class ListManage {
     }
   
 //Test if entry is number or not
-    public static boolean isInteger(String input) {
+    public static boolean isNumeric(String input) {
         try { //Try to make the input into an integer
-            Integer.parseInt( input );
+            Long.parseLong(input);
             return true; //Return true if it works
         }
         catch( Exception e ) { 
