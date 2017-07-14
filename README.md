@@ -1,7 +1,6 @@
-# AbsoluteSchedule
-SQL Based scheduling program to manage user appointments with customers.
+# AbsoluteSchedule ReadME
+## SQL Based scheduling program to manage user appointments with customers.
 
-PA README Txt
 1. Contents of this File
 2. Introduction
 3. Requirements
@@ -12,7 +11,7 @@ PA README Txt
 8. FAQ
 9. About
 
-##Introduction
+## Introduction
 The Absolute Scheduling software package enables the creation and maintenance of an inter-location scheduling platform. This platform relies on the core Java software package, MySQL database and the internet.
 
 This package is setup to allow a set of users to: 
@@ -22,13 +21,13 @@ This package is setup to allow a set of users to:
 
 Additional functionality can be added if needed. 
 
-##Requirements
+## Requirements
     -Java 8
     -NetBeans IDE
     -MySQL Database
     -Internet Connection
 
-##Installation
+## Installation
 1. To install this project you will need the NetBeans IDE in order to change MySQL DB info so it can be used.
 2. NetBeans download and installation instructions can be found here.
 3. Once NetBeans is installed you need to open the project from where it was saved.
@@ -36,7 +35,7 @@ Additional functionality can be added if needed.
 5. Build and Deploy to end users as needed.
 6. That’s it.
 
-##Configuration
+## Configuration
     -Setup MySQL Database
         -Must have local/hosted MySQL database in order to use
         -Can create a new DB with provided schema or load existing DB into MySQL DB
@@ -49,15 +48,15 @@ Additional functionality can be added if needed.
         -Build the program in NetBeans
         -Provide JAR file to end users to use
 
-##Program Structure
-######UI Classes (View/Controller)
+## Program Structure
+###### UI Classes (View/Controller)
     -Login
     -Main
     -Customer
     -Calendar
     -Report
 
-######Model
+###### Model
     -Customer
         -Class houses methods to pull, store, and manipulate data pulled from the SQL table needed to manage customer information and view it
     -Calendar
@@ -72,16 +71,16 @@ Additional functionality can be added if needed.
                 -The dates will be auto updated to current week or month and highlight the current day for efficiency
                 -The view will update if user goes back or forward a month
 
-######Alert
+###### Alert
     -Alerts are created through one of two static methods in the main AbsolutSchedule class.
         -One is for standard informational alerts
         -The other is for confirmation alerts when going back to main screen or exiting program
 
-######Reminder
+###### Reminder
     -Reminders are checked for every minute. This is in the ListManage class
     -They create a standard informational popup for the logged in user when an appointment is within the next 15 minutes
 
-######Helper Files
+###### Helper Files
     -Resource Bundle Helper
         -This class provides a method to load the resourcebundle for localization
     -SQL Connection Management
@@ -92,19 +91,19 @@ Additional functionality can be added if needed.
     -SQL Schema
         -Included in this folder is an SQL file that contains the schema if a new DB is being built for this program
 
-######Localization
+###### Localization
     -There are two languages supported
         -English, USA
         -Spanish, USA
     -Alerts, errors, popups will be translated based on user’s localization
 
-##Troubleshooting
+## Troubleshooting
 None at this time. Will update as feedback is provided.
 
-##FAQ
+## FAQ
 None at this time. Will update as questions come in.
 
-##About
+## About
 Nic Reichelt - Project Planner/Software Developer
 
 This project was created for an advanced Java class as part of my Bachelor's degree program.
