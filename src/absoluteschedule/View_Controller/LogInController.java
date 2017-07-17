@@ -22,6 +22,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
@@ -146,7 +147,9 @@ public class LogInController implements Initializable {
                     }
                     else{
                         //Error popup
-                        createStandardAlert(localization.getString("login_error"), "Login Error!", "Error!");
+                        String errorMessage = localization.getString("login_error");
+                        errorMessage = loadSpanishError(errorMessage);
+                        createStandardAlert(errorMessage, "Login Error!", "Error!");
 
                     //Log File Message updated
                         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MMM-dd HH:mm:ssZ");
@@ -227,6 +230,14 @@ public class LogInController implements Initializable {
         if(testPassword.equals("")){
             message = message + localization.getString("login_password_blank");
         } 
+        return message;
+    }
+    
+//Load Spanish Error
+    public String loadSpanishError(String message){
+        Locale spanish = new Locale("es", "US");
+        ResourceBundle spanishMessage = ResourceBundle.getBundle("resources", spanish);
+        message = message + spanishMessage.getString("login_error");
         return message;
     }
 }
